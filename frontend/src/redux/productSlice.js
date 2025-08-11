@@ -201,10 +201,11 @@ export default productSlice.reducer;
 /*/
 
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+import { PRODUCTS_URL } from "./constants";
 import { toast } from "react-toastify";
 import {
   createProductService,
-  getProductsService,
   getProductService,
   updateProductService,
   deleteProductService,
@@ -224,7 +225,10 @@ export const getProducts = createAsyncThunk(
   "products/all",
   async (_, thunkAPI) => {
     try {
-      return await getProductsService();
+      const response = await axios.get(PRODUCTS_URL, {
+        withCredentials: true,
+      });
+      return response.data;
     } catch (error) {
       const message =
         (error.response &&
@@ -308,7 +312,6 @@ export const updateProduct = createAsyncThunk(
           error.response.data.message) ||
         error.message ||
         error.toString();
-      console.log(message);
       return thunkAPI.rejectWithValue(message);
     }
   }
@@ -379,7 +382,6 @@ const productSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
-        // You might want to remove the deleted product from products array here if you keep one
         toast.success("Product deleted successfully");
       })
       .addCase(deleteProduct.rejected, (state, action) => {
@@ -395,7 +397,7 @@ const productSlice = createSlice({
         state.isLoading = false;
         state.isSuccess = true;
         state.isError = false;
-        state.products.push(action.payload); // Add new product to list
+        state.products.push(action.payload);
         toast.success("Product created successfully");
       })
       .addCase(createProduct.rejected, (state, action) => {
@@ -410,4 +412,3 @@ const productSlice = createSlice({
 export const { resetStatus } = productSlice.actions;
 
 export default productSlice.reducer;
-
