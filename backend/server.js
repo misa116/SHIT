@@ -1,4 +1,4 @@
-import express from "express";
+/*/import express from "express";
 import dotenv from "dotenv";
 import { db } from "./db/db.js";
 import cors from "cors";
@@ -94,3 +94,54 @@ const __dirname = path.dirname(__filename);
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
 });
+*/
+
+
+import express from "express";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import path from "path";
+import { fileURLToPath } from "url";
+
+// Import routes
+import productRoutes from "./routes/productRoutes.js";
+import categoryRoutes from "./routes/categoryRoutes.js";
+import uomRoutes from "./routes/uomRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
+
+dotenv.config();
+
+const app = express();
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// API routes
+app.use("/api/products", productRoutes);
+app.use("/api/category", categoryRoutes);
+app.use("/api/uom", uomRoutes);
+app.use("/api/users", userRoutes);
+
+// Serve frontend in production
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+if (process.env.NODE_ENV === "production") {
+  // Serve static files from the React frontend build folder
+  app.use(express.static(path.join(__dirname, "../frontend/build")));
+
+  // All other GET requests not handled by API will return the React index.html
+  app.get("*", (req, res) =>
+    res.sendFile(path.resolve(__dirname, "../frontend", "build", "index.html"))
+  );
+} else {
+  // Development root route
+  app.get("/", (req, res) => {
+    res.send("WELCOME MISA 🙌 Backend is running...");
+  });
+}
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
