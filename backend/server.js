@@ -89,7 +89,7 @@ const __dirname = path.dirname(__filename);
 //}
 
 // Error handling
-app.use(errorHandler);
+//app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
