@@ -119,30 +119,37 @@ dotenv.config();
 const app = express();
 const port = process.env.PORT || 5000;
 
-// Connect to Database
-db();
+// ✅ Connect to Database
+db()
+  .then(() => console.log("🟢 Database connected successfully"))
+  .catch((err) => {
+    console.error("🔴 Database connection error:", err);
+    process.exit(1);
+  });
 
-// Middleware
-app.use(helmet()); // Security headers
+// ✅ Middleware
+app.use(helmet());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Logging middleware for dev environment
 if (process.env.NODE_ENV !== "production") {
   app.use(morgan("dev"));
 }
 
-// Prevent caching
+// ✅ Prevent caching
 app.use((req, res, next) => {
-  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
+  res.setHeader(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, private"
+  );
   next();
 });
 
-// CORS configuration
+// ✅ CORS configuration
 const allowedOrigins = [
-  "https://ubiquitous-bublanina-92e994.netlify.app", // your Netlify frontend
-  "http://localhost:3000", // local dev frontend
+  "https://ubiquitous-bublanina-92e994.netlify.app", // Netlify
+  "http://localhost:3000", // Local dev
 ];
 
 app.use(
@@ -154,38 +161,40 @@ app.use(
         callback(new Error("Not allowed by CORS"));
       }
     },
-    credentials: true, // enable cookies
+    credentials: true,
   })
 );
 
-// API Routes
+// ✅ API Routes
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/uom", uomRoutes);
 
-// Serve frontend in production
+// ✅ Serve frontend in production
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "../frontend/build")));
 
-  app.get("*", (req, res) =>
-    res.sendFile(path.resolve(__dirname, "../frontend", "build", "index.html"))
-  );
+  app.get("*", (req, res) => {
+    res.sendFile(
+      path.resolve(__dirname, "../frontend", "build", "index.html")
+    );
+  });
 } else {
-  // Dev root route
   app.get("/", (req, res) => {
     res.send("WELCOME MISA 🙌 Backend is running...");
   });
 }
 
-// Custom error handlers
+// ✅ Error Handling
 app.use(notFound);
 app.use(errorHandler);
 
+// ✅ Start Server
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
 });
