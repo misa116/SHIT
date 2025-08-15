@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+  /* import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -88,6 +88,113 @@ const Warehouse = () => {
                     </td>
                     <td className="py-2 px-4 border text-blue-600 hover:underline">
                       <Link to={`/product/${product._id}`}>View</Link>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="9" className="text-center py-6 text-gray-500">
+                    No products found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Warehouse;
+
+/*/
+
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { getProducts } from "../../redux/productSlice";
+
+const Warehouse = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { products, isSuccess, isLoading, isError, message } = useSelector(
+    (state) => state.products
+  );
+  const { userInfo } = useSelector((state) => state.auth);
+
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    if (!userInfo) navigate("/login");
+  }, [userInfo]);
+
+  useEffect(() => {
+    dispatch(getProducts());
+    if (isSuccess) {
+      toast.success("Inventory Rendered Successfully");
+    }
+  }, []);
+
+  const filteredProducts = products?.filter((product) =>
+    [product.name, product.category, product.price, product.stock, product.supplier, product.modelNo, product.manufacturer, product.uom]
+      .join(" ")
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-100 px-6 py-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-gray-800">Inventory List</h1>
+        
+      </div>
+
+      {/* Search */}
+      <div className="mb-6">
+        <input
+          type="text"
+          placeholder="Search by name, category, supplier, etc..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full sm:w-1/2 p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 bg-white"
+        />
+      </div>
+
+      {/* Table */}
+      {isLoading ? (
+        <p className="text-center text-lg font-medium">{message || "Loading..."}</p>
+      ) : (
+        <div className="overflow-x-auto rounded-lg shadow-md bg-white">
+          <table className="min-w-full text-left border-collapse">
+            <thead className="bg-blue-100 text-gray-700 sticky top-0 z-10 text-sm uppercase">
+              <tr>
+                {["Name", "Category", "Supplier", "Stock", "Model No", "Manufacturer", "UOM", "Price", "Actions"].map((title) => (
+                  <th key={title} className="py-3 px-4 border-b border-gray-200">{title}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filteredProducts?.length > 0 ? (
+                filteredProducts.map((product) => (
+                  <tr key={product._id} className="hover:bg-gray-50 transition-colors">
+                    <td className="py-2 px-4 border-b text-gray-700">{product.name}</td>
+                    <td className="py-2 px-4 border-b text-gray-700">{product.category}</td>
+                    <td className="py-2 px-4 border-b text-gray-700">{product.supplier}</td>
+                    <td className="py-2 px-4 border-b text-gray-700">{product.stock}</td>
+                    <td className="py-2 px-4 border-b text-gray-700">{product.modelNo || "N/A"}</td>
+                    <td className="py-2 px-4 border-b text-gray-700">{product.manufacturer}</td>
+                    <td className="py-2 px-4 border-b text-gray-700">{product.uom || "PCS"}</td>
+                    <td className="py-2 px-4 border-b text-gray-700">${product?.price?.toFixed(2) || "0.00"}</td>
+                    <td className="py-2 px-4 border-b">
+                      <Link
+                        to={`/product/${product._id}`}
+                        className="text-blue-600 hover:underline font-medium"
+                      >
+                        View
+                      </Link>
                     </td>
                   </tr>
                 ))

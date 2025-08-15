@@ -1,4 +1,4 @@
- import React from "react";
+/*/ import React from "react";
 import { Link } from "react-router-dom";
 import { useGetOrdersQuery } from "../../redux/orderSlice";
 
@@ -51,7 +51,7 @@ const GRN = () => {
                     <th className="py-3 px-6 text-left border-b">
                       Received Date
                     </th>
-                    {/* Add more headers as needed */}
+                    {}
                   </tr>
                 </thead>
                 <tbody>
@@ -72,8 +72,8 @@ const GRN = () => {
                             {index !== order.orderItems.length - 1 && (
                               <br />
                             )}{" "}
-                            {/* Add line break if not the last item */}
-                          </p>
+                            
+                          /*</p>
                         ))}
                       </td>
                       
@@ -89,13 +89,95 @@ const GRN = () => {
                       <td className="py-2 px-4 border-b">
                         {order.receivedAt?.substring(0, 10)}
                       </td>
-                      {/* Add more columns as needed */}
+                      
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default GRN;
+/*/
+
+import React from "react";
+import { useGetOrdersQuery } from "../../redux/orderSlice";
+
+const GRN = () => {
+  const { data, isLoading, error } = useGetOrdersQuery();
+  const filteredOrders = data?.orders?.filter((order) => order?.isReceived);
+
+  return (
+    <div className="p-4">
+      <h4 className="text-3xl font-bold text-center mb-6 text-gray-200">
+        Goods Receive Notes
+      </h4>
+
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+        </div>
+      ) : error ? (
+        <h3 className="text-center text-red-500">
+          {error?.data?.message || "Something went wrong"}
+        </h3>
+      ) : filteredOrders?.length === 0 ? (
+        <h3 className="text-center text-gray-400">
+          No received orders available.
+        </h3>
+      ) : (
+        <div className="overflow-x-auto shadow-lg rounded-lg">
+          <table className="min-w-full text-sm text-gray-300">
+            <thead className="bg-gray-800 text-gray-200 sticky top-0">
+              <tr>
+                <th className="py-3 px-4 text-left">Order GRN</th>
+                <th className="py-3 px-4 text-left">Product Name</th>
+                <th className="py-3 px-4 text-left">Qty</th>
+                <th className="py-3 px-4 text-left">User</th>
+                <th className="py-3 px-4 text-left">Order Date</th>
+                <th className="py-3 px-4 text-left">Delivered Date</th>
+                <th className="py-3 px-4 text-left">Received Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredOrders?.map((order, idx) => (
+                <tr
+                  key={order._id}
+                  className={`${
+                    idx % 2 === 0 ? "bg-gray-700" : "bg-gray-600"
+                  } hover:bg-gray-500 transition-colors`}
+                >
+                  <td className="py-3 px-4 font-mono">{order._id}</td>
+                  <td className="py-3 px-4 uppercase">
+                    {order?.orderItems[0]?.name}
+                  </td>
+                  <td className="py-3 px-4">
+                    {order?.orderItems.map((item, index) => (
+                      <p key={item._id}>
+                        {item.qty}
+                        {index !== order.orderItems.length - 1 && <br />}
+                      </p>
+                    ))}
+                  </td>
+                  <td className="py-3 px-4">{order.user?.name || "N/A"}</td>
+                  <td className="py-3 px-4">
+                    {order.createdAt?.substring(0, 10)}
+                  </td>
+                  <td className="py-3 px-4">
+                    {order.deliveredAt?.substring(0, 10) || "-"}
+                  </td>
+                  <td className="py-3 px-4">
+                    {order.receivedAt?.substring(0, 10) || "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

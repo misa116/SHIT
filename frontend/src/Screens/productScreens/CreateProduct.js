@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+ /* import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -186,6 +186,332 @@ const CreateProduct = ({ onClose }) => {
             <button
               type="submit"
               className="bg-green-500 text-white px-4 py-2 rounded-md"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default CreateProduct;
+
+/*/
+/*
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { Select } from "antd";
+import { getCategories } from "../../redux/categorySlice";
+import { createProduct } from "../../redux/productSlice";
+const { Option } = Select;
+
+const CreateProduct = ({ onClose }) => {
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState(0);
+  const [manufacturer, setManufacturer] = useState("");
+  const [category, setCategory] = useState("");
+  const [modelNO, setModelNo] = useState("");
+  const [stock, setCountInStock] = useState(0);
+  const [location, setLocation] = useState("");
+
+  const { categories } = useSelector((state) => state.category);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(getCategories());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (categories && categories.length > 0) {
+      setCategory(categories[0].title);
+    }
+  }, [categories]);
+
+  const handleCategoryChange = (value) => {
+    setCategory(value);
+  };
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    const newProduct = {
+      name,
+      price,
+      manufacturer,
+      category,
+      modelNO,
+      stock,
+      location,
+    };
+
+    try {
+      await dispatch(createProduct(newProduct)).unwrap();
+      toast.success("Product created successfully!");
+      navigate("/dashboard");
+    } catch (error) {
+      toast.error("Failed to create product!");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+      <div className="bg-gray-900 text-gray-100 w-11/12 md:w-2/5 rounded-xl shadow-2xl p-6 animate-fade-in">
+        <h2 className="text-2xl font-bold mb-6 text-center">Create Product</h2>
+        <form onSubmit={submitHandler} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Product Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Product Name"
+                className="w-full px-3 py-2 rounded-md bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Stock</label>
+              <input
+                type="number"
+                value={stock}
+                onChange={(e) => setCountInStock(e.target.value)}
+                placeholder="Count in Stock"
+                className="w-full px-3 py-2 rounded-md bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Category</label>
+            <Select
+              value={category}
+              onChange={handleCategoryChange}
+              className="w-full"
+              dropdownClassName="bg-gray-800 text-gray-100"
+            >
+              {categories?.map((cat) => (
+                <Option key={cat._id} value={cat.title}>
+                  {cat.title}
+                </Option>
+              ))}
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Manufacturer</label>
+              <input
+                type="text"
+                value={manufacturer}
+                onChange={(e) => setManufacturer(e.target.value)}
+                placeholder="Manufacturer"
+                className="w-full px-3 py-2 rounded-md bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Model No</label>
+              <input
+                type="text"
+                value={modelNO}
+                onChange={(e) => setModelNo(e.target.value)}
+                placeholder="Model Number"
+                className="w-full px-3 py-2 rounded-md bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Location</label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Location"
+                className="w-full px-3 py-2 rounded-md bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end mt-6 space-x-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-500 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-md bg-green-600 hover:bg-green-500 transition"
+            >
+              Save
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default CreateProduct;
+/*/
+
+
+
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { Select } from "antd";
+import { getCategories } from "../../redux/categorySlice";
+import { createProduct } from "../../redux/productSlice";
+const { Option } = Select;
+
+const CreateProduct = ({ onClose, refreshProducts }) => {
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState(0);
+  const [manufacturer, setManufacturer] = useState("");
+  const [category, setCategory] = useState("");
+  const [modelNO, setModelNo] = useState("");
+  const [stock, setCountInStock] = useState(0);
+  const [location, setLocation] = useState("");
+
+  const { categories } = useSelector((state) => state.category);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(getCategories());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (categories && categories.length > 0) {
+      setCategory(categories[0].title);
+    }
+  }, [categories]);
+
+  const handleCategoryChange = (value) => setCategory(value);
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    const newProduct = {
+      name,
+      price,
+      manufacturer,
+      category,
+      modelNO,
+      stock,
+      location,
+    };
+
+    try {
+      await dispatch(createProduct(newProduct)).unwrap();
+      toast.success("Product created successfully!");
+      
+      // CLOSE THE MODAL
+      if (onClose) onClose();
+
+      // REFRESH DASHBOARD PRODUCTS
+      if (refreshProducts) refreshProducts();
+    } catch (error) {
+      toast.error("Failed to create product!");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+      <div className="bg-gray-900 text-gray-100 w-11/12 md:w-2/5 rounded-xl shadow-2xl p-6 animate-fade-in">
+        <h2 className="text-2xl font-bold mb-6 text-center">Create Product</h2>
+        <form onSubmit={submitHandler} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Product Name/Details</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Product Name"
+                className="w-full px-3 py-2 rounded-md bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Stock</label>
+              <input
+                type="number"
+                value={stock}
+                onChange={(e) => setCountInStock(e.target.value)}
+                placeholder="Count in Stock"
+                className="w-full px-3 py-2 rounded-md bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Category</label>
+            <Select
+              value={category}
+              onChange={handleCategoryChange}
+              className="w-full"
+              dropdownClassName="bg-gray-800 text-gray-100"
+            >
+              {categories?.map((cat) => (
+                <Option key={cat._id} value={cat.title}>
+                  {cat.title}
+                </Option>
+              ))}
+            </Select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Manufacturer</label>
+              <input
+                type="text"
+                value={manufacturer}
+                onChange={(e) => setManufacturer(e.target.value)}
+                placeholder="Manufacturer"
+                className="w-full px-3 py-2 rounded-md bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Model No</label>
+              <input
+                type="text"
+                value={modelNO}
+                onChange={(e) => setModelNo(e.target.value)}
+                placeholder="Model Number"
+                className="w-full px-3 py-2 rounded-md bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Location</label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Location"
+                className="w-full px-3 py-2 rounded-md bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end mt-6 space-x-3">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-md bg-red-600 hover:bg-red-500 transition"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-md bg-green-600 hover:bg-green-500 transition"
             >
               Save
             </button>

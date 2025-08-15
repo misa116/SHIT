@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+/*  import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -79,7 +79,6 @@ const ProductDetails = () => {
           <p className="text-gray-300 text-lg mb-2">
             <span className="font-semibold">Price:</span> ${product?.price}
           </p>
-          {/* // input qty */}
           <div>
             <div className=" py-3">
               <h3>SElect QTY</h3>
@@ -136,6 +135,151 @@ const ProductDetails = () => {
         >
           <span>Add Requisition</span>
           <BiCart size={28} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default ProductDetails;
+/*/
+
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { Select } from "antd";
+import { BiCart } from "react-icons/bi";
+import { getProduct } from "../../redux/productSlice";
+import { addToCart } from "../../redux/cartSlice";
+
+const { Option } = Select;
+
+const ProductDetails = () => {
+  const { id: productId } = useParams();
+  const [qty, setQty] = useState(1);
+  const { product, isLoading } = useSelector((state) => state.products);
+  const dispatch = useDispatch();
+  const selectRef = useRef();
+  const [inputValue, setInputValue] = useState("");
+
+  const navigate = useNavigate();
+  const handleInputChange = (e) => setInputValue(e.target.value);
+
+  const handleInputKeyPress = (e) => {
+    if (e.key === "Enter") {
+      const parsedValue = parseInt(inputValue, 10);
+      if (parsedValue && parsedValue > 0 && parsedValue <= product.stock) {
+        setQty(parsedValue);
+      }
+    }
+  };
+
+  useEffect(() => {
+    dispatch(getProduct(productId));
+  }, [dispatch, productId]);
+
+  const addRequisitionHandler = () => {
+    dispatch(addToCart({ ...product, qty }));
+    navigate("/store-requisition");
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 max-w-6xl mx-auto">
+      <h3 className="text-4xl font-extrabold text-center text-gray-800 mb-10">
+        Asset Details
+      </h3>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Product Info Card */}
+        <div className="bg-gradient-to-br from-gray-700 to-gray-900 p-8 rounded-2xl shadow-lg">
+          <h1 className="text-3xl text-white font-bold mb-4">{product?.name}</h1>
+          <p className="text-gray-300 text-lg leading-6 mb-6">{product?.description}</p>
+
+          {product?.manufacturer && (
+            <p className="text-gray-300 text-lg mb-2">
+              <span className="font-semibold">Manufacturer:</span> {product.manufacturer}
+            </p>
+          )}
+          {product?.supplier && (
+            <p className="text-gray-300 text-lg mb-2">
+              <span className="font-semibold">Supplier:</span> {product.supplier}
+            </p>
+          )}
+
+          <p className="text-gray-300 text-lg mb-6">
+            <span className="font-semibold">Price:</span> ${product?.price}
+          </p>
+
+          {/* Quantity Selection */}
+          <div className="mb-4">
+            <h3 className="text-white mb-2 font-semibold">Quantity to Request</h3>
+            <div className="flex items-center gap-3">
+              <input
+                placeholder="Enter quantity"
+                value={inputValue}
+                onChange={handleInputChange}
+                ref={selectRef}
+                onKeyPress={handleInputKeyPress}
+                className="w-32 px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                disabled={product?.stock === 0}
+              />
+              <Select
+                onChange={(value) => setQty(value)}
+                value={qty}
+                className="min-w-[100px]"
+                disabled={product?.stock === 0}
+              >
+                {[...Array(product.stock).keys()].map((x) => (
+                  <Option key={x + 1} value={x + 1}>
+                    {x + 1}
+                  </Option>
+                ))}
+              </Select>
+            </div>
+            {product?.stock > 0 && (
+              <p className="text-gray-300 text-sm mt-1">
+                You can request up to {product.stock} items.
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Stock Info Card */}
+        <div className="bg-gradient-to-br from-gray-600 to-gray-800 p-8 rounded-2xl shadow-lg">
+          <div className="text-white space-y-3">
+            <p className="text-lg font-semibold">Available Stock:</p>
+            <p
+              className={`text-md font-medium ${
+                product?.stock > 0 ? "text-green-400" : "text-red-500"
+              }`}
+            >
+              {product?.stock > 0 ? `✅ ${product.stock} units available` : "❌ Out of Stock"}
+            </p>
+            <p className="text-md">
+              <span className="font-semibold">Unit of Measure:</span> {product?.uom}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Add to Requisition Button */}
+      <div className="mt-8">
+        <button
+          className="flex justify-center items-center gap-2 w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white text-lg font-bold rounded-lg shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Confirm Order"
+          onClick={addRequisitionHandler}
+          disabled={product?.stock === 0}
+        >
+          <span>Add Requisition</span>
+          <BiCart size={24} />
         </button>
       </div>
     </div>
