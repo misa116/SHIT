@@ -1,4 +1,4 @@
-/*/ import User from "../models/userModal.js";
+ import User from "../models/userModal.js";
 
 import jwt from "jsonwebtoken";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -32,8 +32,14 @@ export const isAdmin = asyncHandler(async (req, res, next) => {
     throw new Error("You Do Not have Clearance");
   }
 });
-/*/
 
+
+
+
+
+
+
+/*
 import jwt from "jsonwebtoken";
 import User from "../models/userModal.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -72,3 +78,5 @@ export const isAdmin = asyncHandler(async (req, res, next) => {
     throw new Error("You do not have clearance");
   }
 });
+
+*/

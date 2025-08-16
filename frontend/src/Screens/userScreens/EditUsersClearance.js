@@ -1,3 +1,4 @@
+/*
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import {
@@ -7,10 +8,8 @@ import {
 
 const DEPARTMENTS = [
   "Company",
-  "Inventory",
   "Silo",
   "Maintenance",
-  "Dispatch",
   "Production",
   "Procurement",
 ];
@@ -21,18 +20,16 @@ const EditUserClearance = ({ user, onClose }) => {
   const [dept, setDept] = useState(user?.dept || "");
   const [isAdmin, setIsAdmin] = useState(user?.isAdmin || false);
 
-  const [updateUserClr, { isLoading, isSuccess, error }] =
+  const [updateUserClr, { isLoading, isSuccess }] =
     useUpdateUserClrMutation();
   const { refetch } = useListUsersQuery();
 
   const submitHandler = async (e) => {
     e.preventDefault();
-
     if (!name || !email || !dept) {
       toast.error("All fields are required");
       return;
     }
-
     try {
       await updateUserClr({ id: user._id, name, email, dept, isAdmin }).unwrap();
       toast.success("Successfully updated user clearance");
@@ -43,45 +40,50 @@ const EditUserClearance = ({ user, onClose }) => {
   };
 
   useEffect(() => {
-    if (isSuccess) {
-      refetch();
-    }
+    if (isSuccess) refetch();
   }, [isSuccess, refetch]);
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white text-dark_bg_5 p-6 rounded-lg shadow-lg w-11/12 md:w-1/3">
-        <h2 className="text-2xl font-bold mb-4 underline text-center">Edit User Clearance</h2>
-        <form onSubmit={submitHandler}>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Name</label>
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
+      <div className="relative w-11/12 md:w-1/2 lg:w-2/5 p-6 rounded-2xl bg-gray-900 border-4 border-blue-700 shadow-[0_0_20px_#1e40af]">
+        <h2 className="text-3xl font-bold mb-6 text-center text-blue-400">
+          Edit User Clearance
+        </h2>
+
+        <form onSubmit={submitHandler} className="space-y-5">
+          <div>
+            <label className="block mb-2 text-gray-300">Name</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-3 rounded-xl border border-blue-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Email</label>
+
+          <div>
+            <label className="block mb-2 text-gray-300">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-3 rounded-xl border border-blue-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               required
             />
           </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Department</label>
+
+          <div>
+            <label className="block mb-2 text-gray-300">Department</label>
             <select
               value={dept}
               onChange={(e) => setDept(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-md"
+              className="w-full p-3 rounded-xl border border-blue-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
               required
             >
-              <option value="" disabled>Select Department</option>
+              <option value="" disabled>
+                Select Department
+              </option>
               {DEPARTMENTS.map((department) => (
                 <option key={department} value={department}>
                   {department}
@@ -89,30 +91,175 @@ const EditUserClearance = ({ user, onClose }) => {
               ))}
             </select>
           </div>
-          <div className="mb-4 flex items-center">
+
+          <div className="flex items-center space-x-2 text-gray-300">
             <input
               id="adminCheckbox"
               type="checkbox"
               checked={isAdmin}
               onChange={(e) => setIsAdmin(e.target.checked)}
-              className="mr-2"
+              className="w-6 h-6 mr-3 accent-blue-500"
             />
-            <label htmlFor="adminCheckbox" className="text-sm text-gray-700">
-              Is Admin
+            <label htmlFor="adminCheckbox" className="text-lg font-semibold">
+              {isAdmin ? "Admin Access" : "Limited Access"}
             </label>
           </div>
-          <div className="flex justify-end">
+
+          <div className="flex justify-end space-x-3 mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="bg-red-500 text-white px-4 py-2 rounded-md mr-2 hover:bg-red-700"
+              className="px-5 py-2 rounded-xl bg-red-700 text-white font-semibold hover:bg-red-800 transition"
               disabled={isLoading}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className={`bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700 ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`px-5 py-2 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition ${
+                isLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={isLoading}
+            >
+              {isLoading ? "Saving..." : "Save"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default EditUserClearance;
+*/
+
+
+
+import React, { useEffect, useState } from "react";
+import { toast } from "react-toastify";
+import {
+  useListUsersQuery,
+  useUpdateUserClrMutation,
+} from "../../redux/userApiSlice";
+
+const DEPARTMENTS = [
+  "Company",
+  "Silo",
+  "Maintenance",
+  "Production",
+  "Procurement",
+];
+
+const EditUserClearance = ({ user, onClose }) => {
+  const [name, setName] = useState(user?.name || "");
+  const [email] = useState(user?.email || ""); // email is now fixed
+  const [dept, setDept] = useState(user?.dept || "");
+  const [isAdmin, setIsAdmin] = useState(user?.isAdmin || false);
+
+  const [updateUserClr, { isLoading, isSuccess }] =
+    useUpdateUserClrMutation();
+  const { refetch } = useListUsersQuery();
+
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    if (!name || !dept) {
+      toast.error("Name and Department are required");
+      return;
+    }
+    try {
+      await updateUserClr({ id: user._id, name, email, dept, isAdmin }).unwrap();
+      toast.success("Successfully updated user clearance");
+      onClose();
+    } catch (err) {
+      toast.error(err?.data?.message || "Update failed");
+    }
+  };
+
+  useEffect(() => {
+    if (isSuccess) refetch();
+  }, [isSuccess, refetch]);
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center z-50">
+      <div className="relative w-11/12 md:w-1/2 lg:w-2/5 p-6 rounded-2xl bg-gray-900 border-4 border-blue-700 shadow-[0_0_20px_#1e40af]">
+        <h2 className="text-3xl font-bold mb-6 text-center text-blue-400">
+          Edit User Clearance
+        </h2>
+
+        <form onSubmit={submitHandler} className="space-y-5">
+          {/* Name */}
+          <div>
+            <label className="block mb-2 text-gray-300">Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full p-3 rounded-xl border border-blue-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              required
+            />
+          </div>
+
+          {/* Email (read-only) */}
+          <div>
+            <label className="block mb-2 text-gray-300">Email</label>
+            <input
+              type="email"
+              value={email}
+              readOnly
+              className="w-full p-3 rounded-xl border border-blue-700 bg-gray-800 text-white cursor-not-allowed"
+              title="Email cannot be changed"
+            />
+          </div>
+
+          {/* Department */}
+          <div>
+            <label className="block mb-2 text-gray-300">Department</label>
+            <select
+              value={dept}
+              onChange={(e) => setDept(e.target.value)}
+              className="w-full p-3 rounded-xl border border-blue-700 bg-gray-800 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              required
+            >
+              <option value="" disabled>
+                Select Department
+              </option>
+              {DEPARTMENTS.map((department) => (
+                <option key={department} value={department}>
+                  {department}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Admin Checkbox */}
+          <div className="flex items-center space-x-2 text-gray-300">
+            <input
+              id="adminCheckbox"
+              type="checkbox"
+              checked={isAdmin}
+              onChange={(e) => setIsAdmin(e.target.checked)}
+              className="w-6 h-6 mr-3 accent-blue-500"
+            />
+            <label htmlFor="adminCheckbox" className="text-lg font-semibold">
+              {isAdmin ? "Admin Access" : "Limited Access"}
+            </label>
+          </div>
+
+          {/* Buttons */}
+          <div className="flex justify-end space-x-3 mt-6">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-5 py-2 rounded-xl bg-red-700 text-white font-semibold hover:bg-red-800 transition"
+              disabled={isLoading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className={`px-5 py-2 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition ${
+                isLoading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
               disabled={isLoading}
             >
               {isLoading ? "Saving..." : "Save"}

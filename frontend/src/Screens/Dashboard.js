@@ -781,7 +781,10 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-/*/
+
+*/
+
+
 
 
 import React, { useEffect, useState } from "react";
@@ -849,7 +852,6 @@ const Dashboard = () => {
 
   return (
     <div className="w-full mt-8 px-6">
-      {/* Dashboard Header */}
       <div className="mx-auto w-full max-w-3xl mb-6 rounded-lg
                       bg-gradient-to-r from-orange-400 via-blue-400 to-purple-500
                       p-[2px] relative
@@ -860,12 +862,10 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Modals */}
       {categoryModal && <CategoryModel onClose={() => setOpenCategoryModal(false)} />}
       {productModal && <CreateProduct onClose={() => setOpenProductModal(false)} />}
       {uomModal && <UomModel onClose={() => setOpenUomModal(false)} />}
 
-      {/* Action Buttons */}
       <div className="mb-6 space-y-4">
         <div>
           <p className="text-gray-200 mb-2 font-medium">Setup Options (before adding products)</p>
@@ -903,7 +903,6 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Search Bar */}
       <input
         type="text"
         placeholder="Search Name, ModelNo, Category, UOM, or Location"
@@ -912,7 +911,6 @@ const Dashboard = () => {
         className="w-full p-3 mb-6 rounded-md border border-gray-700 bg-gray-900 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
-      {/* Product Table */}
       {isLoading ? (
         <div className="flex justify-center items-center h-40">
           <div className="animate-spin h-12 w-12 border-t-4 border-blue-500 border-solid rounded-full" />
@@ -962,7 +960,6 @@ const Dashboard = () => {
             </table>
           </div>
 
-          {/* Pagination */}
           <ReactPaginate
             previousLabel={"←"}
             nextLabel={"→"}

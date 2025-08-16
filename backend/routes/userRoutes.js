@@ -20,7 +20,3 @@ router.put("/:id", protect, editUserClr);
 
 
 export default router;
-
-
-
-

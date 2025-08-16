@@ -12,6 +12,7 @@
     "axios": "^1.9.0",
     "backend": "file:..",
     "framer-motion": "^12.12.1",
+    "lucide-react": "^0.539.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-icons": "^5.5.0",
@@ -52,5 +53,5 @@
     "sass": "^1.89.1",
     "tailwindcss": "^3.4.7"
   },
-  "proxy": "https://godplease16.onrender.com" 
+  "proxy": "https://godplease16.onrender.com"
 }
