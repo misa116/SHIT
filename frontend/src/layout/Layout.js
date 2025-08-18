@@ -25,11 +25,45 @@ export default Layout;
 
 /*/
 
+
+
+/*
 import React, { useState } from "react";
 import Header from "../header/Header";
 import Sidebar from "../header/Sidebar";
 
 const Layout = ({ children }) => {
+  const [openSidebarToggle, setOpenSidebarToggle] = useState(false);
+
+  const toggleSidebar = () => setOpenSidebarToggle(!openSidebarToggle);
+
+  return (
+    <div className="flex h-screen overflow-hidden bg-gray-900 text-gray-100">
+      <Sidebar
+        openSidebarToggle={openSidebarToggle}
+        openSidebar={toggleSidebar}
+      />
+
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <Header openSidebar={toggleSidebar} />
+
+        <main className="flex-1 overflow-auto p-6 bg-gray-800">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default Layout;
+*/
+
+import React, { useState } from "react";
+import { Outlet } from "react-router-dom";
+import Header from "../header/Header";
+import Sidebar from "../header/Sidebar";
+
+const Layout = () => {
   const [openSidebarToggle, setOpenSidebarToggle] = useState(false);
 
   const toggleSidebar = () => setOpenSidebarToggle(!openSidebarToggle);
@@ -47,7 +81,7 @@ const Layout = ({ children }) => {
         <Header openSidebar={toggleSidebar} />
 
         <main className="flex-1 overflow-auto p-6 bg-gray-800">
-          {children}
+          <Outlet /> {/* Child pages render here */}
         </main>
       </div>
     </div>
