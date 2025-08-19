@@ -89,7 +89,7 @@ export default AuthUser;
 */
 
 
-
+/*
 // frontend/src/components/AuthUser.js
 import React from "react";
 import { Navigate } from "react-router-dom";
@@ -105,6 +105,25 @@ const AuthUser = ({ children }) => {
 
   // has token -> render protected content
   return <>{children}</>;
+};
+
+export default AuthUser;
+*/
+
+
+import React from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useCheckLoginQuery } from "../redux/userApiSlice";
+
+const AuthUser = () => {
+  const { data, isLoading, isError } = useCheckLoginQuery();
+  const location = useLocation();
+
+  if (isLoading) return <div className="text-center p-10">Checking authentication...</div>;
+
+  if (isError || !data) return <Navigate to="/login" state={{ from: location }} replace />;
+
+  return <Outlet />;
 };
 
 export default AuthUser;
