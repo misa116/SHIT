@@ -332,12 +332,12 @@ export default App;
 
 
 
-
 // frontend/src/App.js
 import "./App.css";
 import Landing from "./components/Landing";
 import "./styles/products.scss";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
 import Dashboard from "./Screens/Dashboard";
 import Layout from "./layout/Layout";
 import RegisterScreen from "./Screens/userScreens/RegisterScreen";
@@ -372,37 +372,142 @@ function App() {
 
         {/* Protected routes */}
         <Route element={<AuthUser />}>
-          <Route element={<Layout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/warehouse" element={<Warehouse />} />
-            <Route path="/product/:id" element={<ProductDetails />} />
-            <Route path="/store-requisition" element={<CartScreen />} />
-            <Route path="/requisition-type" element={<RequisitionType />} />
-            <Route
-              path="/purchase-requisition"
-              element={<PurchaseRequisition />}
-            />
-            <Route path="/placeorder" element={<PlaceOrder />} />
-            <Route path="/my-orders-list" element={<MyOrders />} />
-            <Route path="/orderdetail/:id" element={<OrderDetails />} />
-            <Route
-              path="/confirm-requisition"
-              element={<ConfirmRequisition />}
-            />
-            <Route path="/LPO-factory" element={<LPO />} />
-            <Route path="/LPO-procurement" element={<LocalPurchaseOrders />} />
-            <Route
-              path="/pending-requisitions"
-              element={<PendingRequsitions />}
-            />
-            <Route
-              path="/procurement/order/:id"
-              element={<OrderDetailsProcur />}
-            />
-            <Route path="/listUsers" element={<ListUsers />} />
-            <Route path="/edit/:id" element={<EditProduct />} />
-            <Route path="/goods-receive-note" element={<GRN />} />
-          </Route>
+          <Route
+            path="/dashboard"
+            element={
+              <Layout>
+                <Dashboard />
+              </Layout>
+            }
+          />
+          <Route
+            path="/warehouse"
+            element={
+              <Layout>
+                <Warehouse />
+              </Layout>
+            }
+          />
+          <Route
+            path="/product/:id"
+            element={
+              <Layout>
+                <ProductDetails />
+              </Layout>
+            }
+          />
+          <Route
+            path="/store-requisition"
+            element={
+              <Layout>
+                <CartScreen />
+              </Layout>
+            }
+          />
+          <Route
+            path="/requisition-type"
+            element={
+              <Layout>
+                <RequisitionType />
+              </Layout>
+            }
+          />
+          <Route
+            path="/purchase-requisition"
+            element={
+              <Layout>
+                <PurchaseRequisition />
+              </Layout>
+            }
+          />
+          <Route
+            path="/placeorder"
+            element={
+              <Layout>
+                <PlaceOrder />
+              </Layout>
+            }
+          />
+          <Route
+            path="/my-orders-list"
+            element={
+              <Layout>
+                <MyOrders />
+              </Layout>
+            }
+          />
+          <Route
+            path="/orderdetail/:id"
+            element={
+              <Layout>
+                <OrderDetails />
+              </Layout>
+            }
+          />
+          <Route
+            path="/confirm-requisition"
+            element={
+              <Layout>
+                <ConfirmRequisition />
+              </Layout>
+            }
+          />
+          <Route
+            path="/LPO-factory"
+            element={
+              <Layout>
+                <LPO />
+              </Layout>
+            }
+          />
+          <Route
+            path="/LPO-procurement"
+            element={
+              <Layout>
+                <LocalPurchaseOrders />
+              </Layout>
+            }
+          />
+          <Route
+            path="/pending-requisitions"
+            element={
+              <Layout>
+                <PendingRequsitions />
+              </Layout>
+            }
+          />
+          <Route
+            path="/procurement/order/:id"
+            element={
+              <Layout>
+                <OrderDetailsProcur />
+              </Layout>
+            }
+          />
+          <Route
+            path="/listUsers"
+            element={
+              <Layout>
+                <ListUsers />
+              </Layout>
+            }
+          />
+          <Route
+            path="/edit/:id"
+            element={
+              <Layout>
+                <EditProduct />
+              </Layout>
+            }
+          />
+          <Route
+            path="/goods-receive-note"
+            element={
+              <Layout>
+                <GRN />
+              </Layout>
+            }
+          />
         </Route>
       </Routes>
     </BrowserRouter>
