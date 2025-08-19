@@ -891,7 +891,7 @@ const Dashboard = () => {
                       shadow-[0_0_12px_rgba(255,165,0,0.8),0_0_15px_rgba(0,123,255,0.6),0_0_20px_rgba(128,0,128,0.5)]"
       >
         <div className="bg-black/40 rounded-lg py-4 text-center">
-          <h1 className="text-3xl font-semibold text-white tracking-wider">Dashboardboy</h1>
+          <h1 className="text-3xl font-semibold text-white tracking-wider">Dashboard</h1>
         </div>
       </div>
 

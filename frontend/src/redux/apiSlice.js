@@ -77,7 +77,7 @@ export default apiSlice;
 */
 
 
-
+/*
 // frontend/src/redux/apiSlice.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BASE_URL } from "./constants";
@@ -97,6 +97,34 @@ const apiSlice = createApi({
   baseQuery,
   tagTypes: [],
   endpoints: () => ({}),
+});
+
+export default apiSlice;
+*/
+
+
+
+// frontend/src/redux/apiSlice.js
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { BASE_URL } from "./constants";
+
+// Base query with cookies and optional token headers
+const baseQuery = fetchBaseQuery({
+  baseUrl: BASE_URL,
+  credentials: "include", // ✅ important for cookies
+  prepareHeaders: (headers, { getState }) => {
+    const token = getState().auth.userInfo?.token;
+    if (token) {
+      headers.set("Authorization", `Bearer ${token}`);
+    }
+    return headers;
+  },
+});
+
+const apiSlice = createApi({
+  baseQuery,
+  tagTypes: [], // optional: can add caching tags here
+  endpoints: () => ({}), // endpoints injected in feature slices like userApiSlice
 });
 
 export default apiSlice;

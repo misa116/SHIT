@@ -182,7 +182,7 @@ export const {
 */
 
 
-
+/*
 // frontend/src/redux/userApiSlice.js
 import apiSlice from "./apiSlice";
 import { USERS_URL } from "./constants";
@@ -225,4 +225,67 @@ export const {
   useRegisterMutation,
   useListUsersQuery,
   useUpdateUserClrMutation,
+} = userApiSlice;
+*/
+
+
+
+// frontend/src/redux/userApiSlice.js
+import apiSlice from "./apiSlice";
+import { USERS_URL } from "./constants";
+
+export const userApiSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // Login endpoint
+    login: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/login`,
+        method: "POST",
+        body: data,
+        credentials: "include", // ✅ send cookies across domains
+      }),
+    }),
+    // Register endpoint
+    register: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/register`,
+        method: "POST",
+        body: data,
+        credentials: "include", // ✅ send cookies across domains
+      }),
+    }),
+    // List all users (protected)
+    listUsers: builder.query({
+      query: () => ({
+        url: `${USERS_URL}`,
+        credentials: "include", // ✅ send cookies
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    // Update user clearance (protected)
+    updateUserClr: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/${data.id}`,
+        method: "PUT",
+        body: data,
+        credentials: "include", // ✅ send cookies
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    // Check login status
+    checkLogin: builder.query({
+      query: () => ({
+        url: `${USERS_URL}/profile`,
+        credentials: "include", // ✅ send cookies
+      }),
+    }),
+  }),
+});
+
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useListUsersQuery,
+  useUpdateUserClrMutation,
+  useCheckLoginQuery, // ✅ hook to check if user is logged in
 } = userApiSlice;
