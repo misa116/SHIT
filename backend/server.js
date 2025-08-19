@@ -392,33 +392,35 @@ app.listen(port, () => {
 
 
 
-
-
+// server.js
 import express from "express";
 import dotenv from "dotenv";
-import { db } from "./db/db.js";
 import cors from "cors";
-import morgan from "morgan";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
+import morgan from "morgan";
+import { db } from "./db/db.js";
 
+// Routes
 import userRoutes from "./routes/userRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import uomRoutes from "./routes/uomRoutes.js";
-import { errorHandler, notFound } from "./utils/errorHandler.js";
+
+// Error handling
+import { notFound, errorHandler } from "./utils/errorHandler.js";
 
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 5000;
 
-// ✅ Connect to Database
+// ✅ Connect to DB
 db()
-  .then(() => console.log("🟢 Database connected successfully"))
+  .then(() => console.log("🟢 Database connected"))
   .catch((err) => {
-    console.error("🔴 Database connection error:", err);
+    console.error("🔴 DB connection error:", err);
     process.exit(1);
   });
 
@@ -427,42 +429,33 @@ app.use(helmet());
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+if (process.env.NODE_ENV !== "production") app.use(morgan("dev"));
 
-if (process.env.NODE_ENV !== "production") {
-  app.use(morgan("dev"));
-}
-
-// ✅ Prevent caching
+// Prevent caching
 app.use((req, res, next) => {
-  res.setHeader(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate, private"
-  );
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private");
   next();
 });
 
-// ✅ CORS configuration
+// ✅ CORS configuration for Netlify + local dev
 const allowedOrigins = [
-  "https://ubiquitous-bublanina-92e994.netlify.app", // Netlify frontend
-  "http://localhost:3000", // Local dev
+  "https://ubiquitous-bublanina-92e994.netlify.app",
+  "http://localhost:3000",
 ];
 
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (like Postman)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
+      if (!origin || allowedOrigins.includes(origin)) callback(null, true);
+      else callback(new Error("Not allowed by CORS"));
     },
-    credentials: true, // ✅ allow cookies & auth headers
-    optionsSuccessStatus: 200, // for legacy browsers
+    credentials: true, // ✅ important for cookies
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// ✅ API Routes
+// ✅ Routes
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
@@ -474,11 +467,11 @@ app.get("/", (req, res) => {
   res.send("WELCOME MISA 🙌 Backend is running!");
 });
 
-// ✅ Error Handling
+// ✅ Error handling
 app.use(notFound);
 app.use(errorHandler);
 
-// ✅ Start Server
+// ✅ Start server
 app.listen(port, () => {
   console.log(`✅ Server running on port ${port}`);
 });
