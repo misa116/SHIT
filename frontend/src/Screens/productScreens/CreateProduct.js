@@ -363,12 +363,21 @@ export default CreateProduct;
 
 
 
+
+
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { Select } from "antd";
-import { getCategories } from "../../redux/categorySlice";
+import { getCategories, getUoms } from "../../redux/categorySlice";
 import { createProduct } from "../../redux/productSlice";
+
 const { Option } = Select;
 
 const CreateProduct = ({ onClose, refreshProducts }) => {
@@ -376,32 +385,35 @@ const CreateProduct = ({ onClose, refreshProducts }) => {
   const [price, setPrice] = useState(0);
   const [manufacturer, setManufacturer] = useState("");
   const [category, setCategory] = useState("");
+  const [uom, setUom] = useState("");
   const [modelNO, setModelNo] = useState("");
   const [stock, setCountInStock] = useState(0);
   const [location, setLocation] = useState("");
 
-  const { categories } = useSelector((state) => state.category);
+  const { categories, Uom } = useSelector((state) => state.category);
   const dispatch = useDispatch();
 
+  // Fetch categories and UOMs
   useEffect(() => {
     dispatch(getCategories());
+    dispatch(getUoms());
   }, [dispatch]);
 
+  // Set default values
   useEffect(() => {
-    if (categories && categories.length > 0) {
-      setCategory(categories[0].title);
-    }
-  }, [categories]);
-
-  const handleCategoryChange = (value) => setCategory(value);
+    if (categories?.length > 0) setCategory(categories[0].title);
+    if (Uom?.length > 0) setUom(Uom[0].title);
+  }, [categories, Uom]);
 
   const submitHandler = async (e) => {
     e.preventDefault();
+
     const newProduct = {
       name,
       price,
       manufacturer,
       category,
+      uom,
       modelNO,
       stock,
       location,
@@ -410,11 +422,7 @@ const CreateProduct = ({ onClose, refreshProducts }) => {
     try {
       await dispatch(createProduct(newProduct)).unwrap();
       toast.success("Product created successfully!");
-      
-      // CLOSE THE MODAL
       if (onClose) onClose();
-
-      // REFRESH DASHBOARD PRODUCTS
       if (refreshProducts) refreshProducts();
     } catch (error) {
       toast.error("Failed to create product!");
@@ -426,6 +434,7 @@ const CreateProduct = ({ onClose, refreshProducts }) => {
       <div className="bg-gray-900 text-gray-100 w-11/12 md:w-2/5 rounded-xl shadow-2xl p-6 animate-fade-in">
         <h2 className="text-2xl font-bold mb-6 text-center">Create Product</h2>
         <form onSubmit={submitHandler} className="space-y-4">
+          {/* Product Name & Stock */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Product Name/Details</label>
@@ -450,22 +459,53 @@ const CreateProduct = ({ onClose, refreshProducts }) => {
             </div>
           </div>
 
+          {/* Category Select */}
           <div>
             <label className="block text-sm font-medium mb-1">Category</label>
             <Select
               value={category}
-              onChange={handleCategoryChange}
-              className="w-full"
-              dropdownClassName="bg-gray-800 text-gray-100"
+              onChange={(value) => setCategory(value)}
+              className="w-full text-gray-100"
+              dropdownClassName="bg-gray-700 text-gray-100"
+              optionLabelProp="label"
             >
               {categories?.map((cat) => (
-                <Option key={cat._id} value={cat.title}>
+                <Option
+                  key={cat._id}
+                  value={cat.title}
+                  label={cat.title}
+                  className="text-gray-100 hover:bg-gray-600"
+                >
                   {cat.title}
                 </Option>
               ))}
             </Select>
           </div>
 
+          {/* UOM Select */}
+          <div>
+            <label className="block text-sm font-medium mb-1">UOM</label>
+            <Select
+              value={uom}
+              onChange={(value) => setUom(value)}
+              className="w-full text-gray-100"
+              dropdownClassName="bg-gray-700 text-gray-100"
+              optionLabelProp="label"
+            >
+              {Uom?.map((unit) => (
+                <Option
+                  key={unit._id}
+                  value={unit.title}
+                  label={unit.title}
+                  className="text-gray-100 hover:bg-gray-600"
+                >
+                  {unit.title}
+                </Option>
+              ))}
+            </Select>
+          </div>
+
+          {/* Manufacturer, Model No, Location, Price */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Manufacturer</label>
@@ -499,8 +539,20 @@ const CreateProduct = ({ onClose, refreshProducts }) => {
                 className="w-full px-3 py-2 rounded-md bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Price</label>
+              <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="Price"
+                className="w-full px-3 py-2 rounded-md bg-gray-800 text-gray-100 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
 
+          {/* Buttons */}
           <div className="flex justify-end mt-6 space-x-3">
             <button
               type="button"
