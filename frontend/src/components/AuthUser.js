@@ -110,7 +110,7 @@ const AuthUser = ({ children }) => {
 export default AuthUser;
 */
 
-
+/*
 import React from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useCheckLoginQuery } from "../redux/userApiSlice";
@@ -123,6 +123,26 @@ const AuthUser = () => {
 
   if (isError || !data) return <Navigate to="/login" state={{ from: location }} replace />;
 
+  return <Outlet />;
+};
+
+export default AuthUser;
+*/
+
+import React from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+const AuthUser = () => {
+  const { userInfo } = useSelector((state) => state.auth);
+  const location = useLocation();
+
+  if (!userInfo) {
+    // Not logged in → redirect to login
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // Logged in → allow access to all protected routes
   return <Outlet />;
 };
 
