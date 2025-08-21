@@ -1,4 +1,4 @@
-import express from "express";
+/*import express from "express";
 import { protect } from "../middlewares/authMiddleware.js";
 import {
   allOrders,
@@ -38,3 +38,43 @@ router
 
 export default router;
 
+*/
+
+
+// backend/routes/orderRoutes.js
+import express from "express";
+import {
+  newOrder,
+  allOrders,
+  myOrders,
+  orderDetails,
+  updateOrder,
+  updateOrderProcurement,
+  deleteOrder,
+} from "../controllers/orderController.js";
+import { protect, isAdmin } from "../middlewares/authMiddleware.js";
+
+const router = express.Router();
+
+// Create a new order → any logged-in user
+router.post("/", protect, newOrder);
+
+// Get all orders → admin only
+router.get("/all", protect, isAdmin, allOrders);
+
+// Get my orders → logged-in user only
+router.get("/my", protect, myOrders);
+
+// Get order details by ID → logged-in user only
+router.get("/:id", protect, orderDetails);
+
+// Mark order as delivered → admin only
+router.put("/:id/deliver", protect, isAdmin, updateOrder);
+
+// Mark order as received and restock → admin only
+router.put("/:id/receive", protect, isAdmin, updateOrderProcurement);
+
+// Delete an order → admin only
+router.delete("/:id", protect, isAdmin, deleteOrder);
+
+export default router;
