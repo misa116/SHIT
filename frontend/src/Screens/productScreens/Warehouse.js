@@ -1440,11 +1440,6 @@ export default Warehouse;
 
 */
 
-
-
-
-
-
 // frontend/src/Screens/productScreens/Warehouse.js
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -1452,38 +1447,35 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getProducts } from "../../redux/productSlice";
 
-const LOW_STOCK_THRESHOLD = 100;
-
 const Warehouse = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { products, isSuccess, isLoading } = useSelector(
+
+  const { products, isSuccess, isLoading, isError, message } = useSelector(
     (state) => state.products
   );
   const { userInfo } = useSelector((state) => state.auth);
 
   const [search, setSearch] = useState("");
   const [selectedProducts, setSelectedProducts] = useState([]);
-  const [showLowStockPopup, setShowLowStockPopup] = useState(true);
-
-  // draggable state
-  const [popupPos, setPopupPos] = useState({ x: 50, y: 50 });
-  const [dragging, setDragging] = useState(false);
-  const [rel, setRel] = useState(null);
 
   // Redirect if not logged in
   useEffect(() => {
     if (!userInfo) navigate("/login");
   }, [userInfo, navigate]);
 
-  // Fetch products
+  // Fetch products on mount
   useEffect(() => {
     dispatch(getProducts());
-    if (isSuccess) {
-      toast.success("Inventory Rendered Successfully");
-    }
-  }, [dispatch, isSuccess]);
+  }, [dispatch]);
 
+  // Handle success / error messages
+  useEffect(() => {
+    if (isSuccess) toast.success("Inventory Rendered Successfully");
+    if (isError) toast.error(message || "Failed to fetch products");
+  }, [isSuccess, isError, message]);
+
+  // Handle product selection
   const handleCheckbox = (product) => {
     if (selectedProducts.some((p) => p._id === product._id)) {
       setSelectedProducts(selectedProducts.filter((p) => p._id !== product._id));
@@ -1497,6 +1489,7 @@ const Warehouse = () => {
     navigate("/product-details", { state: { selectedProducts } });
   };
 
+  // Filter products by search
   const filteredProducts = products?.filter((product) =>
     [
       product.name,
@@ -1513,54 +1506,14 @@ const Warehouse = () => {
       .includes(search.toLowerCase())
   );
 
-  const lowStockProducts = products?.filter(
-    (p) => p.stock !== undefined && p.stock < LOW_STOCK_THRESHOLD
-  );
-
-  // drag handlers
-  const handleMouseDown = (e) => {
-    if (e.button !== 0) return;
-    const rect = e.target.closest("#popup")?.getBoundingClientRect();
-    if (!rect) return;
-    setDragging(true);
-    setRel({ x: e.pageX - rect.left, y: e.pageY - rect.top });
-    e.stopPropagation();
-    e.preventDefault();
-  };
-
-  const handleMouseUp = () => {
-    setDragging(false);
-  };
-
-  const handleMouseMove = (e) => {
-    if (!dragging) return;
-    setPopupPos({
-      x: e.pageX - rel.x,
-      y: e.pageY - rel.y,
-    });
-    e.stopPropagation();
-    e.preventDefault();
-  };
-
-  useEffect(() => {
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", handleMouseUp);
-    return () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-  });
-
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-8 relative">
-      {/* Header */}
+    <div className="min-h-screen bg-gray-50 px-4 sm:px-6 py-8">
+      {/* Breadcrumb + Title */}
       <div className="mb-6">
         <nav className="text-sm mb-1" aria-label="Breadcrumb">
           <ol className="list-reset flex text-gray-500">
             <li>
-              <Link to="/" className="hover:text-gray-700">
-                Dashboard
-              </Link>
+              <Link to="/" className="hover:text-gray-700">Dashboard</Link>
             </li>
             <li>
               <span className="mx-2">/</span>
@@ -1576,7 +1529,7 @@ const Warehouse = () => {
         </p>
       </div>
 
-      {/* Sticky Search Bar */}
+      {/* Search Bar */}
       <div className="mb-4 sticky top-4 z-20">
         <input
           type="text"
@@ -1587,7 +1540,7 @@ const Warehouse = () => {
         />
       </div>
 
-      {/* Popup Button */}
+      {/* Requisition Button */}
       {selectedProducts.length > 0 && (
         <div className="sticky top-20 z-20 mb-4">
           <button
@@ -1599,170 +1552,55 @@ const Warehouse = () => {
         </div>
       )}
 
-      {/* Product Table */}
+      {/* Table / Card Layout */}
       {isLoading ? (
-        <div className="overflow-x-auto rounded-xl shadow-lg bg-white">
-          <table className="min-w-full text-left border-collapse">
-            <thead className="bg-gradient-to-r from-blue-500 to-blue-600 sticky top-0 z-10 text-sm uppercase tracking-wide text-white">
-              <tr>
-                {[
-                  "Select",
-                  "Name",
-                  "Category",
-                  "Supplier",
-                  "Stock",
-                  "Model No",
-                  "Manufacturer",
-                  "UOM",
-                  "Price",
-                ].map((title) => (
-                  <th
-                    key={title}
-                    className="py-3 px-4 border-b border-gray-200 font-semibold"
-                  >
-                    {title}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[...Array(5)].map((_, i) => (
-                <tr key={i} className="animate-pulse">
-                  {Array(9)
-                    .fill("")
-                    .map((_, idx) => (
-                      <td key={idx} className="py-2 px-4 border-b">
-                        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                      </td>
-                    ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        // Skeleton loader
+        <div className="space-y-4">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="animate-pulse p-4 bg-white rounded-xl shadow-md"></div>
+          ))}
+        </div>
+      ) : filteredProducts?.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredProducts.map((product) => (
+            <div
+              key={product._id}
+              className="bg-white rounded-xl shadow-md p-4 flex flex-col justify-between"
+            >
+              <div className="flex justify-between items-center mb-2">
+                <h2 className="font-bold text-lg">{product.name}</h2>
+                <input
+                  type="checkbox"
+                  checked={selectedProducts.some((p) => p._id === product._id)}
+                  onChange={() => handleCheckbox(product)}
+                />
+              </div>
+              <p className="text-gray-600">
+                <span className="font-semibold">Category:</span> {product.category || "N/A"}
+              </p>
+              <p className="text-gray-600">
+                <span className="font-semibold">Supplier:</span> {product.supplier || "N/A"}
+              </p>
+              <p className={`text-gray-600 ${product.stock < 100 ? "text-red-600 font-bold" : ""}`}>
+                <span className="font-semibold">Stock:</span> {product.stock}
+              </p>
+              <p className="text-gray-600">
+                <span className="font-semibold">Model No:</span> {product.modelNo || "N/A"}
+              </p>
+              <p className="text-gray-600">
+                <span className="font-semibold">Manufacturer:</span> {product.manufacturer || "N/A"}
+              </p>
+              <p className="text-gray-600">
+                <span className="font-semibold">UOM:</span> {product.uom || "PCS"}
+              </p>
+              <p className="text-gray-800 font-bold mt-2">
+                ${product?.price?.toFixed(2) || "0.00"}
+              </p>
+            </div>
+          ))}
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl shadow-lg bg-white">
-          <table className="min-w-full text-left border-collapse">
-            <thead className="bg-gradient-to-r from-blue-500 to-blue-600 sticky top-0 z-10 text-sm uppercase tracking-wide text-white">
-              <tr>
-                {[
-                  "Select",
-                  "Name",
-                  "Category",
-                  "Supplier",
-                  "Stock",
-                  "Model No",
-                  "Manufacturer",
-                  "UOM",
-                  "Price",
-                ].map((title) => (
-                  <th
-                    key={title}
-                    className="py-3 px-4 border-b border-gray-200 font-semibold"
-                  >
-                    {title}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProducts?.length > 0 ? (
-                filteredProducts.map((product) => (
-                  <tr
-                    key={product._id}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="py-2 px-4 border-b text-black">
-                      <input
-                        type="checkbox"
-                        checked={selectedProducts.some(
-                          (p) => p._id === product._id
-                        )}
-                        onChange={() => handleCheckbox(product)}
-                      />
-                    </td>
-                    <td className="py-2 px-4 border-b text-black">
-                      {product.name}
-                    </td>
-                    <td className="py-2 px-4 border-b text-black">
-                      {product.category}
-                    </td>
-                    <td className="py-2 px-4 border-b text-black">
-                      {product.supplier}
-                    </td>
-                    <td
-                      className={`py-2 px-4 border-b ${
-                        product.stock < LOW_STOCK_THRESHOLD
-                          ? "text-red-600 font-bold"
-                          : "text-black"
-                      }`}
-                    >
-                      {product.stock}
-                    </td>
-                    <td className="py-2 px-4 border-b text-black">
-                      {product.modelNo || "N/A"}
-                    </td>
-                    <td className="py-2 px-4 border-b text-black">
-                      {product.manufacturer}
-                    </td>
-                    <td className="py-2 px-4 border-b text-black">
-                      {product.uom || "PCS"}
-                    </td>
-                    <td className="py-2 px-4 border-b text-black">
-                      ${product?.price?.toFixed(2) || "0.00"}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan="9"
-                    className="text-center py-6 text-gray-500 italic"
-                  >
-                    No products found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Low Stock Popup */}
-      {showLowStockPopup && lowStockProducts?.length > 0 && (
-        <div
-          id="popup"
-          className="fixed z-50 w-80 bg-white border border-red-500 shadow-2xl rounded-lg p-4 cursor-move transition-transform duration-300 ease-in-out"
-          style={{
-            left: popupPos.x,
-            top: popupPos.y,
-          }}
-          onMouseDown={handleMouseDown}
-        >
-          <div className="flex justify-between items-center mb-2">
-            <h2 className="text-lg font-bold text-red-600">
-              ⚠️ Low Stock Alert
-            </h2>
-            <button
-              onClick={() => setShowLowStockPopup(false)}
-              className="text-gray-500 hover:text-gray-700"
-            >
-              ✖
-            </button>
-          </div>
-          <ul className="list-disc pl-5 space-y-1 max-h-48 overflow-y-auto">
-            {lowStockProducts.map((p) => (
-              <li key={p._id} className="text-gray-700">
-                <span className="font-semibold">{p.name}</span>{" "}
-                <span className="text-sm text-gray-500">
-                  ({p.category || "Uncategorized"})
-                </span>{" "}
-                –{" "}
-                <span className="text-red-600 font-bold">{p.stock} left</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+        <p className="text-center text-gray-500 italic mt-8">No products found.</p>
       )}
     </div>
   );

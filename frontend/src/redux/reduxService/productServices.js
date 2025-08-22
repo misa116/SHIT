@@ -121,6 +121,9 @@ export const createUomService = async (formData) => {
 */
 
 
+
+
+/*
 import axios from "axios";
 import { CATEGORY_URL, PRODUCTS_URL, UOM_URL } from "../constants";
 
@@ -179,5 +182,47 @@ export const createUomService = async (formData) => {
   const response = await axios.post(UOM_URL, formData, {
     withCredentials: true,
   });
+  return response.data;
+};
+*/
+
+// frontend/src/redux/reduxService/productServices.js
+import axios from "axios";
+import { PRODUCTS_URL } from "../constants";
+
+// Helper to add JWT token from Redux/localStorage
+const authConfig = () => {
+  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+  const token = userInfo?.token;
+
+  return {
+    headers: {
+      "Content-Type": "application/json",
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+  };
+};
+
+// ✅ Get single product
+export const getProductService = async (id) => {
+  const response = await axios.get(`${PRODUCTS_URL}/${id}`, authConfig());
+  return response.data;
+};
+
+// ✅ Create product
+export const createProductService = async (formData) => {
+  const response = await axios.post(PRODUCTS_URL, formData, authConfig());
+  return response.data;
+};
+
+// ✅ Update product
+export const updateProductService = async (id, formData) => {
+  const response = await axios.put(`${PRODUCTS_URL}/${id}`, formData, authConfig());
+  return response.data;
+};
+
+// ✅ Delete product
+export const deleteProductService = async (id) => {
+  const response = await axios.delete(`${PRODUCTS_URL}/${id}`, authConfig());
   return response.data;
 };
