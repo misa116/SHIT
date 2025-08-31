@@ -1,4 +1,4 @@
-/*/ import axios from "axios";
+/* import axios from "axios";
 import { CATEGORY_URL, PRODUCTS_URL, UOM_URL } from "../constants";
 
 
@@ -54,6 +54,12 @@ export const createUomService = async (formData) => {
 };
 
 */
+
+
+
+
+
+
 
 
 
@@ -123,8 +129,11 @@ export const createUomService = async (formData) => {
 
 
 
+
+
+
 /*
-import axios from "axios";
+  import axios from "axios";
 import { CATEGORY_URL, PRODUCTS_URL, UOM_URL } from "../constants";
 
 // ✅ Create product (protected)
@@ -186,43 +195,168 @@ export const createUomService = async (formData) => {
 };
 */
 
-// frontend/src/redux/reduxService/productServices.js
-import axios from "axios";
-import { PRODUCTS_URL } from "../constants";
 
-// Helper to add JWT token from Redux/localStorage
-const authConfig = () => {
-  const userInfo = JSON.parse(localStorage.getItem("userInfo"));
-  const token = userInfo?.token;
 
-  return {
-    headers: {
-      "Content-Type": "application/json",
-      ...(token && { Authorization: `Bearer ${token}` }),
-    },
-  };
-};
 
-// ✅ Get single product
-export const getProductService = async (id) => {
-  const response = await axios.get(`${PRODUCTS_URL}/${id}`, authConfig());
-  return response.data;
-};
 
-// ✅ Create product
+/*
+ import axios from "axios";
+import { CATEGORY_URL, PRODUCTS_URL, UOM_URL } from "../constants";
+
+// Create product (protected)
 export const createProductService = async (formData) => {
-  const response = await axios.post(PRODUCTS_URL, formData, authConfig());
+  const response = await axios.post(`${PRODUCTS_URL}/create`, formData, {
+    withCredentials: true,
+  });
   return response.data;
 };
 
-// ✅ Update product
+// Get all UOMs (even public) – this uses credentials, which causes the old multi-device issue
+export const getUomService = async () => {
+  const response = await axios.get(UOM_URL, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+// Get single product (even public) – also uses credentials
+export const getProductService = async (id) => {
+  const response = await axios.get(`${PRODUCTS_URL}/${id}`, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+// Update product (protected)
 export const updateProductService = async (id, formData) => {
-  const response = await axios.put(`${PRODUCTS_URL}/${id}`, formData, authConfig());
+  const response = await axios.put(`${PRODUCTS_URL}/${id}`, formData, {
+    withCredentials: true,
+  });
   return response.data;
 };
 
-// ✅ Delete product
+// Delete product (protected)
 export const deleteProductService = async (id) => {
-  const response = await axios.delete(`${PRODUCTS_URL}/${id}`, authConfig());
+  const response = await axios.delete(`${PRODUCTS_URL}/${id}`, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+// Create category (protected)
+export const createCatgoryService = async (formData) => {
+  const response = await axios.post(`${CATEGORY_URL}/create`, formData, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+// Get categories (even public)
+export const getCategoriesService = async () => {
+  const response = await axios.get(CATEGORY_URL, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+// Create UOM (protected)
+export const createUomService = async (formData) => {
+  const response = await axios.post(UOM_URL, formData, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import axios from "axios";
+import { CATEGORY_URL, PRODUCTS_URL, UOM_URL } from "../constants";
+
+// ✅ Create product (protected)
+export const createProductService = async (formData) => {
+  const response = await axios.post(`${PRODUCTS_URL}/create`, formData, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+// ✅ Get all products (protected, multi-device support)
+export const getAllProductsService = async () => {
+  const response = await axios.get(PRODUCTS_URL, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+// ✅ Get single product (requires ID)
+export const getProductService = async (id) => {
+  if (!id) throw new Error("Product ID is required");
+  const response = await axios.get(`${PRODUCTS_URL}/${id}`, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+// ✅ Update product (protected)
+export const updateProductService = async (id, formData) => {
+  if (!id) throw new Error("Product ID is required");
+  const response = await axios.put(`${PRODUCTS_URL}/${id}`, formData, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+// ✅ Delete product (protected)
+export const deleteProductService = async (id) => {
+  if (!id) throw new Error("Product ID is required");
+  const response = await axios.delete(`${PRODUCTS_URL}/${id}`, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+// ✅ Create category (protected)
+export const createCatgoryService = async (formData) => {
+  const response = await axios.post(`${CATEGORY_URL}/create`, formData, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+// ✅ Get all categories (protected, multi-device support)
+export const getCategoriesService = async () => {
+  const response = await axios.get(CATEGORY_URL, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+// ✅ Create UOM (protected)
+export const createUomService = async (formData) => {
+  const response = await axios.post(UOM_URL, formData, {
+    withCredentials: true,
+  });
+  return response.data;
+};
+
+// ✅ Get all UOMs (protected, multi-device support)
+export const getUomService = async () => {
+  const response = await axios.get(UOM_URL, {
+    withCredentials: true,
+  });
   return response.data;
 };

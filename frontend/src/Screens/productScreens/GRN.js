@@ -139,9 +139,9 @@ const GRN = () => {
                 <th className="py-3 px-4 text-left">Product Name</th>
                 <th className="py-3 px-4 text-left">Qty</th>
                 <th className="py-3 px-4 text-left">User</th>
-                <th className="py-3 px-4 text-left">Order Date</th>
-                <th className="py-3 px-4 text-left">Delivered Date</th>
-                <th className="py-3 px-4 text-left">Received Date</th>
+                <th className="py-3 px-4 text-left">Ordered On</th>
+                <th className="py-3 px-4 text-left">Delivery Left On</th>
+                <th className="py-3 px-4 text-left">Received On</th>
               </tr>
             </thead>
             <tbody>

@@ -159,6 +159,8 @@ const RegisterScreen = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const dispatch = useDispatch();
   const [register, { isLoading }] = useRegisterMutation();
@@ -191,20 +193,22 @@ const RegisterScreen = () => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -50 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen flex items-center justify-center bg-gray-900 p-4"
+      className="min-h-screen flex items-center justify-center bg-gray-900 p-4 relative overflow-hidden"
     >
+      {/* Soft animated gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-30 animate-gradient-x"></div>
+
       <form
         onSubmit={submitHandler}
-        className="w-full max-w-md bg-gray-800 text-gray-100 rounded-xl shadow-xl p-8 space-y-6"
+        className="relative w-full max-w-md bg-gray-800 text-gray-100 rounded-xl shadow-xl p-8 space-y-6 backdrop-blur-md"
       >
         <h1 className="text-3xl font-bold text-center text-white">
           Register
         </h1>
 
+        {/* Name Input */}
         <div className="flex flex-col space-y-2">
-          <label htmlFor="name" className="font-semibold">
-            Name
-          </label>
+          <label htmlFor="name" className="font-semibold">Name</label>
           <input
             type="text"
             placeholder="Enter your name"
@@ -215,10 +219,9 @@ const RegisterScreen = () => {
           />
         </div>
 
+        {/* Email Input */}
         <div className="flex flex-col space-y-2">
-          <label htmlFor="email" className="font-semibold">
-            Email
-          </label>
+          <label htmlFor="email" className="font-semibold">Email</label>
           <input
             type="email"
             placeholder="Enter your email"
@@ -229,40 +232,60 @@ const RegisterScreen = () => {
           />
         </div>
 
-        <div className="flex flex-col space-y-2">
-          <label htmlFor="password" className="font-semibold">
-            Password
-          </label>
+        {/* Password Input */}
+        <div className="flex flex-col space-y-2 relative">
+          <label htmlFor="password" className="font-semibold">Password</label>
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="p-2 rounded-md border border-gray-600 bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute top-2.5 right-2 text-gray-300 hover:text-white"
+          >
+            {showPassword ? "Hide" : "Show"}
+          </button>
         </div>
 
-        <div className="flex flex-col space-y-2">
-          <label htmlFor="confirmPassword" className="font-semibold">
-            Confirm Password
-          </label>
+        {/* Confirm Password Input */}
+        <div className="flex flex-col space-y-2 relative">
+          <label htmlFor="confirmPassword" className="font-semibold">Confirm Password</label>
           <input
-            type="password"
+            type={showConfirmPassword ? "text" : "password"}
             placeholder="Confirm your password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             className="p-2 rounded-md border border-gray-600 bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute top-2.5 right-2 text-gray-300 hover:text-white"
+          >
+            {showConfirmPassword ? "Hide" : "Show"}
+          </button>
         </div>
 
+        {/* Submit Button */}
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg transition-all disabled:opacity-50"
+          className={`w-full py-2 px-4 text-white font-bold rounded-lg transition-all disabled:opacity-50 relative overflow-hidden transform ${
+            isLoading
+              ? "bg-blue-600"
+              : "bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 hover:scale-105 active:scale-95"
+          }`}
         >
-          {isLoading ? <Loader /> : "Register"}
+          <span className="relative z-10">{isLoading ? <Loader /> : "Register"}</span>
+          {!isLoading && (
+            <span className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 opacity-30 animate-pulse rounded-lg"></span>
+          )}
         </button>
 
         <p className="text-center text-gray-400">

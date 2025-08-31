@@ -192,10 +192,22 @@ export const deleteOrder = asyncHandler (async (req, res) => {
       throw new Error("Not Found");
     }
 });
-
-
 */
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 // controllers/orderController.js
 import Order from "../models/orderModal.js";
 import Product from "../models/productModal.js";
@@ -326,3 +338,158 @@ export const deleteOrder = asyncHandler(async (req, res) => {
   await order.deleteOne();
   res.status(200).json({ message: "Order deleted successfully" });
 });
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//test nt gna wrk
+
+// controllers/orderController.js
+import Order from "../models/orderModal.js";
+import Product from "../models/productModal.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+
+// Create a new order
+export const newOrder = asyncHandler(async (req, res) => {
+  const { orderItems, approvedData, requisitionSteps, supplier } = req.body;
+
+  // Map each order item to include category
+  const itemsWithCategory = await Promise.all(
+    orderItems.map(async (x) => {
+      const productId = x.product || x._id; // ✅ handle both cases
+      const product = await Product.findById(productId);
+
+      return {
+        product: productId, // ✅ required field
+        name: x.name || product?.name,
+        qty: x.qty,
+        category: product?.category || "Uncategorized",
+        stock: product?.stock || 0,
+        supplier: x.supplier || product?.supplier || "",
+        price: x.price || product?.price || 0,
+      };
+    })
+  );
+
+  const createOrder = await Order.create({
+    orderItems: itemsWithCategory,
+    user: req.user._id,
+    approvedData,
+    supplier,
+    requisitionSteps,
+  });
+
+  res.status(201).json(createOrder);
+});
+
+// Get all orders (admin)
+export const allOrders = asyncHandler(async (req, res) => {
+  const orders = await Order.find({})
+    .sort("-createdAt")
+    .populate("user", "name email dept");
+
+  res.status(200).json({ orders });
+});
+
+// Get my orders (logged-in user)
+export const myOrders = asyncHandler(async (req, res) => {
+  const orders = await Order.find({ user: req.user._id })
+    .sort("-createdAt")
+    .lean();
+
+  for (let order of orders) {
+    for (let item of order.orderItems) {
+      const product = await Product.findById(item.product);
+      item.category = product?.category || "Uncategorized";
+    }
+  }
+
+  res.status(200).json({ orders });
+});
+
+// Get order details by ID
+export const orderDetails = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id)
+    .populate("user", "name email")
+    .lean();
+
+  if (!order) {
+    return res.status(404).json({ message: "Order not found" });
+  }
+
+  for (let item of order.orderItems) {
+    const product = await Product.findById(item.product);
+    item.category = product?.category || "Uncategorized";
+  }
+
+  res.status(200).json({ order });
+});
+
+// Update order as delivered
+export const updateOrder = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.status(404).json({ message: "Order not found" });
+
+  for (let item of order.orderItems) {
+    const product = await Product.findById(item.product);
+    if (!product) continue;
+    product.stock -= item.qty;
+    await product.save({ validateBeforeSave: true });
+  }
+
+  order.isDelivered = true;
+  order.deliveredAt = Date.now();
+  const updatedOrder = await order.save();
+
+  res.status(200).json(updatedOrder);
+});
+
+// Mark order as received and restock
+export const updateOrderProcurement = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.status(404).json({ message: "Order not found" });
+
+  for (let item of order.orderItems) {
+    const product = await Product.findById(item.product);
+    if (!product) continue;
+    product.stock += item.qty;
+    await product.save({ validateBeforeSave: true });
+  }
+
+  order.isDelivered = true;
+  order.deliveredAt = Date.now();
+  order.isRecived = true;
+  order.receivedAt = Date.now();
+  const updatedOrder = await order.save();
+
+  res.status(200).json(updatedOrder);
+});
+
+// Delete an order
+export const deleteOrder = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+  if (!order) return res.status(404).json({ message: "Order not found" });
+
+  await order.deleteOne();
+  res.status(200).json({ message: "Order deleted successfully" });
+});
+

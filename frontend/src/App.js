@@ -1,4 +1,6 @@
-/*import "./App.css";
+  
+  //original code but nothing shows
+ /* import "./App.css";
 import Landing from "./components/Landing";
 import './/styles/products.scss'
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -249,7 +251,6 @@ function App() {
 
 export default App;
 
-*/
 
 
 
@@ -259,6 +260,14 @@ export default App;
 
 
 
+
+
+
+
+
+
+
+//no sidebar
 /*
 import "./App.css";
 import Landing from "./components/Landing";
@@ -328,6 +337,10 @@ function App() {
 
 export default App;
 */
+
+
+
+
 
 
 
@@ -527,8 +540,19 @@ function App() {
 }
 
 export default App;
-
 */
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /*
@@ -603,6 +627,18 @@ function App() {
 export default App;
 */
 
+
+
+
+
+
+
+
+
+
+
+//best
+/*
 import "./App.css";
 import Landing from "./components/Landing";
 import "./styles/products.scss";
@@ -638,13 +674,11 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/register" element={<RegisterScreen />} />
         <Route path="/*" element={<Navigate to="/" />} />
 
-        {/* Protected routes */}
         <Route element={<AuthUser />}>
           <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
           <Route path="/warehouse" element={<Layout><Warehouse /></Layout>} />
@@ -664,11 +698,90 @@ function App() {
           <Route path="/edit/:id" element={<Layout><EditProduct /></Layout>} />
           <Route path="/goods-receive-note" element={<Layout><GRN /></Layout>} />
 
-          {/* Admin-only route */}
           {userInfo?.isAdmin && (
             <Route path="/listUsers" element={<Layout><ListUsers /></Layout>} />
           )}
         </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+*/
+
+
+
+
+
+
+import "./App.css";
+import Landing from "./components/Landing";
+import "./styles/products.scss";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+
+import Dashboard from "./Screens/Dashboard";
+import Layout from "./layout/Layout";
+import RegisterScreen from "./Screens/userScreens/RegisterScreen";
+import LoginScreen from "./Screens/userScreens/LoginScreen";
+import Warehouse from "./Screens/productScreens/Warehouse";
+import AuthUser from "./components/AuthUser";
+import ProductDetails from "./Screens/productScreens/ProductDetails";
+import CartScreen from "./Screens/CartScreen";
+import RequisitionType from "./Screens/productScreens/RequisitionType";
+import PurchaseRequisition from "./Screens/productScreens/PurchaseRequisition";
+import PlaceOrder from "./Screens/productScreens/PlaceOrder";
+import MyOrders from "./Screens/userScreens/MyOrders";
+import OrderDetails from "./Screens/productScreens/orderDetails";
+import ConfirmRequisition from "./Screens/productScreens/ConfirmRequisition";
+import LPO from "./Screens/productScreens/LPO";
+import LocalPurchaseOrders from "./Screens/procurementScreens/PurchaseLocalOrders";
+import PendingRequsitions from "./Screens/procurementScreens/PendingRequisition";
+import OrderDetailsProcur from "./Screens/procurementScreens/OrderDetailProcur";
+import ListUsers from "./Screens/userScreens/ListUsers";
+import EditProduct from "./Screens/productScreens/EditProduct";
+import GRN from "./Screens/productScreens/GRN";
+
+import { useSelector } from "react-redux";
+
+function App() {
+  const { userInfo } = useSelector((state) => state.auth);
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<LoginScreen />} />
+        <Route path="/register" element={<RegisterScreen />} />
+
+        {/* Protected Routes */}
+        <Route element={<AuthUser />}>
+          <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+          <Route path="/warehouse" element={<Layout><Warehouse /></Layout>} />
+          <Route path="/product/:id" element={<Layout><ProductDetails /></Layout>} />
+          <Route path="/product-details" element={<Layout><ProductDetails /></Layout>} />
+          <Route path="/store-requisition" element={<Layout><CartScreen /></Layout>} />
+          <Route path="/requisition-type" element={<Layout><RequisitionType /></Layout>} />
+          <Route path="/purchase-requisition" element={<Layout><PurchaseRequisition /></Layout>} />
+          <Route path="/placeorder" element={<Layout><PlaceOrder /></Layout>} />
+          <Route path="/my-orders-list" element={<Layout><MyOrders /></Layout>} />
+          <Route path="/orderdetail/:id" element={<Layout><OrderDetails /></Layout>} />
+          <Route path="/confirm-requisition" element={<Layout><ConfirmRequisition /></Layout>} />
+          <Route path="/LPO-factory" element={<Layout><LPO /></Layout>} />
+          <Route path="/LPO-procurement" element={<Layout><LocalPurchaseOrders /></Layout>} />
+          <Route path="/pending-requisitions" element={<Layout><PendingRequsitions /></Layout>} />
+          <Route path="/procurement/order/:id" element={<Layout><OrderDetailsProcur /></Layout>} />
+          <Route path="/edit/:id" element={<Layout><EditProduct /></Layout>} />
+          <Route path="/goods-receive-note" element={<Layout><GRN /></Layout>} />
+
+          {userInfo?.isAdmin && (
+            <Route path="/listUsers" element={<Layout><ListUsers /></Layout>} />
+          )}
+        </Route>
+
+        {/* Catch-all: only triggers if nothing matches */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

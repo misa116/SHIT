@@ -1,4 +1,8 @@
- import React, { useEffect, useState } from "react";
+
+
+
+/*
+import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { FaCheck } from "react-icons/fa";
@@ -79,7 +83,6 @@ const OrderItem = ({ orderItem, onPriceUpdate, isDeliver }) => {
                 htmlFor="category"
               >
                 Price
-              </label> */}
               <input
                 type="text"
                 value={newPrice}
@@ -113,6 +116,89 @@ const OrderItem = ({ orderItem, onPriceUpdate, isDeliver }) => {
           </div>
         </td>
       )}
+    </tr>
+  );
+};
+
+export default OrderItem;
+*/
+
+
+
+
+
+
+
+
+
+
+
+//test probly not gna work
+
+// frontend/src/procurementScreens/OrderItem.js
+import React, { useState } from "react";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { FaCheck } from "react-icons/fa";
+
+const OrderItem = ({ orderItem, onPriceUpdate }) => {
+  const [newPrice, setNewPrice] = useState(orderItem.price || 0);
+  const [supplier, setSupplier] = useState(orderItem.supplier || "");
+
+  const handlePriceUpdate = async () => {
+    if (!newPrice || isNaN(newPrice)) {
+      toast.error("Enter a valid price");
+      return;
+    }
+
+    try {
+      // Send updated price & supplier to backend
+      const response = await axios.put(`/api/orders/updateItemPrice/${orderItem._id}`, {
+        newPrice: parseFloat(newPrice),
+        supplier,
+        product: orderItem.product, // ensure product ID is included
+      });
+
+      if (response.status === 200) {
+        onPriceUpdate(orderItem._id, response.data.updatedOrderItem);
+        toast.success("Order item updated successfully!");
+      } else {
+        toast.error("Failed to update order item");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error updating order item");
+    }
+  };
+
+  return (
+    <tr key={orderItem._id}>
+      <td>{orderItem.name}</td>
+      <td>{orderItem.qty}</td>
+      <td>
+        <input
+          type="number"
+          value={newPrice}
+          onChange={(e) => setNewPrice(e.target.value)}
+          className="border p-1 rounded w-20"
+        />
+      </td>
+      <td>
+        <input
+          type="text"
+          value={supplier}
+          onChange={(e) => setSupplier(e.target.value)}
+          className="border p-1 rounded w-32"
+        />
+      </td>
+      <td>
+        <button
+          onClick={handlePriceUpdate}
+          className="bg-blue-600 text-white px-2 py-1 rounded flex items-center"
+        >
+          <FaCheck className="mr-1" /> Update
+        </button>
+      </td>
     </tr>
   );
 };

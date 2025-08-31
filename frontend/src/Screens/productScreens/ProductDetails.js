@@ -293,6 +293,7 @@ export default ProductDetails;
 
 
 
+//best code that works
 /*
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -338,7 +339,7 @@ const ProductDetails = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-8">
-      <h1 className="text-4xl font-extrabold text-gray-800 text-center mb-6">
+      <h1 className="text-4xl font-extrabold text-white-800 text-center mb-6">
         Requisition Details
       </h1>
 
@@ -413,9 +414,11 @@ export default ProductDetails;
 
 
 
+/*
+
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { BiCart } from "react-icons/bi";
+import { BiCart, BiX } from "react-icons/bi";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../../redux/cartSlice";
 import { Select } from "antd";
@@ -426,10 +429,12 @@ const ProductDetails = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const { selectedProducts } = location.state || {};
+  const { selectedProducts: initialProducts } = location.state || {};
+
+  const [selectedProducts, setSelectedProducts] = useState(initialProducts || []);
 
   const [quantities, setQuantities] = useState(
-    selectedProducts?.reduce((acc, product) => {
+    initialProducts?.reduce((acc, product) => {
       acc[product._id] = 1;
       return acc;
     }, {}) || {}
@@ -437,6 +442,15 @@ const ProductDetails = () => {
 
   const handleQtyChange = (productId, value) => {
     setQuantities({ ...quantities, [productId]: value });
+  };
+
+  const handleRemoveProduct = (productId) => {
+    setSelectedProducts((prev) => prev.filter((p) => p._id !== productId));
+
+    // also clean up quantities
+    const newQuantities = { ...quantities };
+    delete newQuantities[productId];
+    setQuantities(newQuantities);
   };
 
   const addRequisitions = () => {
@@ -447,10 +461,20 @@ const ProductDetails = () => {
     navigate("/store-requisition");
   };
 
+  const goBackToWarehouse = () => {
+    navigate("/warehouse", { state: { selectedProducts } });
+  };
+
   if (!selectedProducts || selectedProducts.length === 0) {
     return (
-      <div className="flex justify-center items-center h-screen text-gray-700 text-xl">
-        No products selected.
+      <div className="flex flex-col justify-center items-center h-screen text-gray-700 text-xl space-y-4">
+        <p>No products selected.</p>
+        <button
+          onClick={goBackToWarehouse}
+          className="px-6 py-3 bg-gray-600 text-white font-bold rounded-lg shadow-md hover:bg-gray-700 transition-all"
+        >
+          Back to Warehouse
+        </button>
       </div>
     );
   }
@@ -465,8 +489,15 @@ const ProductDetails = () => {
         {selectedProducts.map((product) => (
           <div
             key={product._id}
-            className="bg-white p-6 rounded-2xl shadow-lg flex flex-col justify-between"
+            className="bg-white p-6 rounded-2xl shadow-lg flex flex-col justify-between relative"
           >
+            <button
+              onClick={() => handleRemoveProduct(product._id)}
+              className="absolute top-3 right-3 text-red-500 hover:text-red-700"
+            >
+              <BiX size={28} />
+            </button>
+
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">{product.name}</h2>
               <p className="text-gray-600 mb-2">{product.description}</p>
@@ -511,7 +542,13 @@ const ProductDetails = () => {
         ))}
       </div>
 
-      <div className="sticky bottom-4 bg-white py-4 flex justify-center">
+      <div className="sticky bottom-4 bg-white py-4 flex justify-center gap-4">
+        <button
+          className="px-6 py-3 bg-gray-600 text-white font-bold rounded-lg shadow-md hover:bg-gray-700 transition-all"
+          onClick={goBackToWarehouse}
+        >
+          Back to Warehouse
+        </button>
         <button
           className="px-6 py-3 bg-blue-700 text-white font-bold rounded-lg shadow-md hover:bg-blue-800 transition-all flex items-center gap-2"
           onClick={addRequisitions}
@@ -519,6 +556,652 @@ const ProductDetails = () => {
           <span>Add All Requisitions</span>
           <BiCart size={24} />
         </button>
+      </div>
+    </div>
+  );
+};
+
+export default ProductDetails;
+
+
+*/
+
+
+
+
+/*
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { BiCart, BiX } from "react-icons/bi";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../redux/cartSlice";
+import { Select } from "antd";
+
+const { Option } = Select;
+
+const ProductDetails = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { selectedProducts: initialProducts, quantities: initialQuantities } = location.state || {};
+
+  const [selectedProducts, setSelectedProducts] = useState(initialProducts || []);
+  const [quantities, setQuantities] = useState(
+    initialProducts?.reduce((acc, product) => {
+      acc[product._id] = initialQuantities?.[product._id] || 1;
+      return acc;
+    }, {}) || {}
+  );
+
+  const handleQtyChange = (productId, value) => {
+    setQuantities({ ...quantities, [productId]: Number(value) });
+  };
+
+  const handleRemoveProduct = (productId) => {
+    setSelectedProducts((prev) => prev.filter((p) => p._id !== productId));
+
+    // Clean up quantities
+    const newQuantities = { ...quantities };
+    delete newQuantities[productId];
+    setQuantities(newQuantities);
+  };
+
+  const addRequisitions = () => {
+    selectedProducts.forEach((product) => {
+      const qty = quantities[product._id] || 1;
+      dispatch(addToCart({ ...product, qty }));
+    });
+    navigate("/store-requisition");
+  };
+
+  const goBackToWarehouse = () => {
+    navigate("/warehouse", { state: { selectedProducts, quantities } });
+  };
+
+  if (!selectedProducts || selectedProducts.length === 0) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen text-gray-700 text-xl space-y-4">
+        <p>No products selected.</p>
+        <button
+          onClick={goBackToWarehouse}
+          className="px-6 py-3 bg-gray-600 text-white font-bold rounded-lg shadow-md hover:bg-gray-700 transition-all"
+        >
+          Back to Warehouse
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 max-w-7xl mx-auto space-y-8">
+      <h1 className="text-4xl font-extrabold text-gray-800 text-center mb-6">
+        Requisition Details
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {selectedProducts.map((product) => (
+          <div
+            key={product._id}
+            className="bg-white p-6 rounded-2xl shadow-lg flex flex-col justify-between relative"
+          >
+            <button
+              onClick={() => handleRemoveProduct(product._id)}
+              className="absolute top-3 right-3 text-red-500 hover:text-red-700"
+            >
+              <BiX size={28} />
+            </button>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">{product.name}</h2>
+              <p className="text-gray-600 mb-2">{product.description}</p>
+              {product.manufacturer && (
+                <p className="text-gray-700 mb-1">
+                  <span className="font-semibold">Manufacturer:</span> {product.manufacturer}
+                </p>
+              )}
+              {product.supplier && (
+                <p className="text-gray-700 mb-1">
+                  <span className="font-semibold">Supplier:</span> {product.supplier}
+                </p>
+              )}
+              <p className="text-gray-700 mb-1">
+                <span className="font-semibold">Stock:</span> {product.stock}
+              </p>
+              <p className="text-gray-700 mb-1">
+                <span className="font-semibold">Unit of Measure:</span> {product.uom || "PCS"}
+              </p>
+              <p className="text-gray-700 mb-1">
+                <span className="font-semibold">Price:</span> ${product.price?.toFixed(2) || "0.00"}
+              </p>
+            </div>
+
+            <div className="mt-4">
+              <h3 className="text-gray-800 font-semibold mb-1">Select Quantity</h3>
+              <div className="flex items-center gap-3">
+                <Select
+                  value={quantities[product._id]}
+                  onChange={(value) => handleQtyChange(product._id, value)}
+                  className="min-w-[100px]"
+                >
+                  {[...Array(product.stock > 0 ? product.stock : 1).keys()].map((x) => (
+                    <Option key={x + 1} value={x + 1}>
+                      {x + 1}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="sticky bottom-4 bg-white py-4 flex justify-center gap-4">
+        <button
+          className="px-6 py-3 bg-gray-600 text-white font-bold rounded-lg shadow-md hover:bg-gray-700 transition-all"
+          onClick={goBackToWarehouse}
+        >
+          Back to Warehouse
+        </button>
+        <button
+          className="px-6 py-3 bg-blue-700 text-white font-bold rounded-lg shadow-md hover:bg-blue-800 transition-all flex items-center gap-2"
+          onClick={addRequisitions}
+        >
+          <span>Add All Requisitions</span>
+          <BiCart size={24} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default ProductDetails;
+*/
+
+
+
+
+
+
+
+/*
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { BiCart, BiX } from "react-icons/bi";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../redux/cartSlice";
+import { Select } from "antd";
+
+const { Option } = Select;
+
+const ProductDetails = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get initial products & quantities from location state
+  const { selectedProducts: initialProducts, quantities: initialQuantities } = location.state || {};
+
+  const [selectedProducts, setSelectedProducts] = useState(initialProducts || []);
+  const [quantities, setQuantities] = useState(
+    initialProducts?.reduce((acc, product) => {
+      acc[product._id] = initialQuantities?.[product._id] || 1;
+      return acc;
+    }, {}) || {}
+  );
+
+  // Update quantity
+  const handleQtyChange = (productId, value) => {
+    setQuantities((prev) => ({ ...prev, [productId]: Number(value) }));
+  };
+
+  // Remove a product
+  const handleRemoveProduct = (productId) => {
+    setSelectedProducts((prev) => prev.filter((p) => p._id !== productId));
+
+    const newQuantities = { ...quantities };
+    delete newQuantities[productId];
+    setQuantities(newQuantities);
+  };
+
+  // Add all requisitions to cart and navigate
+  const addRequisitions = () => {
+    selectedProducts.forEach((product) => {
+      const qty = quantities[product._id] || 1;
+      dispatch(addToCart({ ...product, qty }));
+    });
+    navigate("/store-requisition", { state: { selectedProducts, quantities } });
+  };
+
+  // Go back to warehouse while keeping selections
+  const goBackToWarehouse = () => {
+    navigate("/warehouse", { state: { selectedProducts, quantities } });
+  };
+
+  if (!selectedProducts || selectedProducts.length === 0) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen text-gray-700 text-xl space-y-4">
+        <p>No products selected.</p>
+        <button
+          onClick={goBackToWarehouse}
+          className="px-6 py-3 bg-gray-600 text-white font-bold rounded-lg shadow-md hover:bg-gray-700 transition-all"
+        >
+          Back to Warehouse
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 max-w-7xl mx-auto space-y-8">
+      <h1 className="text-4xl font-extrabold text-gray-800 text-center mb-6">
+        Requisition Details
+      </h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {selectedProducts.map((product) => (
+          <div
+            key={product._id}
+            className="bg-white p-6 rounded-2xl shadow-lg flex flex-col justify-between relative"
+          >
+            <button
+              onClick={() => handleRemoveProduct(product._id)}
+              className="absolute top-3 right-3 text-red-500 hover:text-red-700"
+            >
+              <BiX size={28} />
+            </button>
+
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">{product.name}</h2>
+              <p className="text-gray-600 mb-2">{product.description}</p>
+              {product.manufacturer && (
+                <p className="text-gray-700 mb-1">
+                  <span className="font-semibold">Manufacturer:</span> {product.manufacturer}
+                </p>
+              )}
+              {product.supplier && (
+                <p className="text-gray-700 mb-1">
+                  <span className="font-semibold">Supplier:</span> {product.supplier}
+                </p>
+              )}
+              <p className="text-gray-700 mb-1">
+                <span className="font-semibold">Stock:</span> {product.stock}
+              </p>
+              <p className="text-gray-700 mb-1">
+                <span className="font-semibold">Unit of Measure:</span> {product.uom || "PCS"}
+              </p>
+              <p className="text-gray-700 mb-1">
+                <span className="font-semibold">Price:</span> ${product.price?.toFixed(2) || "0.00"}
+              </p>
+            </div>
+
+            <div className="mt-4">
+              <h3 className="text-gray-800 font-semibold mb-1">Select Quantity</h3>
+              <div className="flex items-center gap-3">
+                <Select
+                  value={quantities[product._id]}
+                  onChange={(value) => handleQtyChange(product._id, value)}
+                  className="min-w-[100px]"
+                >
+                  {[...Array(product.stock > 0 ? product.stock : 1).keys()].map((x) => (
+                    <Option key={x + 1} value={x + 1}>
+                      {x + 1}
+                    </Option>
+                  ))}
+                </Select>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="sticky bottom-4 bg-white py-4 flex justify-center gap-4">
+        <button
+          className="px-6 py-3 bg-gray-600 text-white font-bold rounded-lg shadow-md hover:bg-gray-700 transition-all"
+          onClick={goBackToWarehouse}
+        >
+          Back to Warehouse
+        </button>
+        <button
+          className="px-6 py-3 bg-blue-700 text-white font-bold rounded-lg shadow-md hover:bg-blue-800 transition-all flex items-center gap-2"
+          onClick={addRequisitions}
+        >
+          <span>Add All Requisitions</span>
+          <BiCart size={24} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default ProductDetails;
+*/
+
+
+
+
+
+/*
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { BiCart, BiX } from "react-icons/bi";
+import { FaFire } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../redux/cartSlice";
+import { Select } from "antd";
+
+const { Option } = Select;
+
+const ProductDetails = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const { selectedProducts: initialProducts, quantities: initialQuantities } =
+    location.state || {};
+
+  const [selectedProducts, setSelectedProducts] = useState(initialProducts || []);
+  const [quantities, setQuantities] = useState(
+    initialProducts?.reduce((acc, product) => {
+      acc[product._id] = initialQuantities?.[product._id] || 1;
+      return acc;
+    }, {}) || {}
+  );
+
+  const handleQtyChange = (productId, value) => {
+    setQuantities((prev) => ({ ...prev, [productId]: Number(value) }));
+  };
+
+  const handleRemoveProduct = (productId) => {
+    setSelectedProducts((prev) => prev.filter((p) => p._id !== productId));
+    const newQuantities = { ...quantities };
+    delete newQuantities[productId];
+    setQuantities(newQuantities);
+  };
+
+  const addRequisitions = () => {
+    selectedProducts.forEach((product) => {
+      const qty = quantities[product._id] || 1;
+      dispatch(addToCart({ ...product, qty }));
+    });
+    navigate("/store-requisition", { state: { selectedProducts, quantities } });
+  };
+
+  const goBackToWarehouse = () => {
+    navigate("/warehouse", { state: { selectedProducts, quantities } });
+  };
+
+  if (!selectedProducts || selectedProducts.length === 0) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen text-gray-200 text-xl space-y-4 bg-blue-950">
+        <p>No products selected.</p>
+        <button
+          onClick={goBackToWarehouse}
+          className="px-6 py-3 bg-blue-700 text-white font-bold rounded-lg shadow-lg hover:bg-blue-800 transition-all"
+        >
+          Back to Warehouse
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 max-w-7xl mx-auto space-y-8 bg-blue-950 min-h-screen">
+      <h1 className="text-4xl font-extrabold text-blue-200 text-center mb-6 drop-shadow-md">
+        Requisition Details
+      </h1>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {selectedProducts.map((product) => (
+          <div
+            key={product._id}
+            className="bg-blue-900 border border-blue-500 p-6 rounded-2xl shadow-lg shadow-blue-500/40 flex flex-col justify-between relative"
+          >
+            <button
+              onClick={() => handleRemoveProduct(product._id)}
+              className="absolute top-3 right-3 text-red-400 hover:text-red-600"
+            >
+              <BiX size={28} />
+            </button>
+
+            <div>
+              <h2 className="text-2xl font-bold text-blue-100 mb-2 flex items-center gap-2">
+                {product.name}
+                {product.name.toUpperCase().includes("FIRE") && (
+                  <FaFire className="text-red-500 drop-shadow-md" />
+                )}
+              </h2>
+              <p className="text-blue-200 mb-2">{product.description}</p>
+              {product.manufacturer && (
+                <p className="text-blue-300 mb-1">
+                  <span className="font-semibold">Manufacturer:</span> {product.manufacturer}
+                </p>
+              )}
+              {product.supplier && (
+                <p className="text-blue-300 mb-1">
+                  <span className="font-semibold">Supplier:</span> {product.supplier}
+                </p>
+              )}
+              <p className="text-blue-300 mb-1">
+                <span className="font-semibold">Stock:</span> {product.stock}
+              </p>
+              <p className="text-blue-300 mb-1">
+                <span className="font-semibold">Unit of Measure:</span>{" "}
+                {product.uom || "PCS"}
+              </p>
+              <p className="text-blue-300 mb-1">
+                <span className="font-semibold">Price:</span> $
+                {product.price?.toFixed(2) || "0.00"}
+              </p>
+            </div>
+
+            <div className="mt-4">
+              <h3 className="text-blue-200 font-semibold mb-1">Select Quantity</h3>
+              <div className="flex items-center gap-3">
+                <Select
+                  value={quantities[product._id]}
+                  onChange={(value) => handleQtyChange(product._id, value)}
+                  className="min-w-[100px]"
+                >
+                  {[...Array(product.stock > 0 ? product.stock : 1).keys()].map(
+                    (x) => (
+                      <Option key={x + 1} value={x + 1}>
+                        {x + 1}
+                      </Option>
+                    )
+                  )}
+                </Select>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="sticky bottom-4 bg-blue-900 py-4 flex justify-center gap-4 rounded-lg shadow-md shadow-blue-500/40">
+        <button
+          className="px-6 py-3 bg-gray-600 text-white font-bold rounded-lg shadow-md hover:bg-gray-700 transition-all"
+          onClick={goBackToWarehouse}
+        >
+          Back to Warehouse
+        </button>
+        <button
+          className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 transition-all flex items-center gap-2"
+          onClick={addRequisitions}
+        >
+          <span>Add All Requisitions</span>
+          <BiCart size={24} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default ProductDetails;
+*/
+
+
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { BiCart, BiX } from "react-icons/bi";
+import { FaFire } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { addToCart } from "../../redux/cartSlice";
+import { Select } from "antd";
+
+const { Option } = Select;
+
+const ProductDetails = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const { selectedProducts: initialProducts, quantities: initialQuantities } =
+    location.state || {};
+
+  const [selectedProducts, setSelectedProducts] = useState(initialProducts || []);
+  const [quantities, setQuantities] = useState(
+    initialProducts?.reduce((acc, product) => {
+      acc[product._id] = initialQuantities?.[product._id] || 1;
+      return acc;
+    }, {}) || {}
+  );
+
+  const handleQtyChange = (productId, value) => {
+    setQuantities((prev) => ({ ...prev, [productId]: Number(value) }));
+  };
+
+  const handleRemoveProduct = (productId) => {
+    setSelectedProducts((prev) => prev.filter((p) => p._id !== productId));
+    const newQuantities = { ...quantities };
+    delete newQuantities[productId];
+    setQuantities(newQuantities);
+  };
+
+  const addRequisitions = () => {
+    selectedProducts.forEach((product) => {
+      const qty = quantities[product._id] || 1;
+      dispatch(addToCart({ ...product, qty }));
+    });
+    navigate("/store-requisition", { state: { selectedProducts, quantities } });
+  };
+
+  const goBackToWarehouse = () => {
+    navigate("/warehouse", { state: { selectedProducts, quantities } });
+  };
+
+  if (!selectedProducts || selectedProducts.length === 0) {
+    return (
+      <div className="flex flex-col justify-center items-center h-screen text-gray-200 text-xl space-y-4 bg-black">
+        <p>No products selected.</p>
+        <button
+          onClick={goBackToWarehouse}
+          className="px-6 py-3 bg-blue-700 text-white font-bold rounded-lg shadow-lg hover:bg-blue-800 transition-all"
+        >
+          Back to Warehouse
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-6 max-w-7xl mx-auto space-y-8 bg-black min-h-screen">
+      {/* Header section */}
+      <div className="bg-black border-2 border-blue-600 rounded-xl shadow-lg px-6 py-2 w-fit mx-auto">
+        <h1 className="text-4xl font-extrabold text-blue-400 text-center drop-shadow-md">
+        📋 Check Requisition Details
+        </h1>
+      </div>
+
+      {/* Product cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {selectedProducts.map((product) => (
+          <div
+            key={product._id}
+            className="bg-gray-900 border border-blue-500 p-6 rounded-2xl shadow-lg shadow-blue-500/40 flex flex-col justify-between relative"
+          >
+            {/* Remove button */}
+            <button
+              onClick={() => handleRemoveProduct(product._id)}
+              className="absolute top-3 right-3 text-red-400 hover:text-red-600"
+            >
+              <BiX size={28} />
+            </button>
+
+            {/* Product info */}
+            <div>
+              <h2 className="text-2xl font-bold text-blue-100 mb-2 flex items-center gap-2">
+                {product.name}
+                {product.name.toUpperCase().includes("FIRE") && (
+                  <FaFire className="text-red-500 drop-shadow-md" />
+                )}
+              </h2>
+              <p className="text-blue-200 mb-2">{product.description}</p>
+              {product.manufacturer && (
+                <p className="text-blue-300 mb-1">
+                  <span className="font-semibold">Manufacturer:</span>{" "}
+                  {product.manufacturer}
+                </p>
+              )}
+              {product.supplier && (
+                <p className="text-blue-300 mb-1">
+                  <span className="font-semibold">Supplier:</span>{" "}
+                  {product.supplier}
+                </p>
+              )}
+              <p className="text-blue-300 mb-1">
+                <span className="font-semibold">Stock:</span> {product.stock}
+              </p>
+              <p className="text-blue-300 mb-1">
+                <span className="font-semibold">Unit of Measure:</span>{" "}
+                {product.uom || "PCS"}
+              </p>
+              <p className="text-blue-300 mb-1">
+                <span className="font-semibold">Price:</span> $
+                {product.price?.toFixed(2) || "0.00"}
+              </p>
+            </div>
+
+            {/* Quantity selector */}
+            <div className="mt-4">
+              <h3 className="text-blue-200 font-semibold mb-1">
+                Select Quantity
+              </h3>
+              <div className="flex items-center gap-3">
+                <Select
+                  value={quantities[product._id]}
+                  onChange={(value) => handleQtyChange(product._id, value)}
+                  className="min-w-[100px]"
+                >
+                  {[...Array(product.stock > 0 ? product.stock : 1).keys()].map(
+                    (x) => (
+                      <Option key={x + 1} value={x + 1}>
+                        {x + 1}
+                      </Option>
+                    )
+                  )}
+                </Select>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom buttons */}
+      <div className="sticky bottom-4 flex justify-center">
+        <div className="bg-blue-900/90 py-4 px-6 flex justify-center gap-4 rounded-lg shadow-md shadow-blue-500/40 w-fit mx-auto backdrop-blur-sm">
+          <button
+            className="px-6 py-3 bg-gray-600 text-white font-bold rounded-lg shadow-md hover:bg-gray-700 transition-all"
+            onClick={goBackToWarehouse}
+          >
+            Back to Warehouse
+          </button>
+          <button
+            className="px-6 py-3 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 transition-all flex items-center gap-2"
+            onClick={addRequisitions}
+          >
+            <span>Add All Requisitions</span>
+            <BiCart size={24} />          
+          </button>
+        </div>
       </div>
     </div>
   );

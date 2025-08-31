@@ -106,7 +106,7 @@ export default apiSlice;
 
 // frontend/src/redux/apiSlice.js
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { BASE_URL } from "./constants";
+import { BASE_URL } from "./constants.js";
 
 // Base query with cookies and optional token headers
 const baseQuery = fetchBaseQuery({

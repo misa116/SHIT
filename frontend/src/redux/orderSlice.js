@@ -1,4 +1,6 @@
-/* import apiSlice from "./apiSlice";
+/*
+
+import apiSlice from "./apiSlice";
 import { ORDERS_URL } from "./constants";
 
 const orderApiSlice = apiSlice.injectEndpoints({
@@ -79,6 +81,14 @@ export const {
 
 */
 
+
+
+
+
+
+
+
+//breaks code
 /*
 import apiSlice from "./apiSlice";
 import { ORDERS_URL } from "./constants";
@@ -137,9 +147,73 @@ export const {
 */
 
 
+
+
+
+
+
+
+
+
+
+
+//version that makes everything works 
 // frontend/redux/orderSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-import {
+import apiSlice from "./apiSlice";
+import { ORDERS_URL } from "./constants";
+
+// --- RTK Query endpoints ---
+export const orderApiSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    createOrder: builder.mutation({
+      query: (order) => ({
+        url: `${ORDERS_URL}/`,
+        method: "POST",
+        body: { ...order },
+      }),
+    }),
+    getMyOrders: builder.query({
+      query: () => `${ORDERS_URL}/my`,
+      keepUnusedDataFor: 5,
+    }),
+    getOrders: builder.query({
+      query: () => `${ORDERS_URL}/all`,
+      keepUnusedDataFor: 5,
+    }),
+    getOrderDetails: builder.query({
+      query: (orderId) => `${ORDERS_URL}/${orderId}`,
+      keepUnusedDataFor: 5,
+    }),
+    deliverOrder: builder.mutation({
+      query: (orderId) => ({
+        url: `${ORDERS_URL}/${orderId}/deliver`,
+        method: "PUT",
+      }),
+    }),
+    deliverOrderProcur: builder.mutation({
+      query: (orderId) => ({
+        url: `${ORDERS_URL}/deliver-dept/${orderId}`,
+        method: "PUT",
+      }),
+    }),
+    updateOrderRecieved: builder.mutation({
+      query: (orderId) => ({
+        url: `${ORDERS_URL}/${orderId}/receive`,
+        method: "PUT",
+      }),
+    }),
+    deleteOrder: builder.mutation({
+      query: (orderId) => ({
+        url: `${ORDERS_URL}/${orderId}`,
+        method: "DELETE",
+      }),
+    }),
+  }),
+});
+
+// Export hooks for screens
+export const {
   useCreateOrderMutation,
   useGetMyOrdersQuery,
   useGetOrdersQuery,
@@ -148,8 +222,9 @@ import {
   useDeliverOrderProcurMutation,
   useUpdateOrderRecievedMutation,
   useDeleteOrderMutation,
-} from "../api/orderApiSlice";
+} = orderApiSlice;
 
+// --- Local Redux slice for order state ---
 const initialState = {
   orderDetails: null,
   myOrders: [],
@@ -170,23 +245,7 @@ const orderSlice = createSlice({
       state.error = null;
     },
   },
-  extraReducers: (builder) => {
-    // You can add cases for pending/fulfilled/rejected if you want local state tracking
-    // But if you rely fully on RTK Query hooks, you might not need many reducers here
-  },
 });
 
 export const { resetOrderState } = orderSlice.actions;
 export default orderSlice.reducer;
-
-// Optional: you can export the hooks here for cleaner imports
-export {
-  useCreateOrderMutation,
-  useGetMyOrdersQuery,
-  useGetOrdersQuery,
-  useGetOrderDetailsQuery,
-  useDeliverOrderMutation,
-  useDeliverOrderProcurMutation,
-  useUpdateOrderRecievedMutation,
-  useDeleteOrderMutation,
-};
