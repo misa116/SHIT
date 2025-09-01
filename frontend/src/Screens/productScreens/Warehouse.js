@@ -5024,7 +5024,7 @@ export default Warehouse;
 
 
 
-
+/*
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate, useLocation } from "react-router-dom";
@@ -5171,7 +5171,6 @@ const Warehouse = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 sm:px-6 py-8">
-      {/* Header */}
       <div className="mb-6 p-6 rounded-lg shadow-lg shadow-blue-200 bg-gradient-to-r from-blue-400 to-blue-600 text-white flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
           <nav className="text-sm mb-1" aria-label="Breadcrumb">
@@ -5193,7 +5192,6 @@ const Warehouse = () => {
         </button>
       </div>
 
-      {/* Search */}
       <div className="mb-4 sticky top-4 z-20">
         <input
           type="text"
@@ -5204,7 +5202,6 @@ const Warehouse = () => {
         />
       </div>
 
-      {/* Requisition Button */}
       {selectedProducts.length > 0 && (
         <div className="sticky top-20 z-20 mb-4">
           <button
@@ -5216,7 +5213,6 @@ const Warehouse = () => {
         </div>
       )}
 
-      {/* Product Table (Desktop) */}
       <div className="overflow-x-auto rounded-xl shadow-lg shadow-blue-200 bg-white hidden sm:block">
         <table className="min-w-full text-left border-collapse">
           <thead className="bg-gradient-to-r from-blue-500 to-blue-600 sticky top-0 z-10 text-sm uppercase tracking-wide text-white">
@@ -5301,7 +5297,6 @@ const Warehouse = () => {
         </table>
       </div>
 
-      {/* Mobile Card View */}
       <div className="sm:hidden space-y-4">
         {isLoading ? (
           [...Array(4)].map((_, i) => (
@@ -5373,7 +5368,6 @@ const Warehouse = () => {
         )}
       </div>
 
-      {/* Low Stock Modal */}
       {showLowStockModal && (
         <div
           className="fixed inset-0 z-50"
@@ -5385,6 +5379,434 @@ const Warehouse = () => {
             className="absolute inset-0 bg-black/50"
             onClick={() => setShowLowStockModal(false)}
           />
+          <div className="absolute inset-x-0 top-[10%] mx-auto w-11/12 sm:w-[640px]">
+            <div className="bg-white rounded-2xl shadow-2xl p-5 max-h-[70vh] overflow-y-auto">
+              <div className="flex items-center justify-between mb-3">
+                <h2 id="low-stock-title" className="text-xl font-bold text-red-600">
+                  ⚠️ Low Stock Products ({lowStockProducts.length})
+                </h2>
+                <button
+                  className="h-9 w-9 bg-red-500 inline-flex items-center justify-center rounded-full hover:bg-red-900 text-2xl leading-none"
+                  onClick={() => setShowLowStockModal(false)}
+                  aria-label="Close"
+                  title="Close"
+                >
+                  &times;
+                </button>
+              </div>
+
+              {lowStockProducts.length > 0 ? (
+                <ul className="space-y-3">
+                  {lowStockProducts
+                    .slice()
+                    .sort((a, b) => (a.stock ?? 0) - (b.stock ?? 0))
+                    .map((p) => (
+                      <li
+                        key={p._id}
+                        className="p-3 border rounded-lg flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 hover:bg-red-50"
+                      >
+                        <div className="min-w-0">
+                          <p className="font-semibold text-gray-800 truncate">{p.name}</p>
+                          <p className="text-sm text-gray-600">
+                            Category: {p.category || "N/A"} • Supplier: {p.supplier || "N/A"}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-red-600 font-bold">Stock: {p.stock}</span>
+                        </div>
+                      </li>
+                    ))}
+                </ul>
+              ) : (
+                <p className="text-gray-600 italic">No low stock products 🎉</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Warehouse;
+*/
+
+
+
+
+
+
+
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { getProducts } from "../../redux/productSlice";
+
+const LOW_STOCK_THRESHOLD = 100;
+
+const Warehouse = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const { products, isSuccess, isLoading } = useSelector((state) => state.products);
+  const { userInfo } = useSelector((state) => state.auth);
+
+  const [search, setSearch] = useState("");
+  const [selectedProducts, setSelectedProducts] = useState([]);
+  const [quantities, setQuantities] = useState({});
+  const [showLowStockModal, setShowLowStockModal] = useState(false);
+  const [lowStockProducts, setLowStockProducts] = useState([]);
+  const [showSuccessNotification, setShowSuccessNotification] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.selectedProducts) setSelectedProducts(location.state.selectedProducts);
+    if (location.state?.quantities) setQuantities(location.state.quantities);
+  }, [location.state]);
+
+  useEffect(() => {
+    if (!userInfo) navigate("/login");
+  }, [userInfo, navigate]);
+
+  useEffect(() => {
+    dispatch(getProducts());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (isSuccess && products?.length > 0) {
+      setShowSuccessNotification(true);
+      setLowStockProducts(products.filter((p) => p.stock <= LOW_STOCK_THRESHOLD));
+
+      // Auto-dismiss notification
+      const timer = setTimeout(() => setShowSuccessNotification(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [isSuccess, products]);
+
+  useEffect(() => {
+    if (!showLowStockModal) return;
+
+    const onKey = (e) => {
+      if (e.key === "Escape") setShowLowStockModal(false);
+    };
+    document.addEventListener("keydown", onKey);
+
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = original;
+    };
+  }, [showLowStockModal]);
+
+  const similarity = (s1 = "", s2 = "") => {
+    s1 = s1.toString().toLowerCase();
+    s2 = s2.toString().toLowerCase();
+    if (!s1 || !s2) return 0;
+    if (s1.includes(s2) || s2.includes(s1)) return 1;
+    const longer = s1.length > s2.length ? s1 : s2;
+    const shorter = s1.length > s2.length ? s2 : s1;
+    const longerLength = longer.length;
+    if (longerLength === 0) return 1;
+
+    let editDistance = 0;
+    const minLen = Math.min(longer.length, shorter.length);
+    for (let i = 0; i < minLen; i++) if (longer[i] !== shorter[i]) editDistance++;
+    editDistance += Math.abs(longer.length - shorter.length);
+    return (longerLength - editDistance) / longerLength;
+  };
+
+  const highlightMatches = (text, search) => {
+    if (!search) return text;
+    const searchWords = search.toLowerCase().split(" ").filter(Boolean);
+    let result = text;
+    searchWords.forEach((word) => {
+      const regex = new RegExp(`(${word})`, "gi");
+      result = result.replace(
+        regex,
+        `<span class="bg-blue-500 text-white rounded px-1 shadow-[0_0_3px_rgba(0,0,100,0.6)]">$1</span>`
+      );
+    });
+    return result;
+  };
+
+  const filteredProducts = !search
+    ? products
+    : products
+        ?.map((product) => {
+          const searchWords = search.toLowerCase().split(" ").filter(Boolean);
+          const productFields = [
+            product.name || "",
+            product.modelNo || "",
+            product.uom || "",
+            product.category || "",
+            product.location || "",
+            product.supplier || "",
+            product.manufacturer || "",
+            (product.price?.toString()) || "",
+          ];
+
+          let score = 0;
+          searchWords.forEach((word) => {
+            const bestMatch = Math.max(...productFields.map((field) => similarity(field, word)));
+            score += bestMatch;
+          });
+
+          return { product, score };
+        })
+        .filter(({ score }) => score > 0.2)
+        .sort((a, b) => b.score - a.score)
+        .map(({ product }) => product);
+
+  const handleCheckbox = (product) => {
+    if (selectedProducts.some((p) => p._id === product._id)) {
+      setSelectedProducts(selectedProducts.filter((p) => p._id !== product._id));
+      const newQuantities = { ...quantities };
+      delete newQuantities[product._id];
+      setQuantities(newQuantities);
+    } else {
+      setSelectedProducts([...selectedProducts, product]);
+      setQuantities({ ...quantities, [product._id]: quantities[product._id] ?? 1 });
+    }
+  };
+
+  const handleQtyChange = (productId, value) => {
+    if (value === "") {
+      setQuantities({ ...quantities, [productId]: "" });
+    } else {
+      const num = Number(value);
+      if (!isNaN(num)) setQuantities({ ...quantities, [productId]: num });
+    }
+  };
+
+  const navigateToDetails = () => {
+    if (selectedProducts.length === 0) return;
+    navigate("/product-details", { state: { selectedProducts, quantities } });
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 px-4 sm:px-6 py-8 relative">
+
+      {/* Success Notification */}
+      {showSuccessNotification && (
+        <div className="fixed top-6 right-6 z-50 animate-fadeInDown bg-gradient-to-r from-blue-500 to-slate-400 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 pointer-events-auto max-w-sm">
+          <span className="text-2xl">📦</span>
+          <span className="font-semibold text-lg flex-1">Inventory Rendered Successfully</span>
+          <button
+            className="ml-4 text-slate-900 font-bold bg-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-slate-200 transition"
+            onClick={() => setShowSuccessNotification(false)}
+            aria-label="Close Notification"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="mb-6 p-6 rounded-lg shadow-lg shadow-blue-200 bg-gradient-to-r from-blue-400 to-blue-600 text-white flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+        <div>
+          <nav className="text-sm mb-1" aria-label="Breadcrumb">
+            <ol className="list-reset flex text-white/80">
+              <li><Link to="/" className="hover:text-white">Dashboard</Link></li>
+              <li><span className="mx-2">/</span></li>
+              <li className="font-semibold">Warehouse</li>
+            </ol>
+          </nav>
+          <h1 className="text-2xl sm:text-3xl font-extrabold flex items-center">📦 Warehouse Inventory</h1>
+          <p className="mt-1 text-white/90">Overview of all products stored in each warehouse</p>
+        </div>
+
+        <button
+          className="px-4 py-2 bg-red-600 text-white font-bold rounded-lg shadow hover:bg-red-700 transition"
+          onClick={() => setShowLowStockModal(true)}
+        >
+          View Low Stock ({lowStockProducts.length})
+        </button>
+      </div>
+
+      {/* Search */}
+      <div className="mb-4 sticky top-4 z-20">
+        <input
+          type="text"
+          placeholder="🔍 Search products..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full sm:w-1/2 p-3 rounded-lg shadow-md border-2 border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800 bg-gradient-to-r from-white via-gray-100 to-white transition"
+        />
+      </div>
+
+      {/* Requisition Button */}
+      {selectedProducts.length > 0 && (
+        <div className="sticky top-20 z-20 mb-4">
+          <button
+            className="w-full sm:w-auto px-6 py-3 bg-blue-800 text-white font-bold rounded-lg shadow-md hover:bg-blue-900 transition-all"
+            onClick={navigateToDetails}
+          >
+            Proceed with {selectedProducts.length} Requisition
+          </button>
+        </div>
+      )}
+
+      {/* Product Table (Desktop) */}
+      <div className="overflow-x-auto rounded-xl shadow-lg shadow-blue-200 bg-white hidden sm:block">
+        <table className="min-w-full text-left border-collapse">
+          <thead className="bg-gradient-to-r from-blue-500 to-blue-600 sticky top-0 z-10 text-sm uppercase tracking-wide text-white">
+            <tr>
+              {["Select", "Name", "Category", "Supplier", "Stock", "Qty", "Model No", "Manufacturer", "UOM", "Price"].map((title) => (
+                <th key={title} className="py-3 px-4 border-b border-gray-200 font-semibold">{title}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              [...Array(6)].map((_, i) => (
+                <tr key={i} className="animate-pulse">
+                  {Array(10).fill("").map((_, idx) => (
+                    <td key={idx} className="py-2 px-4 border-b">
+                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : filteredProducts?.length > 0 ? filteredProducts.map((product) => {
+              const isSelected = selectedProducts.some((p) => p._id === product._id);
+              return (
+                <tr
+                  key={product._id}
+                  className={`transition-colors duration-200 cursor-pointer 
+                    ${isSelected ? "bg-blue-300/40 hover:bg-blue-400/60" : "hover:bg-gray-100"} 
+                    ${product.stock <= LOW_STOCK_THRESHOLD ? "border border-red-600" : "border border-gray-200"} 
+                    rounded-lg mb-1 shadow-sm hover:shadow-md
+                  `}
+                  onClick={() => handleCheckbox(product)}
+                >
+                  <td className="py-2 px-4 border-b text-black">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => handleCheckbox(product)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </td>
+                  <td className="py-2 px-4 border-b text-black font-bold">
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: product.name.toUpperCase().includes("FIRE")
+                          ? highlightMatches(product.name + " 🔥", search)
+                          : highlightMatches(product.name, search)
+                      }}
+                    />
+                  </td>
+                  <td className="py-2 px-4 border-b text-black" dangerouslySetInnerHTML={{ __html: highlightMatches(product.category || "", search) }} />
+                  <td className="py-2 px-4 border-b text-black" dangerouslySetInnerHTML={{ __html: highlightMatches(product.supplier || "", search) }} />
+                  <td className={`py-2 px-4 border-b font-bold ${product.stock <= LOW_STOCK_THRESHOLD ? "text-red-600" : "text-black"}`} dangerouslySetInnerHTML={{ __html: highlightMatches(product.stock?.toString() || "0", search) }} />
+                  <td className="py-2 px-4 border-b text-black">
+                    {isSelected ? (
+                      <input
+                        type="number"
+                        min="1"
+                        max={product.stock}
+                        value={quantities[product._id] !== undefined ? quantities[product._id] : 1}
+                        onChange={(e) => handleQtyChange(product._id, e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-20 border rounded px-2 py-1"
+                      />
+                    ) : "-"}
+                  </td>
+                  <td className="py-2 px-4 border-b text-black" dangerouslySetInnerHTML={{ __html: highlightMatches(product.modelNo || "N/A", search) }} />
+                  <td className="py-2 px-4 border-b text-black" dangerouslySetInnerHTML={{ __html: highlightMatches(product.manufacturer || "", search) }} />
+                  <td className="py-2 px-4 border-b text-black" dangerouslySetInnerHTML={{ __html: highlightMatches(product.uom || "PCS", search) }} />
+                  <td className="py-2 px-4 border-b text-black" dangerouslySetInnerHTML={{ __html: highlightMatches(product.price?.toString() || "0.00", search) }} />
+                </tr>
+              )
+            }) : (
+              <tr>
+                <td colSpan="10" className="text-center py-6 text-gray-500 italic">
+                  No products found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="sm:hidden space-y-4">
+        {isLoading ? (
+          [...Array(4)].map((_, i) => (
+            <div key={i} className="p-4 rounded-lg shadow-md bg-gray-100 animate-pulse border-gradient-to-r from-orange-400 via-blue-500 to-purple-500">
+              <div className="h-4 w-1/2 bg-gray-300 rounded mb-2"></div>
+              <div className="h-4 w-1/3 bg-gray-300 rounded mb-2"></div>
+              <div className="h-4 w-1/4 bg-gray-300 rounded"></div>
+            </div>
+          ))
+        ) : filteredProducts?.length > 0 ? (
+          filteredProducts.map((product) => {
+            const isSelected = selectedProducts.some((p) => p._id === product._id);
+            return (
+              <div
+                key={product._id}
+                className={`p-4 rounded-xl shadow-md transition-colors duration-200 
+                  border-2 border-gradient-to-r from-orange-400 via-blue-500 to-purple-500   
+                  ${isSelected ? "bg-blue-100" : "bg-white"}
+                  ${product.stock <= LOW_STOCK_THRESHOLD ? "border-gradient-to-r from-orange-400 via-blue-500 to-purple-500" : ""} 
+                `}
+                onClick={() => handleCheckbox(product)}
+              >
+                <div className="flex justify-between items-center">
+                  <h2
+                    className="font-bold text-lg text-gray-800"
+                    dangerouslySetInnerHTML={{
+                      __html: product.name.toUpperCase().includes("FIRE")
+                        ? highlightMatches(product.name + " 🔥", search)
+                        : highlightMatches(product.name, search)
+                    }}
+                  />
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => handleCheckbox(product)}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+
+                <p className="text-sm text-gray-600">Category: {product.category}</p>
+                <p className="text-sm text-gray-600">Supplier: {product.supplier}</p>
+                <p className={`text-sm font-semibold ${product.stock <= LOW_STOCK_THRESHOLD ? "text-red-600" : "text-gray-800"}`}>
+                  Stock: {product.stock}
+                </p>
+
+                {isSelected && (
+                  <input
+                    type="number"
+                    min="1"
+                    max={product.stock}
+                    value={quantities[product._id] !== undefined ? quantities[product._id] : 1}
+                    onChange={(e) => handleQtyChange(product._id, e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-2 w-24 border rounded px-2 py-1 text-black text-sm"
+                  />
+                )}
+
+                <div className="mt-2 text-xs text-gray-500">
+                  <p>Model: {product.modelNo || "N/A"}</p>
+                  <p>Manufacturer: {product.manufacturer || "N/A"}</p>
+                  <p>UOM: {product.uom || "PCS"}</p>
+                  <p>Price: ${product.price?.toFixed(2)}</p>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <p className="text-center text-gray-500 italic">No products found.</p>
+        )}
+      </div>
+
+      {/* Low Stock Modal */}
+      {showLowStockModal && (
+        <div className="fixed inset-0 z-50" aria-modal="true" role="dialog" aria-labelledby="low-stock-title">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowLowStockModal(false)} />
           <div className="absolute inset-x-0 top-[10%] mx-auto w-11/12 sm:w-[640px]">
             <div className="bg-white rounded-2xl shadow-2xl p-5 max-h-[70vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-3">
