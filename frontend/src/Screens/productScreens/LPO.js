@@ -2332,19 +2332,7 @@ const LPO = () => {
           }}
           className="w-full md:w-1/2 px-4 py-2 rounded-lg bg-gray-900 text-gray-200 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
         />
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="w-full md:w-1/4 px-4 py-2 rounded-lg bg-gray-900 text-gray-200 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="all">All Status</option>
-          <option value="delivered">Delivered</option>
-          <option value="received">Received</option>
-          <option value="pending">Pending</option>
-        </select>
+        
       </div>
 
       {isLoading ? (
@@ -2504,6 +2492,15 @@ const LPO = () => {
 };
 
 export default LPO;
+
+
+
+
+
+
+
+
+
 */
 
 
@@ -2512,6 +2509,11 @@ export default LPO;
 
 
 
+
+
+
+//works
+/*
 import React, { useState } from "react";
 import Loader from "../../components/Loader";
 import { AiOutlineDelete } from "react-icons/ai";
@@ -2523,6 +2525,7 @@ const LPO = () => {
   const { data, isLoading, error, refetch } = useGetOrdersQuery();
   const [deleteOrder] = useDeleteOrderMutation();
   const [expandedOrders, setExpandedOrders] = useState({});
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -2533,16 +2536,13 @@ const LPO = () => {
       await deleteOrder(orderId).unwrap();
       toast.success("Order Deleted");
       refetch();
-    } catch {
+    } catch (err) {
       toast.error("Error occurred while deleting order");
     }
   };
 
   const toggleExpand = (orderId) => {
-    setExpandedOrders((prev) => ({
-      ...prev,
-      [orderId]: !prev[orderId],
-    }));
+    setExpandedOrders((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
   };
 
   const filteredOrders =
@@ -2585,15 +2585,13 @@ const LPO = () => {
   };
 
   return (
-    <div className="w-full p-4 md:p-6">
-      {/* Header */}
-      <h1 className="text-3xl md:text-4xl font-extrabold text-gray-100 mb-6 md:mb-8 text-center drop-shadow-md flex items-center justify-center gap-3 group">
-        <FaJediOrder className="w-8 h-8 md:w-10 md:h-10 text-blue-400 group-hover:text-blue-300 group-hover:animate-bounce transition" />
-        <span className="group-hover:text-blue-300 transition">Local Purchase Orders</span>
+    <div className="w-full p-4 md:p-6 bg-gray-900 min-h-screen text-gray-200">
+      <h1 className="text-3xl md:text-4xl font-extrabold text-center mb-8 flex items-center justify-center gap-3 drop-shadow-md transform transition duration-300 ease-in-out hover:scale-105 group">
+        <FaJediOrder className="w-10 h-10 text-blue-400 group-hover:text-blue-300 animate-bounce" />
+        <span className="group-hover:text-blue-300">Local Purchase Orders</span>
       </h1>
 
-      {/* Search & Filter */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6 bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-700">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-700">
         <input
           type="text"
           placeholder="Search by User or Product..."
@@ -2602,21 +2600,8 @@ const LPO = () => {
             setSearchTerm(e.target.value);
             setCurrentPage(1);
           }}
-          className="w-full px-4 py-2 rounded-lg bg-gray-900 text-gray-200 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full md:w-1/2 px-4 py-2 rounded-lg bg-gray-900 text-gray-200 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
         />
-        <select
-          value={statusFilter}
-          onChange={(e) => {
-            setStatusFilter(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="w-full md:w-1/3 px-4 py-2 rounded-lg bg-gray-900 text-gray-200 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="all">All Status</option>
-          <option value="delivered">Delivered</option>
-          <option value="received">Received</option>
-          <option value="pending">Pending</option>
-        </select>
       </div>
 
       {isLoading ? (
@@ -2625,118 +2610,193 @@ const LPO = () => {
         <h4 className="text-red-500 text-center">{error}</h4>
       ) : (
         <>
-          {/* Desktop Table */}
           <div className="hidden md:block w-full overflow-x-auto bg-gray-800 rounded-2xl shadow-2xl border border-gray-700">
-            <table className="min-w-full text-sm text-left text-gray-200">
+            <table className="min-w-full text-sm text-left text-gray-200 relative">
               <thead className="bg-blue-600 sticky top-0 z-20 shadow-md">
                 <tr>
-                  <th className="px-5 py-3 text-lg font-bold text-white text-center">S/N</th>
-                  <th className="px-5 py-3 text-lg font-bold text-white">Products</th>
-                  <th className="px-5 py-3 text-lg font-bold text-white">Ordered By</th>
-                  <th className="px-5 py-3 text-lg font-bold text-white">Order Date</th>
-                  <th className="px-5 py-3 text-lg font-bold text-white">Details</th>
-                  <th className="px-5 py-3 text-lg font-bold text-white text-center">Delete</th>
+                  <th className="px-5 py-3.5 text-lg font-bold text-white text-center">S/N</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Products</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Ordered By</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Order Date</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Details</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white text-center">Delete</th>
                 </tr>
               </thead>
+
               <tbody>
-                {paginatedOrders.map((order, index) => (
-                  <React.Fragment key={order._id}>
-                    <tr
-                      className={`border-b border-gray-700 ${
-                        expandedOrders[order._id]
-                          ? "bg-gray-600"
-                          : index % 2 === 0
-                          ? "bg-gray-700 hover:bg-gray-600"
-                          : "bg-gray-800 hover:bg-gray-700"
-                      }`}
-                    >
-                      <td className="px-5 py-3 text-lg font-bold text-yellow-400 text-center">
-                        {(currentPage - 1) * itemsPerPage + index + 1}
-                      </td>
-                      <td className="px-5 py-3 flex justify-between items-center">
-                        <span className="font-medium">{order.orderItems.length} item(s)</span>
-                        <button
-                          onClick={() => toggleExpand(order._id)}
-                          className="p-1 text-gray-300 hover:text-blue-400 transition"
-                        >
-                          {expandedOrders[order._id] ? <FaChevronUp /> : <FaChevronDown />}
-                        </button>
-                      </td>
-                      <td className="px-5 py-3">{order.user?.name}</td>
-                      <td className="px-5 py-3">{formatDate(order.createdAt)}</td>
-                      <td className="px-5 py-3">
-                        <a
-                          href={`/orderdetail/${order._id}`}
-                          className="text-blue-400 hover:underline font-semibold"
-                        >
-                          View
-                        </a>
-                      </td>
-                      <td className="px-5 py-3 text-center">
-                        <button
-                          onClick={() => deleteOrderHandler(order._id)}
-                          className="p-2 bg-red-600 rounded-full hover:bg-red-700 transition shadow-lg"
-                        >
-                          <AiOutlineDelete size={20} />
-                        </button>
-                      </td>
-                    </tr>
-                  </React.Fragment>
-                ))}
+                {paginatedOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="text-center py-6 text-gray-400">
+                      No matching orders found
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedOrders.map((order, index) => (
+                    <React.Fragment key={order._id}>
+                      <tr
+                        className={`border-b border-gray-700 transition-colors ${
+                          expandedOrders[order._id]
+                            ? "bg-gray-600"
+                            : index % 2 === 0
+                            ? "bg-gray-700 hover:bg-gray-600"
+                            : "bg-gray-800 hover:bg-gray-700"
+                        }`}
+                      >
+                        <td className="px-5 py-3 text-lg font-bold text-yellow-400 text-center">
+                          {(currentPage - 1) * itemsPerPage + index + 1}
+                        </td>
+                        <td className="px-5 py-3 flex justify-between items-center">
+                          <span className="font-medium">{order.orderItems.length} item(s)</span>
+                          <button
+                            onClick={() => toggleExpand(order._id)}
+                            className="p-1 text-gray-300 hover:text-blue-400 transition-colors"
+                          >
+                            {expandedOrders[order._id] ? <FaChevronUp /> : <FaChevronDown />}
+                          </button>
+                        </td>
+                        <td className="px-5 py-3">{order.user?.name}</td>
+                        <td className="px-5 py-3">{formatDate(order.createdAt)}</td>
+                        <td className="px-5 py-3">
+                          <a
+                            href={`/orderdetail/${order._id}`}
+                            className="text-blue-400 hover:underline font-semibold"
+                          >
+                            View
+                          </a>
+                        </td>
+                        <td className="px-5 py-3 text-center">
+                          <button
+                            onClick={() => deleteOrderHandler(order._id)}
+                            className="p-2 bg-red-600 rounded-full hover:bg-red-700 transition-all shadow-md"
+                          >
+                            <AiOutlineDelete size={20} />
+                          </button>
+                        </td>
+                      </tr>
+
+                      {expandedOrders[order._id] && (
+                        <tr className="bg-gray-900 border-b border-gray-700">
+                          <td colSpan={6} className="px-5 py-4">
+                            <div className="max-h-64 overflow-y-auto space-y-3 pr-1">
+                              {order.orderItems.map((item, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-800 p-3 rounded-lg shadow-sm hover:bg-gray-700 transition-colors"
+                                >
+                                  <div>
+                                    <p className="font-semibold text-gray-100">{item.name}</p>
+                                    <p className="text-xs text-gray-400">Qty: {item.qty}</p>
+                                  </div>
+                                  <span
+                                    className={`mt-2 sm:mt-0 px-3 py-1 rounded-full text-xs font-bold shadow-sm ${
+                                      item.isDelivered
+                                        ? "bg-green-600 text-white"
+                                        : item.isRecieved
+                                        ? "bg-yellow-500 text-white"
+                                        : "bg-red-500 text-white"
+                                    }`}
+                                  >
+                                    {item.isDelivered
+                                      ? "Delivered"
+                                      : item.isRecieved
+                                      ? "Received"
+                                      : "Pending"}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
-          {/* Mobile Cards */}
-          <div className="md:hidden space-y-4">
+          <div className="grid md:hidden gap-4">
             {paginatedOrders.map((order, index) => (
               <div
                 key={order._id}
-                className="p-4 rounded-xl bg-gray-800 shadow-lg border border-transparent bg-clip-padding"
-                style={{
-                  borderImage: "linear-gradient(90deg, #3b82f6, #9333ea, #f43f5e) 1",
-                }}
+                className="bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-700 transition transform hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/50"
               >
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-bold text-lg text-yellow-400">
-                    #{(currentPage - 1) * itemsPerPage + index + 1}
-                  </h3>
+                  <h2 className="font-bold text-lg text-indigo-400">LPO: {order._id}</h2>
                   <button
-                    onClick={() => deleteOrderHandler(order._id)}
-                    className="p-2 bg-red-600 rounded-full hover:bg-red-700 transition"
+                    onClick={() => toggleExpand(order._id)}
+                    className="p-1 text-gray-300 hover:text-blue-400"
                   >
-                    <AiOutlineDelete size={18} />
+                    {expandedOrders[order._id] ? <FaChevronUp /> : <FaChevronDown />}
                   </button>
                 </div>
-                <p className="text-gray-200">
-                  <span className="font-semibold">Ordered By:</span> {order.user?.name}
+                <p className="text-sm mb-1">
+                  <span className="font-semibold">Ordered By:</span>{" "}
+                  <span className="bg-yellow-600/30 px-2 py-1 rounded">{order.user?.name}</span>
                 </p>
-                <p className="text-gray-200">
-                  <span className="font-semibold">Order Date:</span> {formatDate(order.createdAt)}
+                <p className="text-sm mb-1">
+                  <span className="font-semibold">Items:</span>{" "}
+                  <span className="bg-indigo-600/30 px-2 py-1 rounded">{order.orderItems.length}</span>
                 </p>
-                <p className="text-gray-200">
-                  <span className="font-semibold">Items:</span> {order.orderItems.length}
+                <p className="text-sm mb-2">
+                  <span className="font-semibold">Date:</span>{" "}
+                  <span className="bg-gray-700/50 px-2 py-1 rounded">{formatDate(order.createdAt)}</span>
                 </p>
-                <a
-                  href={`/orderdetail/${order._id}`}
-                  className="inline-block mt-3 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700 shadow-md"
-                >
-                  View Details
-                </a>
+
+                {expandedOrders[order._id] && (
+                  <div className="space-y-2 max-h-60 overflow-y-auto">
+                    {order.orderItems.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="flex justify-between items-center bg-gray-700 p-2 rounded-lg shadow-sm hover:bg-gray-600"
+                      >
+                        <div>
+                          <p className="font-semibold">{item.name}</p>
+                          <p className="text-xs text-gray-300">Qty: {item.qty}</p>
+                        </div>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-bold ${
+                            item.isDelivered
+                              ? "bg-green-600 text-white"
+                              : item.isRecieved
+                              ? "bg-yellow-500 text-white"
+                              : "bg-red-500 text-white"
+                          }`}
+                        >
+                          {item.isDelivered ? "Delivered" : item.isRecieved ? "Received" : "Pending"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex justify-between mt-3">
+                  <a
+                    href={`/orderdetail/${order._id}`}
+                    className="text-blue-400 hover:underline font-semibold"
+                  >
+                    View Details
+                  </a>
+                  <button
+                    onClick={() => deleteOrderHandler(order._id)}
+                    className="p-2 bg-red-600 rounded-full hover:bg-red-700 transition-shadow shadow-md"
+                  >
+                    <AiOutlineDelete size={20} />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
               <button
                 onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                 disabled={currentPage === 1}
-                className={`px-3 py-2 rounded-lg text-sm ${
+                className={`px-3 py-1 rounded-lg ${
                   currentPage === 1
-                    ? "bg-gray-600 text-gray-400"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
+                    ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
                 }`}
               >
                 Prev
@@ -2746,9 +2806,9 @@ const LPO = () => {
                 <button
                   key={num}
                   onClick={() => setCurrentPage(num)}
-                  className={`px-3 py-2 rounded-lg text-sm ${
+                  className={`px-3 py-1 rounded-lg ${
                     currentPage === num
-                      ? "bg-blue-500 text-white shadow-lg"
+                      ? "bg-blue-500 text-white"
                       : "bg-gray-700 text-gray-300 hover:bg-gray-600"
                   }`}
                 >
@@ -2759,10 +2819,1072 @@ const LPO = () => {
               <button
                 onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
                 disabled={currentPage === totalPages}
-                className={`px-3 py-2 rounded-lg text-sm ${
+                className={`px-3 py-1 rounded-lg ${
                   currentPage === totalPages
-                    ? "bg-gray-600 text-gray-400"
-                    : "bg-blue-600 text-white hover:bg-blue-700"
+                    ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
+export default LPO;
+*/
+
+
+
+
+
+
+
+
+
+
+/*
+import React, { useState } from "react";
+import Loader from "../../components/Loader";
+import { AiOutlineDelete } from "react-icons/ai";
+import { FaChevronDown, FaChevronUp, FaJediOrder } from "react-icons/fa";
+import { useGetOrdersQuery, useDeleteOrderMutation } from "../../redux/orderSlice";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+
+const LPO = () => {
+  const { userInfo } = useSelector((state) => state.auth);
+  const { data: rawData, isLoading, error, refetch } = useGetOrdersQuery();
+  const [deleteOrder] = useDeleteOrderMutation();
+  const [expandedOrders, setExpandedOrders] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  // Determine clearance
+  const userHasClearance = userInfo?.isAdmin || userInfo?.dept === "Procurement";
+
+  // Normalize orders safely for any user
+  const allOrders = Array.isArray(rawData?.orders)
+    ? rawData.orders            // partial admin: data is array
+    : rawData?.data?.orders || []; // full admin: data.orders exists
+
+  // Filter orders based on clearance
+  const visibleOrders = allOrders.filter((order) => {
+    if (userHasClearance) return true; // full access
+    // Partial access: only their dept (Company/Warehouse)
+    return order.user?.dept === userInfo?.dept;
+  });
+
+  // Apply search filter
+  const filteredOrders = visibleOrders.filter((order) => {
+    if (!searchTerm) return true;
+    const userName = order.user?.name || "";
+    const items = order.orderItems || [];
+    return (
+      userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      items.some((item) => (item?.name || "").toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  });
+
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const deleteOrderHandler = async (orderId) => {
+    try {
+      await deleteOrder(orderId).unwrap();
+      toast.success("Order Deleted");
+      refetch();
+    } catch {
+      toast.error("Error occurred while deleting order");
+    }
+  };
+
+  const toggleExpand = (orderId) => {
+    setExpandedOrders((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  return (
+    <div className="w-full p-4 md:p-6 bg-gray-900 min-h-screen text-gray-200">
+      <h1 className="text-3xl md:text-4xl font-extrabold text-center mb-8 flex items-center justify-center gap-3 drop-shadow-md transform transition duration-300 ease-in-out hover:scale-105 group">
+        <FaJediOrder className="w-10 h-10 text-blue-400 group-hover:text-blue-300 animate-bounce" />
+        <span className="group-hover:text-blue-300">Local Purchase Orders</span>
+      </h1>
+
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-700">
+        <input
+          type="text"
+          placeholder="Search by User or Product..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="w-full md:w-1/2 px-4 py-2 rounded-lg bg-gray-900 text-gray-200 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
+        />
+      </div>
+
+      {isLoading ? (
+        <Loader />
+      ) : error ? (
+        <h4 className="text-red-500 text-center">{error?.message || "Something went wrong"}</h4>
+      ) : !userHasClearance && visibleOrders.length === 0 ? (
+        <h4 className="text-yellow-400 text-center font-semibold mt-10">
+          You do not have clearance to view Local Purchase Orders.
+        </h4>
+      ) : filteredOrders.length === 0 ? (
+        <h4 className="text-gray-400 text-center font-semibold mt-10">
+          No matching orders found.
+        </h4>
+      ) : (
+        <>
+          <div className="hidden md:block w-full overflow-x-auto bg-gray-800 rounded-2xl shadow-2xl border border-gray-700">
+            <table className="min-w-full text-sm text-left text-gray-200 relative">
+              <thead className="bg-blue-600 sticky top-0 z-20 shadow-md">
+                <tr>
+                  <th className="px-5 py-3.5 text-lg font-bold text-white text-center">S/N</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Products</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Ordered By</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Order Date</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Details</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white text-center">Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedOrders.map((order, index) => {
+                  const items = order.orderItems || [];
+                  return (
+                    <React.Fragment key={order._id}>
+                      <tr
+                        className={`border-b border-gray-700 transition-colors ${
+                          expandedOrders[order._id]
+                            ? "bg-gray-600"
+                            : index % 2 === 0
+                            ? "bg-gray-700 hover:bg-gray-600"
+                            : "bg-gray-800 hover:bg-gray-700"
+                        }`}
+                      >
+                        <td className="px-5 py-3 text-lg font-bold text-yellow-400 text-center">
+                          {(currentPage - 1) * itemsPerPage + index + 1}
+                        </td>
+                        <td className="px-5 py-3 flex justify-between items-center">
+                          <span className="font-medium">{items.length} item(s)</span>
+                          <button
+                            onClick={() => toggleExpand(order._id)}
+                            className="p-1 text-gray-300 hover:text-blue-400 transition-colors"
+                          >
+                            {expandedOrders[order._id] ? <FaChevronUp /> : <FaChevronDown />}
+                          </button>
+                        </td>
+                        <td className="px-5 py-3">{order.user?.name || "Unknown User"}</td>
+                        <td className="px-5 py-3">{formatDate(order.createdAt)}</td>
+                        <td className="px-5 py-3">
+                          <a
+                            href={`/orderdetail/${order._id}`}
+                            className="text-blue-400 hover:underline font-semibold"
+                          >
+                            View
+                          </a>
+                        </td>
+                        <td className="px-5 py-3 text-center">
+                          <button
+                            onClick={() => deleteOrderHandler(order._id)}
+                            className="p-2 bg-red-600 rounded-full hover:bg-red-700 transition-all shadow-md"
+                          >
+                            <AiOutlineDelete size={20} />
+                          </button>
+                        </td>
+                      </tr>
+
+                      {expandedOrders[order._id] && (
+                        <tr className="bg-gray-900 border-b border-gray-700">
+                          <td colSpan={6} className="px-5 py-4">
+                            <div className="max-h-64 overflow-y-auto space-y-3 pr-1">
+                              {items.map((item, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-800 p-3 rounded-lg shadow-sm hover:bg-gray-700 transition-colors"
+                                >
+                                  <div>
+                                    <p className="font-semibold text-gray-100">{item?.name || "Unnamed Item"}</p>
+                                    <p className="text-xs text-gray-400">Qty: {item?.qty || 0}</p>
+                                  </div>
+                                  <span
+                                    className={`mt-2 sm:mt-0 px-3 py-1 rounded-full text-xs font-bold shadow-sm ${
+                                      item?.isDelivered
+                                        ? "bg-green-600 text-white"
+                                        : item?.isRecieved
+                                        ? "bg-yellow-500 text-white"
+                                        : "bg-red-500 text-white"
+                                    }`}
+                                  >
+                                    {item?.isDelivered ? "Delivered" : item?.isRecieved ? "Received" : "Pending"}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="grid md:hidden gap-4">
+            {paginatedOrders.map((order) => {
+              const items = order.orderItems || [];
+              return (
+                <div
+                  key={order._id}
+                  className="bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-700 transition transform hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/50"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <h2 className="font-bold text-lg text-indigo-400">LPO: {order._id}</h2>
+                    <button
+                      onClick={() => toggleExpand(order._id)}
+                      className="p-1 text-gray-300 hover:text-blue-400"
+                    >
+                      {expandedOrders[order._id] ? <FaChevronUp /> : <FaChevronDown />}
+                    </button>
+                  </div>
+                  <p className="text-sm mb-1">
+                    <span className="font-semibold">Ordered By:</span>{" "}
+                    <span className="bg-yellow-600/30 px-2 py-1 rounded">{order.user?.name || "Unknown"}</span>
+                  </p>
+                  <p className="text-sm mb-1">
+                    <span className="font-semibold">Items:</span>{" "}
+                    <span className="bg-indigo-600/30 px-2 py-1 rounded">{items.length}</span>
+                  </p>
+                  <p className="text-sm mb-2">
+                    <span className="font-semibold">Date:</span>{" "}
+                    <span className="bg-gray-700/50 px-2 py-1 rounded">{formatDate(order.createdAt)}</span>
+                  </p>
+
+                  {expandedOrders[order._id] && (
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {items.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="flex justify-between items-center bg-gray-700 p-2 rounded-lg shadow-sm hover:bg-gray-600"
+                        >
+                          <div>
+                            <p className="font-semibold">{item?.name || "Unnamed Item"}</p>
+                            <p className="text-xs text-gray-300">Qty: {item?.qty || 0}</p>
+                          </div>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-bold ${
+                              item?.isDelivered
+                                ? "bg-green-600 text-white"
+                                : item?.isRecieved
+                                ? "bg-yellow-500 text-white"
+                                : "bg-red-500 text-white"
+                            }`}
+                          >
+                            {item?.isDelivered ? "Delivered" : item?.isRecieved ? "Received" : "Pending"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex justify-between mt-3">
+                    <a
+                      href={`/orderdetail/${order._id}`}
+                      className="text-blue-400 hover:underline font-semibold"
+                    >
+                      View Details
+                    </a>
+                    <button
+                      onClick={() => deleteOrderHandler(order._id)}
+                      className="p-2 bg-red-600 rounded-full hover:bg-red-700 transition-shadow shadow-md"
+                    >
+                      <AiOutlineDelete size={20} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded-lg ${
+                  currentPage === 1
+                    ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                Prev
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                <button
+                  key={num}
+                  onClick={() => setCurrentPage(num)}
+                  className={`px-3 py-1 rounded-lg ${
+                    currentPage === num
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  }`}
+                >
+                  {num}
+                </button>
+              ))}
+
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 rounded-lg ${
+                  currentPage === totalPages
+                    ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
+export default LPO;
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//works
+/*
+import React, { useState } from "react";
+import Loader from "../../components/Loader";
+import { AiOutlineDelete } from "react-icons/ai";
+import { FaChevronDown, FaChevronUp, FaJediOrder } from "react-icons/fa";
+import { useGetOrdersQuery, useDeleteOrderMutation } from "../../redux/orderSlice";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+
+const LPO = () => {
+  const { userInfo } = useSelector((state) => state.auth);
+  const { data: rawData, isLoading, error, refetch } = useGetOrdersQuery();
+  const [deleteOrder] = useDeleteOrderMutation();
+  const [expandedOrders, setExpandedOrders] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  // Who can delete?
+  const canDeleteOrders = userInfo?.isAdmin || userInfo?.dept === "Procurement";
+
+  // Normalize orders safely
+  const allOrders = Array.isArray(rawData?.orders)
+    ? rawData.orders
+    : rawData?.data?.orders || [];
+
+  // Apply search filter
+  const filteredOrders = allOrders.filter((order) => {
+    if (!searchTerm) return true;
+    const userName = order.user?.name || "";
+    const items = order.orderItems || [];
+    return (
+      userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      items.some((item) =>
+        (item?.name || "").toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  });
+
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const deleteOrderHandler = async (orderId) => {
+    try {
+      await deleteOrder(orderId).unwrap();
+      toast.success("Order Deleted");
+      refetch();
+    } catch {
+      toast.error("Error occurred while deleting order");
+    }
+  };
+
+  const toggleExpand = (orderId) => {
+    setExpandedOrders((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  return (
+    <div className="w-full p-4 md:p-6 bg-gray-900 min-h-screen text-gray-200">
+      <h1 className="text-3xl md:text-4xl font-extrabold text-center mb-8 flex items-center justify-center gap-3 drop-shadow-md transform transition duration-300 ease-in-out hover:scale-105 group">
+        <FaJediOrder className="w-10 h-10 text-blue-400 group-hover:text-blue-300 animate-bounce" />
+        <span className="group-hover:text-blue-300">Local Purchase Orders</span>
+      </h1>
+
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-700">
+        <input
+          type="text"
+          placeholder="Search by User or Product..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="w-full md:w-1/2 px-4 py-2 rounded-lg bg-gray-900 text-gray-200 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
+        />
+      </div>
+
+      {isLoading ? (
+        <Loader />
+      ) : error ? (
+        <h4 className="text-red-500 text-center">
+          {error?.data?.message || error?.error || error?.status || "Something went wrong"}
+        </h4>
+      ) : filteredOrders.length === 0 ? (
+        <h4 className="text-gray-400 text-center font-semibold mt-10">
+          No matching orders found.
+        </h4>
+      ) : (
+        <>
+          <div className="hidden md:block w-full overflow-x-auto bg-gray-800 rounded-2xl shadow-2xl border border-gray-700">
+            <table className="min-w-full text-sm text-left text-gray-200 relative">
+              <thead className="bg-blue-600 sticky top-0 z-20 shadow-md">
+                <tr>
+                  <th className="px-5 py-3.5 text-lg font-bold text-white text-center">S/N</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Products</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Ordered By</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Order Date</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Details</th>
+                  {canDeleteOrders && (
+                    <th className="px-5 py-4 text-lg font-bold text-white text-center">Delete</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedOrders.map((order, index) => {
+                  const items = order.orderItems || [];
+                  return (
+                    <React.Fragment key={order._id}>
+                      <tr
+                        className={`border-b border-gray-700 transition-colors ${
+                          expandedOrders[order._id]
+                            ? "bg-gray-600"
+                            : index % 2 === 0
+                            ? "bg-gray-700 hover:bg-gray-600"
+                            : "bg-gray-800 hover:bg-gray-700"
+                        }`}
+                      >
+                        <td className="px-5 py-3 text-lg font-bold text-yellow-400 text-center">
+                          {(currentPage - 1) * itemsPerPage + index + 1}
+                        </td>
+                        <td className="px-5 py-3 flex justify-between items-center">
+                          <span className="font-medium">{items.length} item(s)</span>
+                          <button
+                            onClick={() => toggleExpand(order._id)}
+                            className="p-1 text-gray-300 hover:text-blue-400 transition-colors"
+                          >
+                            {expandedOrders[order._id] ? <FaChevronUp /> : <FaChevronDown />}
+                          </button>
+                        </td>
+                        <td className="px-5 py-3">{order.user?.name || "Unknown User"}</td>
+                        <td className="px-5 py-3">{formatDate(order.createdAt)}</td>
+                        <td className="px-5 py-3">
+                          <a
+                            href={`/orderdetail/${order._id}`}
+                            className="text-blue-400 hover:underline font-semibold"
+                          >
+                            View
+                          </a>
+                        </td>
+                        {canDeleteOrders && (
+                          <td className="px-5 py-3 text-center">
+                            <button
+                              onClick={() => deleteOrderHandler(order._id)}
+                              className="p-2 bg-red-600 rounded-full hover:bg-red-700 transition-all shadow-md"
+                            >
+                              <AiOutlineDelete size={20} />
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+
+                      {expandedOrders[order._id] && (
+                        <tr className="bg-gray-900 border-b border-gray-700">
+                          <td colSpan={canDeleteOrders ? 6 : 5} className="px-5 py-4">
+                            <div className="max-h-64 overflow-y-auto space-y-3 pr-1">
+                              {items.map((item, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-800 p-3 rounded-lg shadow-sm hover:bg-gray-700 transition-colors"
+                                >
+                                  <div>
+                                    <p className="font-semibold text-gray-100">
+                                      {item?.name || "Unnamed Item"}
+                                    </p>
+                                    <p className="text-xs text-gray-400">Qty: {item?.qty || 0}</p>
+                                  </div>
+                                  <span
+                                    className={`mt-2 sm:mt-0 px-3 py-1 rounded-full text-xs font-bold shadow-sm ${
+                                      item?.isDelivered
+                                        ? "bg-green-600 text-white"
+                                        : item?.isRecieved
+                                        ? "bg-yellow-500 text-white"
+                                        : "bg-red-500 text-white"
+                                    }`}
+                                  >
+                                    {item?.isDelivered
+                                      ? "Delivered"
+                                      : item?.isRecieved
+                                      ? "Received"
+                                      : "Pending"}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="grid md:hidden gap-4">
+            {paginatedOrders.map((order) => {
+              const items = order.orderItems || [];
+              return (
+                <div
+                  key={order._id}
+                  className="bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-700 transition transform hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/50"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <h2 className="font-bold text-lg text-indigo-400">LPO: {order._id}</h2>
+                    <button
+                      onClick={() => toggleExpand(order._id)}
+                      className="p-1 text-gray-300 hover:text-blue-400"
+                    >
+                      {expandedOrders[order._id] ? <FaChevronUp /> : <FaChevronDown />}
+                    </button>
+                  </div>
+                  <p className="text-sm mb-1">
+                    <span className="font-semibold">Ordered By:</span>{" "}
+                    <span className="bg-yellow-600/30 px-2 py-1 rounded">
+                      {order.user?.name || "Unknown"}
+                    </span>
+                  </p>
+                  <p className="text-sm mb-1">
+                    <span className="font-semibold">Items:</span>{" "}
+                    <span className="bg-indigo-600/30 px-2 py-1 rounded">{items.length}</span>
+                  </p>
+                  <p className="text-sm mb-2">
+                    <span className="font-semibold">Date:</span>{" "}
+                    <span className="bg-gray-700/50 px-2 py-1 rounded">
+                      {formatDate(order.createdAt)}
+                    </span>
+                  </p>
+
+                  {expandedOrders[order._id] && (
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {items.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="flex justify-between items-center bg-gray-700 p-2 rounded-lg shadow-sm hover:bg-gray-600"
+                        >
+                          <div>
+                            <p className="font-semibold">{item?.name || "Unnamed Item"}</p>
+                            <p className="text-xs text-gray-300">Qty: {item?.qty || 0}</p>
+                          </div>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-bold ${
+                              item?.isDelivered
+                                ? "bg-green-600 text-white"
+                                : item?.isRecieved
+                                ? "bg-yellow-500 text-white"
+                                : "bg-red-500 text-white"
+                            }`}
+                          >
+                            {item?.isDelivered ? "Delivered" : item?.isRecieved ? "Received" : "Pending"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex justify-between mt-3">
+                    <a
+                      href={`/orderdetail/${order._id}`}
+                      className="text-blue-400 hover:underline font-semibold"
+                    >
+                      View Details
+                    </a>
+                    {canDeleteOrders && (
+                      <button
+                        onClick={() => deleteOrderHandler(order._id)}
+                        className="p-2 bg-red-600 rounded-full hover:bg-red-700 transition-shadow shadow-md"
+                      >
+                        <AiOutlineDelete size={20} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded-lg ${
+                  currentPage === 1
+                    ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                Prev
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                <button
+                  key={num}
+                  onClick={() => setCurrentPage(num)}
+                  className={`px-3 py-1 rounded-lg ${
+                    currentPage === num
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  }`}
+                >
+                  {num}
+                </button>
+              ))}
+
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 rounded-lg ${
+                  currentPage === totalPages
+                    ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+};
+
+export default LPO;
+*/
+
+
+
+
+
+
+
+
+
+
+//test newset nt gna wrk
+
+import React, { useState } from "react";
+import Loader from "../../components/Loader";
+import { AiOutlineDelete } from "react-icons/ai";
+import { FaChevronDown, FaChevronUp, FaJediOrder } from "react-icons/fa";
+import { useGetOrdersQuery, useDeleteOrderMutation } from "../../redux/orderSlice";
+import { useSelector } from "react-redux";
+import { toast } from "react-toastify";
+
+const LPO = () => {
+  const { userInfo } = useSelector((state) => state.auth);
+  const { data: rawData, isLoading, error } = useGetOrdersQuery();
+  const [deleteOrder] = useDeleteOrderMutation();
+  const [expandedOrders, setExpandedOrders] = useState({});
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [confirmDelete, setConfirmDelete] = useState({ open: false, orderId: null });
+  const [localOrders, setLocalOrders] = useState([]);
+  const itemsPerPage = 5;
+
+  const canDeleteOrders = userInfo?.isAdmin || userInfo?.dept === "Procurement";
+
+  // Normalize orders
+  const allOrders = Array.isArray(rawData?.orders)
+    ? rawData.orders
+    : rawData?.data?.orders || [];
+
+  // Keep a local copy for optimistic updates
+  React.useEffect(() => {
+    setLocalOrders(allOrders);
+  }, [rawData]);
+
+  // Filter orders by search
+  const filteredOrders = localOrders.filter((order) => {
+    if (!searchTerm) return true;
+    const userName = order.user?.name || "";
+    const items = order.orderItems || [];
+    return (
+      userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      items.some((item) =>
+        (item?.name || "").toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    );
+  });
+
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const toggleExpand = (orderId) => {
+    setExpandedOrders((prev) => ({ ...prev, [orderId]: !prev[orderId] }));
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const handleDelete = async (orderId) => {
+    try {
+      setLocalOrders((prev) => prev.filter((o) => o._id !== orderId)); // Optimistic UI
+      await deleteOrder(orderId).unwrap();
+      toast.success("Order deleted successfully");
+    } catch {
+      toast.error("Failed to delete order");
+      setLocalOrders(allOrders); // rollback if error
+    }
+    setConfirmDelete({ open: false, orderId: null });
+  };
+
+  return (
+    <div className="w-full p-4 md:p-6 bg-gray-900 min-h-screen text-gray-200">
+      {/* Header */}
+      <h1 className="text-3xl md:text-4xl font-extrabold text-center mb-8 flex items-center justify-center gap-3 drop-shadow-md transform transition duration-300 ease-in-out hover:scale-105 group">
+        <FaJediOrder className="w-10 h-10 text-blue-400 group-hover:text-blue-300 animate-bounce" />
+        <span className="group-hover:text-blue-300">Local Purchase Orders</span>
+      </h1>
+
+      {/* Search */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-700">
+        <input
+          type="text"
+          placeholder="Search by User or Product..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="w-full md:w-1/2 px-4 py-2 rounded-lg bg-gray-900 text-gray-200 border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder-gray-400"
+        />
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      {confirmDelete.open && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-gray-800 p-6 rounded-xl w-11/12 max-w-md text-center shadow-lg border-2 border-red-600">
+            <h2 className="text-xl font-bold text-white mb-4">Confirm Delete</h2>
+            <p className="text-gray-200 mb-6">
+              Are you sure you want to delete this order? This action cannot be undone.
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => handleDelete(confirmDelete.orderId)}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500 transition"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => setConfirmDelete({ open: false, orderId: null })}
+                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isLoading ? (
+        <Loader />
+      ) : error ? (
+        <h4 className="text-red-500 text-center">
+          {error?.data?.message || error?.error || error?.status || "Something went wrong"}
+        </h4>
+      ) : filteredOrders.length === 0 ? (
+        <h4 className="text-gray-400 text-center font-semibold mt-10">No matching orders found.</h4>
+      ) : (
+        <>
+          {/* Desktop Table */}
+          <div className="hidden md:block w-full overflow-x-auto bg-gray-800 rounded-2xl shadow-2xl border border-gray-700">
+            <table className="min-w-full text-sm text-left text-gray-200 relative">
+              <thead className="bg-blue-600 sticky top-0 z-20 shadow-md">
+                <tr>
+                  <th className="px-5 py-3.5 text-lg font-bold text-white text-center">S/N</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Products</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Ordered By</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Order Date</th>
+                  <th className="px-5 py-4 text-lg font-bold text-white">Details</th>
+                  {canDeleteOrders && (
+                    <th className="px-5 py-4 text-lg font-bold text-white text-center">Delete</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody>
+                {paginatedOrders.map((order, index) => {
+                  const items = order.orderItems || [];
+                  return (
+                    <React.Fragment key={order._id}>
+                      <tr
+                        className={`border-b border-gray-700 transition-colors ${
+                          expandedOrders[order._id]
+                            ? "bg-gray-600"
+                            : index % 2 === 0
+                            ? "bg-gray-700 hover:bg-gray-600"
+                            : "bg-gray-800 hover:bg-gray-700"
+                        }`}
+                      >
+                        <td className="px-5 py-3 text-lg font-bold text-yellow-400 text-center">
+                          {(currentPage - 1) * itemsPerPage + index + 1}
+                        </td>
+                        <td className="px-5 py-3 flex justify-between items-center">
+                          <span className="font-medium">{items.length} item(s)</span>
+                          <button
+                            onClick={() => toggleExpand(order._id)}
+                            className="p-1 text-gray-300 hover:text-blue-400 transition-colors"
+                          >
+                            {expandedOrders[order._id] ? <FaChevronUp /> : <FaChevronDown />}
+                          </button>
+                        </td>
+                        <td className="px-5 py-3">{order.user?.name || "Unknown User"}</td>
+                        <td className="px-5 py-3">{formatDate(order.createdAt)}</td>
+                        <td className="px-5 py-3">
+                          <a
+                            href={`/orderdetail/${order._id}`}
+                            className="text-blue-400 hover:underline font-semibold"
+                          >
+                            View
+                          </a>
+                        </td>
+                        {canDeleteOrders && (
+                          <td className="px-5 py-3 text-center">
+                            <button
+                              onClick={() => setConfirmDelete({ open: true, orderId: order._id })}
+                              className="p-2 bg-red-600 rounded-full hover:bg-red-700 transition-all shadow-md"
+                            >
+                              <AiOutlineDelete size={20} />
+                            </button>
+                          </td>
+                        )}
+                      </tr>
+
+                      {expandedOrders[order._id] && (
+                        <tr className="bg-gray-900 border-b border-gray-700">
+                          <td colSpan={canDeleteOrders ? 6 : 5} className="px-5 py-4">
+                            <div className="max-h-64 overflow-y-auto space-y-3 pr-1">
+                              {items.map((item, idx) => (
+                                <div
+                                  key={idx}
+                                  className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-gray-800 p-3 rounded-lg shadow-sm hover:bg-gray-700 transition-colors"
+                                >
+                                  <div>
+                                    <p className="font-semibold text-gray-100">{item?.name || "Unnamed Item"}</p>
+                                    <p className="text-xs text-gray-400">Qty: {item?.qty || 0}</p>
+                                  </div>
+                                  <span
+                                    className={`mt-2 sm:mt-0 px-3 py-1 rounded-full text-xs font-bold shadow-sm ${
+                                      item?.isDelivered
+                                        ? "bg-green-600 text-white"
+                                        : item?.isRecieved
+                                        ? "bg-yellow-500 text-white"
+                                        : "bg-red-500 text-white"
+                                    }`}
+                                  >
+                                    {item?.isDelivered ? "Delivered" : item?.isRecieved ? "Received" : "Pending"}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="grid md:hidden gap-4">
+            {paginatedOrders.map((order) => {
+              const items = order.orderItems || [];
+              return (
+                <div
+                  key={order._id}
+                  className="bg-gray-800 p-4 rounded-xl shadow-lg border border-gray-700 transition transform hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/50"
+                >
+                  <div className="flex justify-between items-center mb-2">
+                    <h2 className="font-bold text-lg text-indigo-400">LPO: {order._id}</h2>
+                    <button
+                      onClick={() => toggleExpand(order._id)}
+                      className="p-1 text-gray-300 hover:text-blue-400"
+                    >
+                      {expandedOrders[order._id] ? <FaChevronUp /> : <FaChevronDown />}
+                    </button>
+                  </div>
+                  <p className="text-sm mb-1">
+                    <span className="font-semibold">Ordered By:</span>{" "}
+                    <span className="bg-yellow-600/30 px-2 py-1 rounded">{order.user?.name || "Unknown"}</span>
+                  </p>
+                  <p className="text-sm mb-1">
+                    <span className="font-semibold">Items:</span>{" "}
+                    <span className="bg-indigo-600/30 px-2 py-1 rounded">{items.length}</span>
+                  </p>
+                  <p className="text-sm mb-2">
+                    <span className="font-semibold">Date:</span>{" "}
+                    <span className="bg-gray-700/50 px-2 py-1 rounded">{formatDate(order.createdAt)}</span>
+                  </p>
+
+                  {expandedOrders[order._id] && (
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {items.map((item, idx) => (
+                        <div
+                          key={idx}
+                          className="flex justify-between items-center bg-gray-700 p-2 rounded-lg shadow-sm hover:bg-gray-600"
+                        >
+                          <div>
+                            <p className="font-semibold">{item?.name || "Unnamed Item"}</p>
+                            <p className="text-xs text-gray-300">Qty: {item?.qty || 0}</p>
+                          </div>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-bold ${
+                              item?.isDelivered
+                                ? "bg-green-600 text-white"
+                                : item?.isRecieved
+                                ? "bg-yellow-500 text-white"
+                                : "bg-red-500 text-white"
+                            }`}
+                          >
+                            {item?.isDelivered ? "Delivered" : item?.isRecieved ? "Received" : "Pending"}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex justify-between mt-3">
+                    <a href={`/orderdetail/${order._id}`} className="text-blue-400 hover:underline font-semibold">
+                      View Details
+                    </a>
+                    {canDeleteOrders && (
+                      <button
+                        onClick={() => setConfirmDelete({ open: true, orderId: order._id })}
+                        className="p-2 bg-red-600 rounded-full hover:bg-red-700 transition-shadow shadow-md"
+                      >
+                        <AiOutlineDelete size={20} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                disabled={currentPage === 1}
+                className={`px-3 py-1 rounded-lg ${
+                  currentPage === 1
+                    ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                }`}
+              >
+                Prev
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                <button
+                  key={num}
+                  onClick={() => setCurrentPage(num)}
+                  className={`px-3 py-1 rounded-lg ${
+                    currentPage === num
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                  }`}
+                >
+                  {num}
+                </button>
+              ))}
+
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className={`px-3 py-1 rounded-lg ${
+                  currentPage === totalPages
+                    ? "bg-gray-600 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700 text-white"
                 }`}
               >
                 Next

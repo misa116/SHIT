@@ -157,7 +157,9 @@ export const {
 
 
 
-//version that makes everything works 
+//version that makes everything works
+
+/*
 // frontend/redux/orderSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 import apiSlice from "./apiSlice";
@@ -249,3 +251,125 @@ const orderSlice = createSlice({
 
 export const { resetOrderState } = orderSlice.actions;
 export default orderSlice.reducer;
+
+*/
+
+
+
+
+
+
+
+
+
+//worksss
+
+// frontend/redux/orderSlice.js
+import { createSlice } from "@reduxjs/toolkit";
+import apiSlice from "./apiSlice";
+import { ORDERS_URL } from "./constants";
+
+// --- RTK Query endpoints ---
+export const orderApiSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // Create a new order
+    createOrder: builder.mutation({
+      query: (order) => ({
+        url: `${ORDERS_URL}/`,
+        method: "POST",
+        body: { ...order },
+      }),
+    }),
+
+    // Get logged-in user's orders
+    getMyOrders: builder.query({
+      query: () => `${ORDERS_URL}/my`,
+      keepUnusedDataFor: 5,
+    }),
+
+    // Get all orders (admin/procurement only)
+    getOrders: builder.query({
+      query: () => `${ORDERS_URL}/all`,
+      keepUnusedDataFor: 5,
+    }),
+
+    // Get single order details
+    getOrderDetails: builder.query({
+      query: (orderId) => `${ORDERS_URL}/${orderId}`,
+      keepUnusedDataFor: 5,
+    }),
+
+    // Mark order as delivered (admin only)
+    deliverOrder: builder.mutation({
+      query: (orderId) => ({
+        url: `${ORDERS_URL}/${orderId}/deliver`,
+        method: "PUT",
+      }),
+    }),
+
+    // Mark order as received (admin or procurement)
+    receiveOrder: builder.mutation({
+      query: (orderId) => ({
+        url: `${ORDERS_URL}/${orderId}/receive`,
+        method: "PUT",
+      }),
+    }),
+
+    // Delete order (admin or procurement)
+    deleteOrder: builder.mutation({
+      query: (orderId) => ({
+        url: `${ORDERS_URL}/${orderId}`,
+        method: "DELETE",
+      }),
+    }),
+  }),
+});
+
+// Export hooks for components
+export const {
+  useCreateOrderMutation,
+  useGetMyOrdersQuery,
+  useGetOrdersQuery,
+  useGetOrderDetailsQuery,
+  useDeliverOrderMutation,
+  useReceiveOrderMutation,
+  useDeleteOrderMutation,
+} = orderApiSlice;
+
+// --- Local Redux slice for order state ---
+const initialState = {
+  orderDetails: null,
+  myOrders: [],
+  allOrders: [],
+  loading: false,
+  error: null,
+};
+
+const orderSlice = createSlice({
+  name: "order",
+  initialState,
+  reducers: {
+    resetOrderState: (state) => {
+      state.orderDetails = null;
+      state.myOrders = [];
+      state.allOrders = [];
+      state.loading = false;
+      state.error = null;
+    },
+  },
+});
+
+export const { resetOrderState } = orderSlice.actions;
+export default orderSlice.reducer;
+
+
+
+
+
+
+
+
+
+
+
+

@@ -638,7 +638,7 @@ export default App;
 
 
 //best
-/*
+
 import "./App.css";
 import Landing from "./components/Landing";
 import "./styles/products.scss";
@@ -708,13 +708,20 @@ function App() {
 }
 
 export default App;
-*/
 
 
 
 
 
 
+
+
+
+
+
+
+
+/*
 import "./App.css";
 import Landing from "./components/Landing";
 import "./styles/products.scss";
@@ -750,12 +757,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<LoginScreen />} />
         <Route path="/register" element={<RegisterScreen />} />
 
-        {/* Protected Routes */}
         <Route element={<AuthUser />}>
           <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
           <Route path="/warehouse" element={<Layout><Warehouse /></Layout>} />
@@ -780,7 +785,6 @@ function App() {
           )}
         </Route>
 
-        {/* Catch-all: only triggers if nothing matches */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
@@ -788,3 +792,4 @@ function App() {
 }
 
 export default App;
+*/

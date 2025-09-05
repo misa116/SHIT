@@ -32,14 +32,14 @@ export const isAdmin = asyncHandler(async (req, res, next) => {
     throw new Error("You Do Not have Clearance");
   }
 });
-
-
 */
 
 
 
+
+
 //best
-/*
+
 import jwt from "jsonwebtoken";
 import User from "../models/userModal.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -85,10 +85,17 @@ export const isAdmin = asyncHandler(async (req, res, next) => {
   throw new Error("You do not have clearance");
 });
 
-*/
 
 
 
+
+
+
+
+
+
+
+/*
 import jwt from "jsonwebtoken";
 import User from "../models/userModal.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
@@ -142,3 +149,4 @@ export const isAdminOrProcurement = asyncHandler(async (req, res, next) => {
   res.status(403);
   throw new Error("You do not have clearance (Admin/Procurement only)");
 });
+*/

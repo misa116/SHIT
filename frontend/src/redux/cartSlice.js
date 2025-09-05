@@ -130,6 +130,13 @@ export default cartSlice.reducer;
 
 
 
+
+
+
+
+
+
+//works
 /*
 import { createSlice } from "@reduxjs/toolkit";
 
@@ -201,9 +208,6 @@ export default cartSlice.reducer;
 
 
 
-
-//test not gna work
-// frontend/src/redux/cartSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = localStorage.getItem("cart")
@@ -220,14 +224,11 @@ const cartSlice = createSlice({
   reducers: {
     addToCart: (state, action) => {
       const item = action.payload;
-
-      // ✅ ignore if no _id
       if (!item._id) return;
 
       const existCartItem = state.cartItems.find((x) => x._id === item._id);
 
       if (existCartItem) {
-        // replace existing item
         state.cartItems = state.cartItems.map((x) =>
           x._id === item._id ? item : x
         );
@@ -255,6 +256,11 @@ const cartSlice = createSlice({
       state.requisitionSteps = {};
       localStorage.setItem("cart", JSON.stringify(state));
     },
+    setRequisitionType: (state, action) => {
+      // This is what RequisitionType.js needs
+      state.requisitionSteps.type = action.payload;
+      localStorage.setItem("cart", JSON.stringify(state));
+    },
   },
 });
 
@@ -264,6 +270,7 @@ export const {
   saveRequisitionMethod,
   saveApprovedData,
   clearCartItems,
+  setRequisitionType, // ✅ Make sure this is exported
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

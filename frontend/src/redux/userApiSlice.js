@@ -230,6 +230,13 @@ export const {
 
 
 
+
+
+
+
+
+//works
+/*
 // frontend/src/redux/userApiSlice.js
 import apiSlice from "./apiSlice";
 import { USERS_URL } from "./constants";
@@ -288,4 +295,93 @@ export const {
   useListUsersQuery,
   useUpdateUserClrMutation,
   useCheckLoginQuery, // ✅ hook to check if user is logged in
+} = userApiSlice;
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// frontend/src/redux/userApiSlice.js
+import apiSlice from "./apiSlice";
+import { USERS_URL } from "./constants";
+
+export const userApiSlice = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    // Login endpoint
+    login: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/login`,
+        method: "POST",
+        body: data,
+        credentials: "include",
+      }),
+    }),
+    // Register endpoint
+    register: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/register`,
+        method: "POST",
+        body: data,
+        credentials: "include",
+      }),
+    }),
+    // List all users (protected)
+    listUsers: builder.query({
+      query: () => ({
+        url: `${USERS_URL}`,
+        credentials: "include",
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    // Update user clearance (protected)
+    updateUserClr: builder.mutation({
+      query: (data) => ({
+        url: `${USERS_URL}/${data.id}`,
+        method: "PUT",
+        body: data,
+        credentials: "include",
+      }),
+      keepUnusedDataFor: 5,
+    }),
+    // Delete a user (new)
+    deleteUser: builder.mutation({
+      query: (id) => ({
+        url: `${USERS_URL}/${id}`,
+        method: "DELETE",
+        credentials: "include",
+      }),
+      invalidatesTags: ["User"], // optional: refresh list after deletion
+    }),
+    // Check login status
+    checkLogin: builder.query({
+      query: () => ({
+        url: `${USERS_URL}/profile`,
+        credentials: "include",
+      }),
+    }),
+  }),
+});
+
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useListUsersQuery,
+  useUpdateUserClrMutation,
+  useDeleteUserMutation, // ✅ added this
+  useCheckLoginQuery,
 } = userApiSlice;

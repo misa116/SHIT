@@ -306,7 +306,7 @@ const Landing = () => {
             transition={{ delay: 0.2, duration: 0.8 }}
             className="text-4xl md:text-6xl font-extrabold mb-6 drop-shadow-[0_0_15px_rgba(59,130,246,0.8)] leading-tight"
           >
-            PREMIERE DOOR & TRIM INC.
+            PREMIER DOOR & TRIM INC.
           </motion.h2>
 
           <motion.p

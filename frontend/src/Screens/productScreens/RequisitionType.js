@@ -646,7 +646,8 @@ export default RequisitionType;
 
 
 
-
+//?
+/*
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -680,7 +681,6 @@ const RequisitionType = () => {
          📋 Choose Requisition Type
         </h2>
 
-        {/* Cards */}
         <div className="flex flex-col sm:flex-row gap-6 w-full justify-center">
           {["FACTORY REQUISITION", "PURCHASE REQUISITION"].map((type) => (
             <div
@@ -704,14 +704,12 @@ const RequisitionType = () => {
           Continue
         </button>
 
-        {/* Cart Preview */}
         {cartItems.length > 0 && (
           <div className="mt-8 bg-gray-800/70 rounded-2xl p-5 shadow-xl backdrop-blur-sm w-full border border-gray-700">
             <h3 className="text-blue-400 font-bold mb-4 text-xl text-center">
               Selected Products
             </h3>
 
-            {/* Desktop Table */}
             <div className="hidden sm:block overflow-x-auto">
               <table className="min-w-full border-collapse text-gray-200 text-sm rounded-xl overflow-hidden">
                 <thead>
@@ -760,7 +758,6 @@ const RequisitionType = () => {
               </table>
             </div>
 
-            {/* Mobile Cards */}
             <div className="sm:hidden flex flex-col gap-4">
               {cartItems.map((item) => (
                 <div
@@ -800,3 +797,87 @@ const RequisitionType = () => {
 };
 
 export default RequisitionType;
+*/
+
+
+
+
+//??
+
+
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { saveRequisitionMethod } from "../../redux/cartSlice";
+
+const RequisitionType = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // get the current requisition type from Redux (if any)
+  const requisitionTypeFromStore = useSelector((state) => state.cart.requisitionSteps);
+  const [selectedRequisitionType, setSelectedRequisitionType] = useState(
+    requisitionTypeFromStore || "FACTORY REQUISITION"
+  );
+
+  // Update Redux when a card is clicked
+  const handleCardClick = (type) => {
+    setSelectedRequisitionType(type);
+  };
+
+  const submitHandler = (e) => {
+    e.preventDefault();
+    // Save the selected type in Redux
+    dispatch(saveRequisitionMethod(selectedRequisitionType));
+
+    if (selectedRequisitionType === "FACTORY REQUISITION") {
+      navigate("/confirm-requisition");
+    } else {
+      navigate("/purchase-requisition");
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex flex-col items-center py-10 px-4 sm:px-6 lg:px-8">
+      <div className="w-full max-w-3xl flex flex-col items-center space-y-8">
+        <h2 className="text-3xl font-extrabold text-center text-blue-400 drop-shadow-lg tracking-wide">
+          📋 Choose Requisition Type
+        </h2>
+
+        <div className="flex flex-col sm:flex-row gap-6 w-full justify-center">
+          {["FACTORY REQUISITION", "PURCHASE REQUISITION"].map((type) => (
+            <div
+              key={type}
+              onClick={() => handleCardClick(type)}
+              className={`cursor-pointer w-full sm:flex-1 p-6 rounded-2xl text-center font-semibold text-lg sm:text-xl transition-transform duration-300 ease-in-out hover:scale-105 ${
+                selectedRequisitionType === type
+                  ? "bg-blue-600 text-white shadow-[0_0_25px_rgba(59,130,246,0.9)]"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:shadow-md"
+              }`}
+            >
+              {type}
+            </div>
+          ))}
+        </div>
+
+        <button
+          onClick={submitHandler}
+          className="mt-6 w-full sm:w-auto py-3 px-8 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg text-lg tracking-wide"
+        >
+          Continue
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default RequisitionType;
+
+
+
+
+
+
+
+
+

@@ -415,17 +415,16 @@ const CartScreen = () => {
   return (
     <div className="min-h-screen bg-gray-900 px-4 sm:px-6 py-10 text-gray-200">
       <h1 className="text-3xl sm:text-4xl font-extrabold text-center text-blue-400 mb-8 drop-shadow-lg">
-        📋 Requisition Draft
+        📋 Requisition Drafts
       </h1>
 
       {cartItems.length === 0 ? (
         <div className="text-center mt-10">
-          <p className="text-xl text-gray-400 mb-4">Your Requisition is Empty</p>
           <Link
-            to="/dashboard"
+            to="/warehouse"
             className="text-blue-400 hover:text-blue-300 underline font-semibold"
           >
-            Go BACK
+           Your Requisition is Empty Click Link to Warehouse to Create
           </Link>
         </div>
       ) : (

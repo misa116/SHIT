@@ -184,6 +184,27 @@ export default Sidebar;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*
 
 import React, { useState, useEffect, useRef } from "react";
@@ -423,6 +444,16 @@ export default Sidebar;
 
 
 
+
+
+
+
+
+
+
+
+
+
 /*
 import React, { useState, useEffect, useRef } from "react";
 import { BiSolidUserPin, BiTime } from "react-icons/bi";
@@ -622,6 +653,27 @@ const Sidebar = ({ openSidebarToggle, openSidebar }) => {
 
 export default Sidebar;
 */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1042,6 +1094,13 @@ export default Sidebar;
 
 
 
+
+
+
+
+
+
+
 import React, { useState, useEffect, useRef } from "react";
 import { BiSolidUserPin, BiTime } from "react-icons/bi";
 import { BsCart4, BsCheck2Square, BsFillGrid3X3GapFill, BsGrid1X2Fill } from "react-icons/bs";
@@ -1116,7 +1175,6 @@ const Sidebar = ({ openSidebarToggle, openSidebar }) => {
         openSidebarToggle ? "translate-x-0" : "-translate-x-full"
       } fixed z-50`}
     >
-      {/* Clock */}
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-3 text-indigo-400 font-bold text-3xl">
           <BiTime size={36} />
@@ -1126,8 +1184,6 @@ const Sidebar = ({ openSidebarToggle, openSidebar }) => {
           <IoIosClose size={28} />
         </span>
       </div>
-
-      {/* Navigation */}
       <ul className="space-y-4 text-sm">
         {!(location.pathname === "/" || location.pathname === "/dashboard") && (
           <li>
@@ -1138,7 +1194,6 @@ const Sidebar = ({ openSidebarToggle, openSidebar }) => {
           </li>
         )}
 
-        {/* Inventory */}
         <li>
           <div
             onClick={toggleInventory}
@@ -1198,7 +1253,6 @@ const Sidebar = ({ openSidebarToggle, openSidebar }) => {
           </div>
         </li>
 
-        {/* Procurement */}
         <li>
           <div
             onClick={toggleProcurement}
@@ -1250,3 +1304,796 @@ const Sidebar = ({ openSidebarToggle, openSidebar }) => {
 };
 
 export default Sidebar;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
+import React, { useState, useEffect, useRef } from "react";
+import { BiSolidUserPin, BiTime } from "react-icons/bi";
+import { BsCart4, BsCheck2Square, BsFillGrid3X3GapFill, BsGrid1X2Fill } from "react-icons/bs";
+import { IoIosArrowUp, IoIosClose } from "react-icons/io";
+import { FaJediOrder, FaToolbox, FaTools, FaUsers } from "react-icons/fa";
+import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+const LINK_PERMISSIONS = {
+  warehouse: ["Company", "Maintenance", "Production"],
+  storeRequisition: ["Company", "Procurement"],
+  myOrders: ["Company", "Production", "Procurement"],
+  lpoFactory: ["Company", "Procurement"],
+  grn: ["Company", "Maintenance"],
+  lpoProcurement: ["Company", "Procurement"],
+  pendingRequisitions: ["Company", "Procurement"],
+  employees: ["Admin"], // special case
+};
+
+const Sidebar = ({ openSidebarToggle, openSidebar }) => {
+  const sidebarRef = useRef(null);
+  const location = useLocation();
+  const { cartItems } = useSelector((state) => state.cart);
+  const { userInfo } = useSelector((state) => state.auth);
+  const totalQty = cartItems?.reduce((acc, item) => acc + Number(item.qty), 0);
+
+  const [isInventoryOpen, setIsInventoryOpen] = useState(
+    ["/warehouse", "/store-requisition", "/my-orders-list", "/LPO-factory", "/goods-receive-note"].includes(location.pathname)
+  );
+  const [isProcurementOpen, setIsProcurementOpen] = useState(
+    ["/LPO-procurement", "/pending-requisitions"].includes(location.pathname)
+  );
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+
+  const toggleInventory = () => setIsInventoryOpen(!isInventoryOpen);
+  const toggleProcurement = () => setIsProcurementOpen(!isProcurementOpen);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openSidebarToggle && sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        openSidebar();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openSidebarToggle, openSidebar]);
+
+  const handleLinkClick = () => {
+    if (openSidebarToggle) openSidebar();
+  };
+
+  const navItemClasses = (path) =>
+    `flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors ${
+      location.pathname === path ? "bg-indigo-700 text-white" : "hover:bg-indigo-600 text-gray-300"
+    }`;
+
+  const collapsibleClasses = (isOpen) =>
+    `overflow-hidden transition-[max-height] duration-300 ease-in-out ${isOpen ? "max-h-96" : "max-h-0"}`;
+
+  const hrSlideClasses = (isOpen, delay = 0) => ({
+    height: "1px",
+    backgroundColor: "#4B5563",
+    width: isOpen ? "100%" : "0%",
+    transition: `width 500ms ease ${delay}ms`,
+  });
+
+  const hasAccess = (key) => {
+    if (!userInfo) return false;
+    if (key === "employees") return userInfo.isAdmin;
+    return LINK_PERMISSIONS[key]?.includes(userInfo.dept);
+  };
+
+  if (!userInfo) return null;
+
+  return (
+    <aside
+      ref={sidebarRef}
+      className={`bg-gray-900 text-gray-300 w-64 min-h-screen p-4 shadow-xl transition-transform ${
+        openSidebarToggle ? "translate-x-0" : "-translate-x-full"
+      } fixed z-50`}
+    >
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center space-x-3 text-indigo-400 font-bold text-3xl">
+          <BiTime size={36} />
+          <span>{currentTime}</span>
+        </div>
+        <span className="cursor-pointer text-gray-300 hover:text-red-500" onClick={openSidebar}>
+          <IoIosClose size={28} />
+        </span>
+      </div>
+
+      <ul className="space-y-4 text-sm">
+        {!(location.pathname === "/" || location.pathname === "/dashboard") && (
+          <li>
+            <Link to="/" className={navItemClasses("/")} onClick={handleLinkClick}>
+              <BsGrid1X2Fill size={26} />
+              <span>Dashboard</span>
+            </Link>
+          </li>
+        )}
+
+        {["warehouse", "storeRequisition", "myOrders", "lpoFactory", "grn"].some(hasAccess) && (
+          <li>
+            <div
+              onClick={toggleInventory}
+              className="flex items-center justify-between cursor-pointer px-4 py-2 hover:bg-indigo-600 rounded-lg transition-colors"
+            >
+              <div className="flex items-center space-x-3 text-lg">
+                <BsFillGrid3X3GapFill size={26} />
+                <span>Inventory</span>
+              </div>
+              <IoIosArrowUp
+                size={18}
+                className={`transition-transform duration-300 ${isInventoryOpen ? "rotate-180" : ""}`}
+              />
+            </div>
+
+            <div className={collapsibleClasses(isInventoryOpen)}>
+              <div className="overflow-hidden my-2">
+                <div style={hrSlideClasses(isInventoryOpen, 50)} />
+              </div>
+              <ul className="ml-6 mt-2 space-y-2">
+                {hasAccess("warehouse") && (
+                  <li>
+                    <Link to="/warehouse" className={navItemClasses("/warehouse")} onClick={handleLinkClick}>
+                      <FaToolbox />
+                      <span>Warehouse</span>
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("storeRequisition") && (
+                  <li className="relative">
+                    <Link to="/store-requisition" className={navItemClasses("/store-requisition")} onClick={handleLinkClick}>
+                      <BsCart4 />
+                      <span>Requisition Draft</span>
+                      {totalQty > 0 && (
+                        <span className="absolute top-0 right-0 -mt-2 -mr-3 bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full animate-pulse">
+                          {totalQty}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("myOrders") && (
+                  <li>
+                    <Link to="/my-orders-list" className={navItemClasses("/my-orders-list")} onClick={handleLinkClick}>
+                      <BiSolidUserPin />
+                      <span>My Requisitions</span>
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("lpoFactory") && (
+                  <li>
+                    <Link to="/LPO-factory" className={navItemClasses("/LPO-factory")} onClick={handleLinkClick}>
+                      <FaJediOrder />
+                      <span>LP Orders</span>
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("grn") && (
+                  <li>
+                    <Link to="/goods-receive-note" className={navItemClasses("/goods-receive-note")} onClick={handleLinkClick}>
+                      <FaTools />
+                      <span>GRN</span>
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+          </li>
+        )}
+
+        {["lpoProcurement", "pendingRequisitions"].some(hasAccess) && (
+          <li>
+            <div
+              onClick={toggleProcurement}
+              className="flex items-center justify-between cursor-pointer px-4 py-2 hover:bg-indigo-600 rounded-lg transition-colors"
+            >
+              <div className="flex items-center space-x-3 text-lg">
+                <BsCheck2Square size={26} />
+                <span>Procurement</span>
+              </div>
+              <IoIosArrowUp
+                size={18}
+                className={`transition-transform duration-300 ${isProcurementOpen ? "rotate-180" : ""}`}
+              />
+            </div>
+
+            <div className={collapsibleClasses(isProcurementOpen)}>
+              <div className="overflow-hidden my-2">
+                <div style={hrSlideClasses(isProcurementOpen, 100)} />
+              </div>
+              <ul className="ml-6 mt-2 space-y-2">
+                {hasAccess("lpoProcurement") && (
+                  <li>
+                    <Link to="/LPO-procurement" className={navItemClasses("/LPO-procurement")} onClick={handleLinkClick}>
+                      Local Purchase Orders
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("pendingRequisitions") && (
+                  <li>
+                    <Link to="/pending-requisitions" className={navItemClasses("/pending-requisitions")} onClick={handleLinkClick}>
+                      Pending Requisitions
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+          </li>
+        )}
+
+        {hasAccess("employees") && (
+          <li>
+            <div className="overflow-hidden my-2">
+              <div style={hrSlideClasses(true, 150)} />
+            </div>
+            <Link to="/listUsers" className={navItemClasses("/listUsers")} onClick={handleLinkClick}>
+              <FaUsers />
+              <span>Employees</span>
+            </Link>
+          </li>
+        )}
+      </ul>
+    </aside>
+  );
+};
+
+export default Sidebar;
+
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+import React, { useState, useEffect, useRef } from "react";
+import { BiSolidUserPin, BiTime } from "react-icons/bi";
+import { BsCart4, BsCheck2Square, BsFillGrid3X3GapFill, BsGrid1X2Fill } from "react-icons/bs";
+import { IoIosArrowUp, IoIosClose } from "react-icons/io";
+import { FaJediOrder, FaToolbox, FaTools, FaUsers } from "react-icons/fa";
+import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+const LINK_PERMISSIONS = {
+  warehouse: ["Company", "Maintenance", "Production"],
+  storeRequisition: ["Company", "Procurement"],
+  myOrders: ["Company", "Production", "Procurement"],
+  lpoFactory: ["Company", "Procurement"],
+  grn: ["Company", "Maintenance"],
+  lpoProcurement: ["Company", "Procurement"],
+  pendingRequisitions: ["Company", "Procurement"],
+  employees: ["Admin"], // special case
+};
+
+const Sidebar = ({ openSidebarToggle, openSidebar }) => {
+  const sidebarRef = useRef(null);
+  const location = useLocation();
+  const { cartItems } = useSelector((state) => state.cart);
+  const { userInfo } = useSelector((state) => state.auth);
+  const totalQty = cartItems?.reduce((acc, item) => acc + Number(item.qty), 0);
+
+  const [isInventoryOpen, setIsInventoryOpen] = useState(
+    ["/warehouse", "/store-requisition", "/my-orders-list", "/LPO-factory", "/goods-receive-note"].includes(location.pathname)
+  );
+  const [isProcurementOpen, setIsProcurementOpen] = useState(
+    ["/LPO-procurement", "/pending-requisitions"].includes(location.pathname)
+  );
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+
+  const toggleInventory = () => setIsInventoryOpen(!isInventoryOpen);
+  const toggleProcurement = () => setIsProcurementOpen(!isProcurementOpen);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openSidebarToggle && sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        openSidebar();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openSidebarToggle, openSidebar]);
+
+  const handleLinkClick = () => {
+    if (openSidebarToggle) openSidebar();
+  };
+
+  const navItemClasses = (path) =>
+    `flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors ${
+      location.pathname === path ? "bg-indigo-700 text-white" : "hover:bg-indigo-600 text-gray-300"
+    }`;
+
+  const collapsibleClasses = (isOpen) =>
+    `overflow-hidden transition-[max-height] duration-300 ease-in-out ${isOpen ? "max-h-96" : "max-h-0"}`;
+
+  const hrSlideClasses = (isOpen, delay = 0) => ({
+    height: "1px",
+    backgroundColor: "#4B5563",
+    width: isOpen ? "100%" : "0%",
+    transition: `width 500ms ease ${delay}ms`,
+  });
+
+  // ✅ Updated access control
+  const hasAccess = (key) => {
+    if (!userInfo) return false;
+
+    // Admins see everything
+    if (userInfo.isAdmin) return true;
+
+    switch (key) {
+      case "employees":
+        return userInfo.isAdmin; // redundant, but keeps logic explicit
+      case "lpoProcurement":
+      case "pendingRequisitions":
+        return userInfo.procurement;
+      default:
+        return LINK_PERMISSIONS[key]?.includes(userInfo.dept);
+    }
+  };
+
+  if (!userInfo) return null;
+
+  return (
+    <aside
+      ref={sidebarRef}
+      className={`bg-gray-900 text-gray-300 w-64 min-h-screen p-4 shadow-xl transition-transform ${
+        openSidebarToggle ? "translate-x-0" : "-translate-x-full"
+      } fixed z-50`}
+    >
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center space-x-3 text-indigo-400 font-bold text-3xl">
+          <BiTime size={36} />
+          <span>{currentTime}</span>
+        </div>
+        <span className="cursor-pointer text-gray-300 hover:text-red-500" onClick={openSidebar}>
+          <IoIosClose size={28} />
+        </span>
+      </div>
+
+      <ul className="space-y-4 text-sm">
+        {!(location.pathname === "/" || location.pathname === "/dashboard") && (
+          <li>
+            <Link to="/" className={navItemClasses("/")} onClick={handleLinkClick}>
+              <BsGrid1X2Fill size={26} />
+              <span>Dashboard</span>
+            </Link>
+          </li>
+        )}
+
+        {["warehouse", "storeRequisition", "myOrders", "lpoFactory", "grn"].some(hasAccess) && (
+          <li>
+            <div
+              onClick={toggleInventory}
+              className="flex items-center justify-between cursor-pointer px-4 py-2 hover:bg-indigo-600 rounded-lg transition-colors"
+            >
+              <div className="flex items-center space-x-3 text-lg">
+                <BsFillGrid3X3GapFill size={26} />
+                <span>Inventory</span>
+              </div>
+              <IoIosArrowUp
+                size={18}
+                className={`transition-transform duration-300 ${isInventoryOpen ? "rotate-180" : ""}`}
+              />
+            </div>
+
+            <div className={collapsibleClasses(isInventoryOpen)}>
+              <div className="overflow-hidden my-2">
+                <div style={hrSlideClasses(isInventoryOpen, 50)} />
+              </div>
+              <ul className="ml-6 mt-2 space-y-2">
+                {hasAccess("warehouse") && (
+                  <li>
+                    <Link to="/warehouse" className={navItemClasses("/warehouse")} onClick={handleLinkClick}>
+                      <FaToolbox />
+                      <span>Warehouse</span>
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("storeRequisition") && (
+                  <li className="relative">
+                    <Link to="/store-requisition" className={navItemClasses("/store-requisition")} onClick={handleLinkClick}>
+                      <BsCart4 />
+                      <span>Requisition Draft</span>
+                      {totalQty > 0 && (
+                        <span className="absolute top-0 right-0 -mt-2 -mr-3 bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full animate-pulse">
+                          {totalQty}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("myOrders") && (
+                  <li>
+                    <Link to="/my-orders-list" className={navItemClasses("/my-orders-list")} onClick={handleLinkClick}>
+                      <BiSolidUserPin />
+                      <span>My Requisitions</span>
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("lpoFactory") && (
+                  <li>
+                    <Link to="/LPO-factory" className={navItemClasses("/LPO-factory")} onClick={handleLinkClick}>
+                      <FaJediOrder />
+                      <span>LP Orders</span>
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("grn") && (
+                  <li>
+                    <Link to="/goods-receive-note" className={navItemClasses("/goods-receive-note")} onClick={handleLinkClick}>
+                      <FaTools />
+                      <span>GRN</span>
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+          </li>
+        )}
+
+        {["lpoProcurement", "pendingRequisitions"].some(hasAccess) && (
+          <li>
+            <div
+              onClick={toggleProcurement}
+              className="flex items-center justify-between cursor-pointer px-4 py-2 hover:bg-indigo-600 rounded-lg transition-colors"
+            >
+              <div className="flex items-center space-x-3 text-lg">
+                <BsCheck2Square size={26} />
+                <span>Procurement</span>
+              </div>
+              <IoIosArrowUp
+                size={18}
+                className={`transition-transform duration-300 ${isProcurementOpen ? "rotate-180" : ""}`}
+              />
+            </div>
+
+            <div className={collapsibleClasses(isProcurementOpen)}>
+              <div className="overflow-hidden my-2">
+                <div style={hrSlideClasses(isProcurementOpen, 100)} />
+              </div>
+              <ul className="ml-6 mt-2 space-y-2">
+                {hasAccess("lpoProcurement") && (
+                  <li>
+                    <Link to="/LPO-procurement" className={navItemClasses("/LPO-procurement")} onClick={handleLinkClick}>
+                      Local Purchase Orders
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("pendingRequisitions") && (
+                  <li>
+                    <Link to="/pending-requisitions" className={navItemClasses("/pending-requisitions")} onClick={handleLinkClick}>
+                      Pending Requisitions
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+          </li>
+        )}
+
+        {hasAccess("employees") && (
+          <li>
+            <div className="overflow-hidden my-2">
+              <div style={hrSlideClasses(true, 150)} />
+            </div>
+            <Link to="/listUsers" className={navItemClasses("/listUsers")} onClick={handleLinkClick}>
+              <FaUsers />
+              <span>Employees</span>
+            </Link>
+          </li>
+        )}
+      </ul>
+    </aside>
+  );
+};
+
+export default Sidebar;
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+import React, { useState, useEffect, useRef } from "react";
+import { BiSolidUserPin, BiTime } from "react-icons/bi";
+import { BsCart4, BsCheck2Square, BsFillGrid3X3GapFill, BsGrid1X2Fill } from "react-icons/bs";
+import { IoIosArrowUp, IoIosClose } from "react-icons/io";
+import { FaJediOrder, FaToolbox, FaTools, FaUsers } from "react-icons/fa";
+import { Link, useLocation } from "react-router-dom";
+import { useSelector } from "react-redux";
+
+// ✅ Updated access control including Warehouse
+const LINK_PERMISSIONS = {
+  warehouse: ["Company", "Maintenance", "Production", "Warehouse"],
+  storeRequisition: ["Company", "Procurement", "Warehouse"],
+  myOrders: ["Company", "Production", "Procurement", "Warehouse"],
+  lpoFactory: ["Company", "Procurement", "Warehouse"],
+  grn: ["Company", "Maintenance", "Warehouse"],
+  lpoProcurement: ["Company", "Procurement", "Warehouse"],
+  pendingRequisitions: ["Company", "Procurement", "Warehouse"],
+  employees: ["Admin"], // special case
+};
+
+const Sidebar = ({ openSidebarToggle, openSidebar }) => {
+  const sidebarRef = useRef(null);
+  const location = useLocation();
+  const { cartItems } = useSelector((state) => state.cart);
+  const { userInfo } = useSelector((state) => state.auth);
+  const totalQty = cartItems?.reduce((acc, item) => acc + Number(item.qty), 0);
+
+  const [isInventoryOpen, setIsInventoryOpen] = useState(
+    ["/warehouse", "/store-requisition", "/my-orders-list", "/LPO-factory", "/goods-receive-note"].includes(location.pathname)
+  );
+  const [isProcurementOpen, setIsProcurementOpen] = useState(
+    ["/LPO-procurement", "/pending-requisitions"].includes(location.pathname)
+  );
+  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+
+  const toggleInventory = () => setIsInventoryOpen(!isInventoryOpen);
+  const toggleProcurement = () => setIsProcurementOpen(!isProcurementOpen);
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date().toLocaleTimeString()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openSidebarToggle && sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        openSidebar();
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openSidebarToggle, openSidebar]);
+
+  const handleLinkClick = () => {
+    if (openSidebarToggle) openSidebar();
+  };
+
+  const navItemClasses = (path) =>
+    `flex items-center space-x-3 px-4 py-2 rounded-lg transition-colors ${
+      location.pathname === path ? "bg-indigo-700 text-white" : "hover:bg-indigo-600 text-gray-300"
+    }`;
+
+  const collapsibleClasses = (isOpen) =>
+    `overflow-hidden transition-[max-height] duration-300 ease-in-out ${isOpen ? "max-h-96" : "max-h-0"}`;
+
+  const hrSlideClasses = (isOpen, delay = 0) => ({
+    height: "1px",
+    backgroundColor: "#4B5563",
+    width: isOpen ? "100%" : "0%",
+    transition: `width 500ms ease ${delay}ms`,
+  });
+
+  // ✅ Updated access check
+  const hasAccess = (key) => {
+    if (!userInfo) return false;
+
+    // Admins see everything
+    if (userInfo.isAdmin) return true;
+
+    switch (key) {
+      case "employees":
+        return userInfo.isAdmin; // explicit
+      case "lpoProcurement":
+      case "pendingRequisitions":
+        return userInfo.procurement || userInfo.dept === "Warehouse";
+      default:
+        return LINK_PERMISSIONS[key]?.includes(userInfo.dept);
+    }
+  };
+
+  if (!userInfo) return null;
+
+  return (
+    <aside
+      ref={sidebarRef}
+      className={`bg-gray-900 text-gray-300 w-64 min-h-screen p-4 shadow-xl transition-transform ${
+        openSidebarToggle ? "translate-x-0" : "-translate-x-full"
+      } fixed z-50`}
+    >
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center space-x-3 text-indigo-400 font-bold text-3xl">
+          <BiTime size={36} />
+          <span>{currentTime}</span>
+        </div>
+        <span className="cursor-pointer text-gray-300 hover:text-red-500" onClick={openSidebar}>
+          <IoIosClose size={28} />
+        </span>
+      </div>
+
+      <ul className="space-y-4 text-sm">
+        {!(location.pathname === "/" || location.pathname === "/dashboard") && (
+          <li>
+            <Link to="/" className={navItemClasses("/")} onClick={handleLinkClick}>
+              <BsGrid1X2Fill size={26} />
+              <span>Dashboard</span>
+            </Link>
+          </li>
+        )}
+
+        {["warehouse", "storeRequisition", "myOrders", "lpoFactory", "grn"].some(hasAccess) && (
+          <li>
+            <div
+              onClick={toggleInventory}
+              className="flex items-center justify-between cursor-pointer px-4 py-2 hover:bg-indigo-600 rounded-lg transition-colors"
+            >
+              <div className="flex items-center space-x-3 text-lg">
+                <BsFillGrid3X3GapFill size={26} />
+                <span>Inventory</span>
+              </div>
+              <IoIosArrowUp
+                size={18}
+                className={`transition-transform duration-300 ${isInventoryOpen ? "rotate-180" : ""}`}
+              />
+            </div>
+
+            <div className={collapsibleClasses(isInventoryOpen)}>
+              <div className="overflow-hidden my-2">
+                <div style={hrSlideClasses(isInventoryOpen, 50)} />
+              </div>
+              <ul className="ml-6 mt-2 space-y-2">
+                {hasAccess("warehouse") && (
+                  <li>
+                    <Link to="/warehouse" className={navItemClasses("/warehouse")} onClick={handleLinkClick}>
+                      <FaToolbox />
+                      <span>Warehouse</span>
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("storeRequisition") && (
+                  <li className="relative">
+                    <Link to="/store-requisition" className={navItemClasses("/store-requisition")} onClick={handleLinkClick}>
+                      <BsCart4 />
+                      <span>Requisition Draft</span>
+                      {totalQty > 0 && (
+                        <span className="absolute top-0 right-0 -mt-2 -mr-3 bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full animate-pulse">
+                          {totalQty}
+                        </span>
+                      )}
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("myOrders") && (
+                  <li>
+                    <Link to="/my-orders-list" className={navItemClasses("/my-orders-list")} onClick={handleLinkClick}>
+                      <BiSolidUserPin />
+                      <span>My Requisitions</span>
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("lpoFactory") && (
+                  <li>
+                    <Link to="/LPO-factory" className={navItemClasses("/LPO-factory")} onClick={handleLinkClick}>
+                      <FaJediOrder />
+                      <span>LP Orders</span>
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("grn") && (
+                  <li>
+                    <Link to="/goods-receive-note" className={navItemClasses("/goods-receive-note")} onClick={handleLinkClick}>
+                      <FaTools />
+                      <span>GRN</span>
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+          </li>
+        )}
+
+        {["lpoProcurement", "pendingRequisitions"].some(hasAccess) && (
+          <li>
+            <div
+              onClick={toggleProcurement}
+              className="flex items-center justify-between cursor-pointer px-4 py-2 hover:bg-indigo-600 rounded-lg transition-colors"
+            >
+              <div className="flex items-center space-x-3 text-lg">
+                <BsCheck2Square size={26} />
+                <span>Procurement</span>
+              </div>
+              <IoIosArrowUp
+                size={18}
+                className={`transition-transform duration-300 ${isProcurementOpen ? "rotate-180" : ""}`}
+              />
+            </div>
+
+            <div className={collapsibleClasses(isProcurementOpen)}>
+              <div className="overflow-hidden my-2">
+                <div style={hrSlideClasses(isProcurementOpen, 100)} />
+              </div>
+              <ul className="ml-6 mt-2 space-y-2">
+                {hasAccess("lpoProcurement") && (
+                  <li>
+                    <Link to="/LPO-procurement" className={navItemClasses("/LPO-procurement")} onClick={handleLinkClick}>
+                      Local Purchase Orders
+                    </Link>
+                  </li>
+                )}
+                {hasAccess("pendingRequisitions") && (
+                  <li>
+                    <Link to="/pending-requisitions" className={navItemClasses("/pending-requisitions")} onClick={handleLinkClick}>
+                      Pending Requisitions
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+          </li>
+        )}
+
+        {hasAccess("employees") && (
+          <li>
+            <div className="overflow-hidden my-2">
+              <div style={hrSlideClasses(true, 150)} />
+            </div>
+            <Link to="/listUsers" className={navItemClasses("/listUsers")} onClick={handleLinkClick}>
+              <FaUsers />
+              <span>Employees</span>
+            </Link>
+          </li>
+        )}
+      </ul>
+    </aside>
+  );
+};
+
+export default Sidebar;
+*/
+
+
+
+
+
+
+
+
+
+
