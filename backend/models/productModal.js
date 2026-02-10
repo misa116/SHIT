@@ -45,6 +45,13 @@ const productSchema = mongoose.Schema(
       type: String,
       default: "PCS",
     },
+   
+    // ✅ New field: low stock threshold
+    lowStockThreshold: {
+      type: Number,
+      default: 0, // Default threshold if not specified
+      min: [0, "Low stock threshold cannot be negative"],
+    },
   },
   { timestamps: true }
 );
