@@ -133,7 +133,7 @@ const router = express.Router();
 router.post("/", protect, newOrder);
 
 // Get all orders → admin OR procurement
-router.get("/all", protect, isAdminOrProcurement, allOrders);
+router.get("/all", protect, allOrders);
 
 // Get my orders → logged-in user only
 router.get("/my", protect, myOrders);
@@ -145,9 +145,9 @@ router.get("/:id", protect, orderDetails);
 router.put("/:id/deliver", protect, isAdmin, updateOrder);
 
 // Mark order as received and restock → admin OR procurement
-router.put("/:id/receive", protect, isAdminOrProcurement, updateOrderProcurement);
+router.put("/:id/receive", protect, updateOrderProcurement);
 
 // Delete an order → admin OR procurement
-router.delete("/:id", protect, isAdminOrProcurement, deleteOrder);
+router.delete("/:id", protect, deleteOrder);
 
 export default router;
