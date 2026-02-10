@@ -117,7 +117,7 @@ import {
   updateOrderProcurement,
   deleteOrder,
 } from "../controllers/orderController.js";
-import { protect, isAdmin, isAdminOrProcurement } from "../middlewares/authMiddleware.js";
+import { protect, isAdmin } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
