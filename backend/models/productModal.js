@@ -45,6 +45,14 @@ const productSchema = mongoose.Schema(
       type: String,
       default: "PCS",
     },
+
+
+
+   
+    image: {
+  type: String,
+  default: "", // optional, prevents undefined errors
+},
    
     // ✅ New field: low stock threshold
     lowStockThreshold: {
