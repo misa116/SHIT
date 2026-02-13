@@ -6999,7 +6999,7 @@ export default Dashboard;
 
 
 //good
-
+// Dashboard.jsx
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
@@ -7013,6 +7013,8 @@ import { getCategories, getUoms } from "../redux/categorySlice";
 import CategoryModel from "../components/CategoryModel";
 import UomModel from "../components/unitofmModel";
 import CreateProduct from "./productScreens/CreateProduct";
+
+const BACKEND_URL = "https://your-render-backend.onrender.com"; // <-- replace with your Render backend URL
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -7125,6 +7127,7 @@ const Dashboard = () => {
 
   return (
     <div className="w-full mt-8 px-4 md:px-6 relative">
+      {/* Delete Modal */}
       {deleteModal.open && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
           <div className="bg-gray-800 p-6 rounded-xl w-11/12 max-w-md text-center shadow-lg border-2 border-gradient-to-r from-orange-400 via-blue-400 to-purple-500">
@@ -7150,6 +7153,7 @@ const Dashboard = () => {
         </div>
       )}
 
+      {/* Header */}
       <div className="mx-auto w-full max-w-3xl mb-6 rounded-lg bg-gradient-to-r from-orange-400 via-blue-400 to-purple-500 p-[2px] relative shadow-lg">
         <nav className="text-sm mb-1" aria-label="Breadcrumb">
           <ol className="list-reset flex text-white/80">
@@ -7163,32 +7167,27 @@ const Dashboard = () => {
         </div>
       </div>
 
+      {/* Modals */}
       {categoryModal && <CategoryModel onClose={() => setOpenCategoryModal(false)} />}
       {productModal && <CreateProduct onClose={() => setOpenProductModal(false)} />}
       {uomModal && <UomModel onClose={() => setOpenUomModal(false)} />}
 
+      {/* Main Content */}
       {!categoryModal && !uomModal && !productModal && !deleteModal.open && (
         <>
+          {/* Setup Buttons */}
           <div className="mb-6 space-y-4">
             <div>
               <p className="text-gray-200 mb-2 font-medium">Setup Options (before adding products)</p>
               <div className="flex gap-4 flex-wrap">
-                <button
-                  onClick={() => setOpenCategoryModal(true)}
-                  disabled={userInfo && !userInfo.isAdmin}
-                  className="flex items-center justify-between px-5 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-400 transition shadow-md transform hover:scale-105"
-                >
+                <button onClick={() => setOpenCategoryModal(true)} disabled={userInfo && !userInfo.isAdmin} className="flex items-center justify-between px-5 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-400 transition shadow-md transform hover:scale-105">
                   + Add Category
                   <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold text-white bg-gradient-to-r from-orange-400 via-yellow-400 to-red-500 rounded-full shadow">
                     {categories?.length || 0}
                   </span>
                 </button>
 
-                <button
-                  onClick={() => setOpenUomModal(true)}
-                  disabled={userInfo && !userInfo.isAdmin}
-                  className="flex items-center justify-between px-5 py-2 rounded-lg bg-green-500 text-white hover:bg-green-400 transition shadow-md transform hover:scale-105"
-                >
+                <button onClick={() => setOpenUomModal(true)} disabled={userInfo && !userInfo.isAdmin} className="flex items-center justify-between px-5 py-2 rounded-lg bg-green-500 text-white hover:bg-green-400 transition shadow-md transform hover:scale-105">
                   + Add UOM
                   <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold text-white bg-gradient-to-r from-green-400 via-lime-400 to-emerald-500 rounded-full shadow">
                     {uom?.length || 0}
@@ -7199,11 +7198,7 @@ const Dashboard = () => {
 
             <div className="mt-4">
               <p className="text-gray-200 mb-2 font-medium">Create Products</p>
-              <button
-                onClick={() => setOpenProductModal(true)}
-                disabled={userInfo && !userInfo.isAdmin}
-                className="flex items-center justify-between px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-500 transition shadow-lg transform hover:scale-105"
-              >
+              <button onClick={() => setOpenProductModal(true)} disabled={userInfo && !userInfo.isAdmin} className="flex items-center justify-between px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-500 transition shadow-lg transform hover:scale-105">
                 + Add Product
                 <span className="ml-2 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold text-white bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-500 rounded-full shadow-lg">
                   {products?.length || 0}
@@ -7211,6 +7206,7 @@ const Dashboard = () => {
               </button>
             </div>
 
+            {/* Search */}
             <div className="mt-4 md:mt-6">
               <div className="w-full md:w-1/2 mx-auto p-[2px] rounded-lg bg-gradient-to-r from-orange-400 via-blue-400 to-purple-500 shadow-lg">
                 <input
@@ -7224,6 +7220,7 @@ const Dashboard = () => {
             </div>
           </div>
 
+          {/* Products Table (Desktop) */}
           {isLoading ? (
             <div className="flex justify-center items-center h-40">
               <div className="animate-spin h-12 w-12 border-t-4 border-blue-500 border-solid rounded-full" />
@@ -7237,7 +7234,7 @@ const Dashboard = () => {
                   <table className="w-full text-left text-gray-200 border-collapse">
                     <thead className="text-white uppercase bg-gradient-to-r from-orange-400 via-blue-400 to-purple-500">
                       <tr className="h-16">
-                        {["NAME","CATEGORY","SUPPLIER","STOCK","MODEL NO","MANUFACTURER","UOM","LOCATION","EDIT","DELETE"].map(head => (
+                        {["IMAGE","NAME","CATEGORY","SUPPLIER","STOCK","MODEL NO","MANUFACTURER","UOM","LOCATION","EDIT","DELETE"].map(head => (
                           <th key={head} className="py-4 px-4 border-b border-gray-700">{head}</th>
                         ))}
                       </tr>
@@ -7245,6 +7242,21 @@ const Dashboard = () => {
                     <tbody>
                       {currentProducts?.map(product => (
                         <tr key={product._id} className="transition-colors duration-300 hover:bg-gradient-to-r from-orange-400 via-blue-400 to-purple-500 hover:text-white">
+
+                          {/* IMAGE */}
+                          <td className="py-2 px-4 border-b">
+                            {product.image ? (
+                              <img 
+                                src={`${BACKEND_URL}/uploads/${product.image}`} 
+                                alt={product.name} 
+                                className="h-12 w-12 object-cover rounded"
+                              />
+                            ) : (
+                              <div className="h-12 w-12 bg-gray-700 flex items-center justify-center text-gray-400 rounded">No Image</div>
+                            )}
+                          </td>
+
+                          {/* OTHER COLUMNS */}
                           <td className="py-2 px-4 border-b" dangerouslySetInnerHTML={{__html: product.name.toUpperCase().includes("FIRE") ? highlightMatches(product.name + " 🔥", search) : highlightMatches(product.name, search)}} />
                           <td className="py-2 px-4 border-b" dangerouslySetInnerHTML={{__html: highlightMatches(product.category || "", search)}} />
                           <td className="py-2 px-4 border-b" dangerouslySetInnerHTML={{__html: highlightMatches(product.supplier || "", search)}} />
@@ -7273,10 +7285,21 @@ const Dashboard = () => {
                 </div>
               </div>
 
+              {/* Mobile Cards */}
               <div className="grid grid-cols-1 gap-4 md:hidden">
                 {currentProducts?.map(product => (
                   <div key={product._id} className="p-[1px] rounded-lg bg-gradient-to-r from-orange-400 via-blue-400 to-purple-500">
                     <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
+                      
+                      {/* IMAGE */}
+                      {product.image && (
+                        <img 
+                          src={`${BACKEND_URL}/uploads/${product.image}`} 
+                          alt={product.name} 
+                          className="h-24 w-full object-cover rounded mb-2"
+                        />
+                      )}
+
                       <h2 className="text-lg font-bold mb-2" dangerouslySetInnerHTML={{__html: product.name.toUpperCase().includes("FIRE") ? highlightMatches(product.name + " 🔥", search) : highlightMatches(product.name, search)}} />
                       <div className="text-gray-200 text-sm space-y-1">
                         <p dangerouslySetInnerHTML={{ __html: highlightMatches(`Category: ${product.category || "N/A"}`, search)}} />
@@ -7306,6 +7329,7 @@ const Dashboard = () => {
                 ))}
               </div>
 
+              {/* Pagination */}
               <ReactPaginate
                 previousLabel={"←"}
                 nextLabel={"→"}
@@ -7327,13 +7351,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
-
-
-
-
-
-
-
-
-
