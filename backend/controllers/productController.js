@@ -86,13 +86,18 @@ export const createProduct = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Name is required" });
   }
 
+  // 🔥 Get image path if file uploaded
+  const image = req.file ? `/uploads/${req.file.filename}` : "";
+
   const product = await Product.create({
     ...req.body,
+    image, // ✅ save image path
     user: req.user._id,
   });
 
   res.status(201).json(product);
 });
+
 
 // Get all products (Public)
 export const getProducts = asyncHandler(async (req, res) => {
