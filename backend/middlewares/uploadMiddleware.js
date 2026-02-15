@@ -1,45 +1,19 @@
+// middleware/uploadMiddleware.js
 
 // middleware/uploadMiddleware.js
+
 import multer from "multer";
-import path from "path";
-import fs from "fs";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "../config/cloudinary.js";
 
-// Ensure uploads folder exists
-const uploadDir = path.join(process.cwd(), "uploads");
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Configure storage
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename(req, file, cb) {
-    cb(
-      null,
-      `${Date.now()}-${file.fieldname}${path.extname(file.originalname)}`
-    );
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "products",
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
   },
 });
 
-// ✅ Safe file type check (does NOT throw)
-function checkFileType(file, cb) {
-  const filetypes = /jpg|jpeg|png|webp/;
-  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = filetypes.test(file.mimetype);
-
-  if (extname && mimetype) {
-    cb(null, true); // ✅ accept file
-  } else {
-    cb(null, false); // ❌ silently ignore invalid files
-  }
-}
-
-// Multer upload
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => checkFileType(file, cb),
-});
+const upload = multer({ storage });
 
 export default upload;
