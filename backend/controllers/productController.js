@@ -87,7 +87,7 @@ export const createProduct = asyncHandler(async (req, res) => {
   }
 
   // 🔥 Get image path if file uploaded
-  const image = req.file ? `/uploads/${req.file.filename}` : "";
+const image = req.file ? req.file.path : "";
 
   const product = await Product.create({
     ...req.body,
