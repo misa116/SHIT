@@ -74,11 +74,10 @@ export const deleteProduct = asyncHandler (async (req, res) => {
 
 */
 
-
 import Product from "../models/productModal.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
-// Create Product (Admin only)
+// ✅ Create Product (Admin only)
 export const createProduct = asyncHandler(async (req, res) => {
   const { name } = req.body;
 
@@ -86,26 +85,25 @@ export const createProduct = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Name is required" });
   }
 
-  // 🔥 Get image path if file uploaded
-const image = req.file ? req.file.path : "";
+  // Cloudinary image URL if file uploaded
+  const image = req.file ? req.file.path : "";
 
   const product = await Product.create({
     ...req.body,
-    image, // ✅ save image path
+    image, // save full Cloudinary URL
     user: req.user._id,
   });
 
   res.status(201).json(product);
 });
 
-
-// Get all products (Public)
+// ✅ Get all products (Public)
 export const getProducts = asyncHandler(async (req, res) => {
   const products = await Product.find({});
   res.status(200).json({ count: products.length, products });
 });
 
-// Get single product (Public)
+// ✅ Get single product (Public)
 export const getProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 
@@ -116,13 +114,18 @@ export const getProduct = asyncHandler(async (req, res) => {
   }
 });
 
-// Update product (Admin only)
+// ✅ Update product (Admin only)
 export const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const product = await Product.findById(id);
 
   if (!product) {
     return res.status(404).json({ message: "Product Not Found" });
+  }
+
+  // If a new image is uploaded, replace with Cloudinary URL
+  if (req.file) {
+    req.body.image = req.file.path;
   }
 
   const updatedProduct = await Product.findByIdAndUpdate(id, req.body, {
@@ -133,7 +136,7 @@ export const updateProduct = asyncHandler(async (req, res) => {
   res.status(200).json(updatedProduct);
 });
 
-// Delete product (Admin only)
+// ✅ Delete product (Admin only)
 export const deleteProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 
