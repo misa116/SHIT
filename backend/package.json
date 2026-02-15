@@ -27,6 +27,11 @@
     "cookie-parser": "^1.4.7",
     "cookie-signature": "^1.0.6",
     "cors": "^2.8.5",
+
+    "cloudinary": "^1.41.0",
+"multer-storage-cloudinary": "^4.0.0",
+
+    
     "debug": "^4.4.1",
     "depd": "^2.0.0",
     "dotenv": "^16.6.1",
