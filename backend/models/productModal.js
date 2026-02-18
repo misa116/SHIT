@@ -16,10 +16,16 @@ const productSchema = mongoose.Schema(
       type: String,
       required: [true, "add the category"],
     },
-    manufacturer: {
-      type: String,
-      trim: true,
+  manufacturers: {
+  type: [
+    {
+      name: { type: String, required: true, trim: true },
+      stock: { type: Number, default: 0, min: 0 },
     },
+  ],
+  default: [],
+},
+
     modalNo: {
       type: String,
     },
@@ -63,6 +69,15 @@ const productSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
+
+
+productSchema.pre("save", function (next) {
+  if (this.manufacturers && this.manufacturers.length > 0) {
+    this.stock = this.manufacturers.reduce((acc, m) => acc + m.stock, 0);
+  }
+  next();
+});
+
 
 const Product = mongoose.model("Product", productSchema);
 export default Product;
