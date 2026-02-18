@@ -10,6 +10,16 @@ export const createProduct = asyncHandler(async (req, res) => {
     return res.status(403).json({ message: "Name is required" });
   }
 
+
+export const createProduct = asyncHandler(async (req, res) => {
+  const { name } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ message: "Name is required" });
+  }
+
+
+
   const product = await Product.create({
     ...req.body,
     user: req.user._id,
@@ -73,7 +83,6 @@ export const deleteProduct = asyncHandler (async (req, res) => {
 
 
 */
-
 import Product from "../models/productModal.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
@@ -85,12 +94,20 @@ export const createProduct = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "Name is required" });
   }
 
-  // Cloudinary image URL if file uploaded
+  // 🔥 Parse manufacturers & suppliers from FormData
+  if (req.body.manufacturers) {
+    req.body.manufacturers = JSON.parse(req.body.manufacturers);
+  }
+
+  if (req.body.suppliers) {
+    req.body.suppliers = JSON.parse(req.body.suppliers);
+  }
+
   const image = req.file ? req.file.path : "";
 
   const product = await Product.create({
     ...req.body,
-    image, // save full Cloudinary URL
+    image,
     user: req.user._id,
   });
 
@@ -107,11 +124,11 @@ export const getProducts = asyncHandler(async (req, res) => {
 export const getProduct = asyncHandler(async (req, res) => {
   const product = await Product.findById(req.params.id);
 
-  if (product) {
-    res.status(200).json(product);
-  } else {
-    res.status(404).json({ message: "Product Not Found!" });
+  if (!product) {
+    return res.status(404).json({ message: "Product Not Found!" });
   }
+
+  res.status(200).json(product);
 });
 
 // ✅ Update product (Admin only)
@@ -123,7 +140,15 @@ export const updateProduct = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: "Product Not Found" });
   }
 
-  // If a new image is uploaded, replace with Cloudinary URL
+  // 🔥 Parse manufacturers & suppliers
+  if (req.body.manufacturers) {
+    req.body.manufacturers = JSON.parse(req.body.manufacturers);
+  }
+
+  if (req.body.suppliers) {
+    req.body.suppliers = JSON.parse(req.body.suppliers);
+  }
+
   if (req.file) {
     req.body.image = req.file.path;
   }
@@ -145,5 +170,6 @@ export const deleteProduct = asyncHandler(async (req, res) => {
   }
 
   await Product.deleteOne({ _id: product._id });
+
   res.status(200).json({ message: "Product Deleted" });
 });
