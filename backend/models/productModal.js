@@ -7,24 +7,28 @@ const productSchema = mongoose.Schema(
       required: true,
       ref: "User",
     },
+
     name: {
       type: String,
       required: [true, "add the product name"],
       trim: true,
     },
+
     category: {
       type: String,
       required: [true, "add the category"],
     },
-  manufacturers: {
-  type: [
-    {
-      name: { type: String, required: true, trim: true },
-      stock: { type: Number, default: 0, min: 0 },
+
+    // ✅ Manufacturers (who made it)
+    manufacturers: {
+      type: [
+        {
+          name: { type: String, required: true, trim: true },
+          allocation: { type: Number, default: 0, min: 0 }, // informational split
+        },
+      ],
+      default: [],
     },
-  ],
-  default: [],
-},
 
     modalNo: {
       type: String,
@@ -34,36 +38,43 @@ const productSchema = mongoose.Schema(
       type: String,
       trim: true,
     },
-    supplier: {
-      type: String,
-      trim: true,
-      default: "N/A",
+
+    // ✅ Suppliers (who we bought it from)
+    suppliers: {
+      type: [
+        {
+          name: { type: String, required: true, trim: true },
+          allocation: { type: Number, default: 0, min: 0 }, // informational split
+        },
+      ],
+      default: [],
     },
+
     price: {
       type: Number,
       default: 0.0,
     },
+
+    // ✅ MASTER STOCK (warehouse controlled)
     stock: {
       type: Number,
       default: 0,
+      min: 0,
     },
+
     uom: {
       type: String,
       default: "PCS",
     },
 
-
-
-   
     image: {
-  type: String,
-  default: "", // optional, prevents undefined errors
-},
-   
-    // ✅ New field: low stock threshold
+      type: String,
+      default: "",
+    },
+
     lowStockThreshold: {
       type: Number,
-      default: 0, // Default threshold if not specified
+      default: 0,
       min: [0, "Low stock threshold cannot be negative"],
     },
   },
@@ -71,13 +82,7 @@ const productSchema = mongoose.Schema(
 );
 
 
-productSchema.pre("save", function (next) {
-  if (this.manufacturers && this.manufacturers.length > 0) {
-    this.stock = this.manufacturers.reduce((acc, m) => acc + m.stock, 0);
-  }
-  next();
-});
-
 
 const Product = mongoose.model("Product", productSchema);
+
 export default Product;
