@@ -83,6 +83,11 @@ export const deleteProduct = asyncHandler (async (req, res) => {
 
 
 */
+
+
+
+
+
 import Product from "../models/productModal.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
@@ -103,13 +108,19 @@ export const createProduct = asyncHandler(async (req, res) => {
     req.body.suppliers = JSON.parse(req.body.suppliers);
   }
 
-  const image = req.file ? req.file.path : "";
+let images = [];
 
-  const product = await Product.create({
-    ...req.body,
-    image,
-    user: req.user._id,
-  });
+if (req.files && req.files.length > 0) {
+images = req.files.map(
+  (file) => file.path || file.secure_url
+);}
+  
+const product = await Product.create({
+  ...req.body,
+  images,           // new multiple images
+  image: images[0] || "", // optional fallback
+  user: req.user._id,
+});
 
   res.status(201).json(product);
 });
@@ -149,9 +160,11 @@ export const updateProduct = asyncHandler(async (req, res) => {
     req.body.suppliers = JSON.parse(req.body.suppliers);
   }
 
-  if (req.file) {
-    req.body.image = req.file.path;
-  }
+  if (req.files && req.files.length > 0) {
+  const images = req.files.map((file) => file.path || file.secure_url);
+  req.body.images = images;
+  req.body.image = images[0]; // keep fallback
+}
 
   const updatedProduct = await Product.findByIdAndUpdate(id, req.body, {
     new: true,
