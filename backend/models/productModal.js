@@ -71,7 +71,11 @@ const productSchema = mongoose.Schema(
       type: String,
       default: "",
     },
-
+// ✅ New multiple images field
+images: {
+  type: [String],
+  default: [],
+},
     lowStockThreshold: {
       type: Number,
       default: 0,
