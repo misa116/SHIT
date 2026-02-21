@@ -76,7 +76,7 @@ import upload from "../middlewares/uploadMiddleware.js";
 const router = express.Router();
 
 // Create product -> Admin only
-router.post("/create", protect, isAdmin, upload.single("image"), createProduct);
+router.post("/create", protect, isAdmin, upload.array("images", 10), createProduct);
 
 // Get all products -> Any logged in user
 router.route("/").get(protect, getProducts);
@@ -86,7 +86,7 @@ router.route("/").get(protect, getProducts);
 router
   .route("/:id")
   .get(protect, getProduct)
-  .put(protect, isAdmin, upload.single("image"), updateProduct)
+  .put(protect, isAdmin, upload.array("images", 10), updateProduct)
   .delete(protect, isAdmin, deleteProduct);
 
 export default router;
