@@ -88,6 +88,11 @@ export const deleteProduct = asyncHandler (async (req, res) => {
 
 
 
+
+
+
+
+/* wrks wrks gna test images tho 2 22 2026 
 import Product from "../models/productModal.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
@@ -186,3 +191,54 @@ export const deleteProduct = asyncHandler(async (req, res) => {
 
   res.status(200).json({ message: "Product Deleted" });
 });
+*/
+
+
+
+
+export const updateProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const product = await Product.findById(id);
+
+  if (!product) {
+    return res.status(404).json({ message: "Product Not Found" });
+  }
+
+  // Parse JSON fields if sent as FormData
+  if (req.body.manufacturers) {
+    req.body.manufacturers = JSON.parse(req.body.manufacturers);
+  }
+
+  if (req.body.suppliers) {
+    req.body.suppliers = JSON.parse(req.body.suppliers);
+  }
+
+  let images = [];
+
+  // ✅ Keep existing images that frontend sent back
+  if (req.body.existingImages) {
+    images = JSON.parse(req.body.existingImages);
+  }
+
+  // ✅ Add newly uploaded images
+  if (req.files && req.files.length > 0) {
+    const newUploaded = req.files.map(
+      (file) => file.path || file.secure_url
+    );
+    images = [...images, ...newUploaded];
+  }
+
+  req.body.images = images;
+  req.body.image = images[0] || ""; // fallback first image
+
+  const updatedProduct = await Product.findByIdAndUpdate(id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json(updatedProduct);
+});
+
+
+
