@@ -20,7 +20,7 @@ const productSchema = mongoose.Schema(
     },
 
     // ✅ Manufacturers (who made it)
-    manufacturer: {
+    manufacturers: {
       type: [
         {
           name: { type: String, required: true, trim: true },
@@ -40,7 +40,7 @@ const productSchema = mongoose.Schema(
     },
 
     // ✅ Suppliers (who we bought it from)
-    supplier: {
+    suppliers: {
       type: [
         {
           name: { type: String, required: true, trim: true },
