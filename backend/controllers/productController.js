@@ -209,11 +209,11 @@ export const createProduct = asyncHandler(async (req, res) => {
 
   // 🔥 Parse manufacturers & suppliers from FormData
   if (req.body.manufacturers) {
-    req.body.manufacturers = JSON.parse(req.body.manufacturer);
+    req.body.manufacturers = JSON.parse(req.body.manufacturers);
   }
 
   if (req.body.suppliers) {
-    req.body.suppliers = JSON.parse(req.body.supplier);
+    req.body.suppliers = JSON.parse(req.body.suppliers);
   }
 
 let images = [];
