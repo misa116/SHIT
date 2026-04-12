@@ -591,6 +591,7 @@ export const newOrder = asyncHandler(async (req, res) => {
         stock: product?.stock || 0,
         supplier: x.supplier || product?.supplier || "",
         price: x.price || product?.price || 0,
+          bundleKey: x.bundleKey || "",
       };
     })
   );
