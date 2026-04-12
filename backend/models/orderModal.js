@@ -162,6 +162,7 @@ const orderItemSchema = mongoose.Schema(
     qty: { type: Number, required: true },
     price: { type: Number, required: true }, // snapshot of product price
     category: { type: String },             // snapshot of product category
+    bundleKey: { type: String, default: "" },
     product: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
