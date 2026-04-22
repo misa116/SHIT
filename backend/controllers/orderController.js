@@ -62,6 +62,15 @@ export const newOrder = asyncHandler(async (req, res) => {
         price: x.price || product?.price || 0,
          bundleKey: x.bundleKey || "",
 bundleLabel: x.bundleLabel || "",
+         images:
+    Array.isArray(x.images) && x.images.length > 0
+      ? x.images
+      : Array.isArray(product?.images)
+      ? product.images
+      : [],
+
+  image: x.image || product?.image || "",
+};
       };
     })
   );
