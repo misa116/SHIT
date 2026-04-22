@@ -70,7 +70,6 @@ export default Order;
 */
 
 
-
 import mongoose from "mongoose";
 
 // Schema for each item in an order
@@ -81,7 +80,9 @@ const orderItemSchema = mongoose.Schema(
     price: { type: Number, required: true }, // snapshot of product price
     category: { type: String }, // snapshot of product category
     bundleKey: { type: String, default: "" },
-    bundleLabel: { type: String, default: "" }, // ✅ add this
+    bundleLabel: { type: String, default: "" },
+    images: [{ type: String }], // ✅ add this
+    image: { type: String, default: "" }, // ✅ add this
     product: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
@@ -135,7 +136,3 @@ const orderSchema = mongoose.Schema(
 
 const Order = mongoose.model("Order", orderSchema);
 export default Order;
-
-
-
-
