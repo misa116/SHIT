@@ -103,11 +103,12 @@ const orderSchema = mongoose.Schema(
 
     orderItems: [orderItemSchema],
 
-    approvedData: {
-      reqBy: { type: String },
-      approvedBy: { type: String },
-      comment: { type: String },
-    },
+   approvedData: {
+  reqBy: { type: String },
+  approvedBy: { type: String },
+  comment: { type: String },
+  lotNumber: { type: String, default: "" }, // ✅ add this
+},
 
     approvedStatusProcur: {
       paymentMethod: { type: String, default: "Cash" },
