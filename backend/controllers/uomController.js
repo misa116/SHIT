@@ -39,6 +39,26 @@ export const deleteUOM = asyncHandler(async (req, res) => {
   }
 });
 
+
+
+export const deleteUom = asyncHandler(async (req, res) => {
+  const unit = await Uom.findById(req.params.id);
+
+  if (!unit) {
+    res.status(404);
+    throw new Error("UOM not found");
+  }
+
+  await unit.deleteOne();
+
+  res.status(200).json({
+    success: true,
+    message: "UOM deleted successfully",
+    id: req.params.id,
+  });
+});
+
+
 //fetch a single UOM
 export const getUOM = asyncHandler(async (req, res) => {
   const { id } = req.params;
