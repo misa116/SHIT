@@ -17,6 +17,7 @@ const router = express.Router();
 
 router.post("/", protect, createUOM);
 router.get("/", protect, allUOM);
+router.route("/:id").delete(protect, isAdmin, deleteUom);
 router
   .route("/:id")
   .delete(protect, deleteUOM)
