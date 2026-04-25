@@ -1,48 +1,28 @@
- import UOM from "../models/uomModal.js";
+import UOM from "../models/uomModal.js";
+import Product from "../models/productModel.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const createUOM = asyncHandler(async (req, res) => {
-  try {
-    const Uom = await UOM.create({
-      user: req.user._id,
-      title: req.body.title,
-    });
-    res.json(Uom);
-  } catch (error) {
-    res.json(error);
-  }
+  const Uom = await UOM.create({
+    user: req.user._id,
+    title: req.body.title,
+  });
+
+  res.status(201).json(Uom);
 });
 
 export const allUOM = asyncHandler(async (req, res) => {
-  try {
-    const Uom = await UOM.find().populate("user").sort("-createdAt");
-    res.status(200).json({
-      success: true,
-      count: Uom.length,
-      Uom,
-    });
-  } catch (error) {
-    res.json(error);
-  }
+  const Uom = await UOM.find().populate("user").sort("-createdAt");
+
+  res.status(200).json({
+    success: true,
+    count: Uom.length,
+    Uom,
+  });
 });
 
 export const deleteUOM = asyncHandler(async (req, res) => {
-  try {
-    const Uom = await UOM.findById(req.params.id);
-
-    if (Uom) {
-      await Uom.deleteOne({ _id: Uom._id });
-      res.json({ message: "UOM removed Succesfuly ..." });
-    }
-  } catch (error) {
-    res.json(error);
-  }
-});
-
-
-
-export const deleteUom = asyncHandler(async (req, res) => {
-  const unit = await Uom.findById(req.params.id);
+  const unit = await UOM.findById(req.params.id);
 
   if (!unit) {
     res.status(404);
@@ -58,35 +38,44 @@ export const deleteUom = asyncHandler(async (req, res) => {
   });
 });
 
-
-//fetch a single UOM
 export const getUOM = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  try {
-    const Uom = await UOM.findById(id)
-      .populate("user", "name")
-      .sort("-createdAt");
-    res.json(Uom);
-  } catch (error) {
-    res.json(error);
+  const Uom = await UOM.findById(req.params.id).populate("user", "name");
+
+  if (!Uom) {
+    res.status(404);
+    throw new Error("UOM not found");
   }
+
+  res.status(200).json(Uom);
 });
 
 export const updateUOM = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  try {
-    const Uom = await UOM.findByIdAndUpdate(
-      id,
-      {
-        title: req?.body?.title,
-      },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
-    res.json(Uom);
-  } catch (error) {
-    res.json(error);
+  const unit = await UOM.findById(req.params.id);
+
+  if (!unit) {
+    res.status(404);
+    throw new Error("UOM not found");
   }
+
+  const oldTitle = unit.title;
+  const newTitle = req.body.title?.trim();
+
+  if (!newTitle) {
+    res.status(400);
+    throw new Error("UOM title is required");
+  }
+
+  unit.title = newTitle;
+  await unit.save();
+
+  await Product.updateMany(
+    { uom: oldTitle },
+    { $set: { uom: newTitle } }
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "UOM updated and products updated successfully",
+    Uom: unit,
+  });
 });
