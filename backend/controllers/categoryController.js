@@ -27,3 +27,27 @@ export const allCategory = asyncHandler(async (req, res) => {
     res.json(error);
   }
 });
+
+
+export const deleteCategory = asyncHandler(async (req, res) => {
+  const category = await Category.findById(req.params.id);
+
+  if (!category) {
+    res.status(404);
+    throw new Error("Category not found");
+  }
+
+  await category.deleteOne();
+
+  res.status(200).json({
+    success: true,
+    message: "Category deleted successfully",
+    id: req.params.id,
+  });
+});
+
+
+
+
+
+
