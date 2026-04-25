@@ -1,6 +1,6 @@
- import express from "express";
+import express from "express";
 
-import { protect } from "../middlewares/authMiddleware.js";
+import { protect, isAdmin } from "../middlewares/authMiddleware.js";
 import {
   allUOM,
   createUOM,
@@ -9,19 +9,17 @@ import {
   updateUOM,
 } from "../controllers/uomController.js";
 
-
 console.log("🟢 uomRoutes loaded");
-
 
 const router = express.Router();
 
-router.post("/", protect, createUOM);
+router.post("/", protect, isAdmin, createUOM);
 router.get("/", protect, allUOM);
-router.route("/:id").delete(protect, isAdmin, deleteUom);
+
 router
   .route("/:id")
-  .delete(protect, deleteUOM)
   .get(protect, getUOM)
-  .put(protect, updateUOM);
+  .put(protect, isAdmin, updateUOM)
+  .delete(protect, isAdmin, deleteUOM);
 
 export default router;
