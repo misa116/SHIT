@@ -1,5 +1,5 @@
  import Category from "../models/categoryModal.js";
-import Product from "../models/productModel.js";
+import Product from "../models/productModal.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const createCategory = asyncHandler(async (req, res) => {
