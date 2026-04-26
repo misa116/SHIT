@@ -3,7 +3,7 @@ import Product from "../models/productModal.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const createCategory = asyncHandler(async (req, res) => {
-  try {
+  try { 
     const category = await Category.create({
       user: req.user.id,
       title: req.body.title,
