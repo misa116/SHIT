@@ -108,7 +108,6 @@ const orderSchema = mongoose.Schema(
   approvedBy: { type: String },
   comment: { type: String },
   lotNumber: { type: String, default: "" },
-  deliveryDate: { type: Date }, 
 },
 
     approvedStatusProcur: {
