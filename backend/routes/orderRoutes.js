@@ -107,6 +107,7 @@ export default router;
 
 //newest test today
 // backend/routes/orderRoutes.js
+/*
 import express from "express";
 import {
   newOrder,
@@ -121,13 +122,7 @@ import { protect, isAdmin } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-/**
- * Order Routes
- *
- * - Regular logged-in users → can create an order, see their own orders, and view details
- * - Procurement OR Admin → can see all orders, delete orders, mark as received
- * - Admin only → can mark as delivered
- */
+
 
 // Create a new order → any logged-in user
 router.post("/", protect, newOrder);
@@ -151,3 +146,62 @@ router.put("/:id/receive", protect, updateOrderProcurement);
 router.delete("/:id", protect, deleteOrder);
 
 export default router;
+*/
+
+
+
+
+
+
+
+
+
+import express from "express";
+import {
+  newOrder,
+  allOrders,
+  myOrders,
+  orderDetails,
+  updateOrder,
+  updateOrderProcurement,
+  deleteOrder,
+   updateOrderDeliveryDate, 
+} from "../controllers/orderController.js";
+import { protect, isAdmin } from "../middlewares/authMiddleware.js";
+
+const router = express.Router();
+
+
+
+// Create a new order → any logged-in user
+router.post("/", protect, newOrder);
+
+// Get all orders → admin OR procurement
+router.get("/all", protect, allOrders);
+
+// Get my orders → logged-in user only
+router.get("/my", protect, myOrders);
+
+// Get order details by ID → logged-in user only
+router.get("/:id", protect, orderDetails);
+
+// Mark order as delivered → admin only
+router.put("/:id/deliver", protect, isAdmin, updateOrder);
+
+// Mark order as received and restock → admin OR procurement
+router.put("/:id/receive", protect, updateOrderProcurement);
+
+// Delete an order → admin OR procurement
+router.delete("/:id", protect, deleteOrder);
+
+router
+  .route("/:id/delivery-date")
+  .put(protect, updateOrderDeliveryDate);
+
+export default router;
+
+
+
+
+
+
