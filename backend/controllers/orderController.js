@@ -331,6 +331,28 @@ export const updateOrder = asyncHandler(async (req, res) => {
   res.status(200).json(updatedOrder);
 });
 
+
+
+export const updateOrderDeliveryDate = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    res.status(404);
+    throw new Error("Order not found");
+  }
+
+  order.approvedData = {
+    ...order.approvedData,
+    deliveryDate: req.body.deliveryDate || null,
+  };
+
+  const updatedOrder = await order.save();
+
+  res.status(200).json({ order: updatedOrder });
+});
+
+
+
 // ----------------------------
 // Receive order (procurement / purchase requisition)
 // ----------------------------
