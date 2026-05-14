@@ -166,7 +166,7 @@ import {
   updateOrderProcurement,
   deleteOrder,
    updateOrderDeliveryDate, 
-  
+  updateOrderHoldStatus,
 } from "../controllers/orderController.js";
 import { protect, isAdmin } from "../middlewares/authMiddleware.js";
 
@@ -198,6 +198,11 @@ router.delete("/:id", protect, deleteOrder);
 router
   .route("/:id/delivery-date")
   .put(protect, updateOrderDeliveryDate);
+
+
+router
+  .route("/:id/hold")
+  .put(protect, updateOrderHoldStatus);
 
 export default router;
 
