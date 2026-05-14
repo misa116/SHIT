@@ -132,6 +132,27 @@ const orderSchema = mongoose.Schema(
 
     isReceived: { type: Boolean, required: true, default: false },
     receivedAt: { type: Date },
+
+
+
+isOnHold: {
+  type: Boolean,
+  default: false,
+},
+
+holdDate: {
+  type: Date,
+},
+
+holdBy: {
+  type: String,
+},
+
+
+
+
+
+    
   },
   { timestamps: true }
 );
