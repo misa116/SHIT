@@ -355,6 +355,38 @@ export const updateOrderProcurement = asyncHandler(async (req, res) => {
 
 
 
+
+
+
+export const updateOrderHoldStatus = async (req, res) => {
+  try {
+    const { isOnHold } = req.body;
+
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      res.status(404);
+      throw new Error("Order not found");
+    }
+
+    order.isOnHold = Boolean(isOnHold);
+    order.holdDate = isOnHold ? new Date() : null;
+    order.holdBy = isOnHold ? req.user?.name || req.user?.email || "Unknown" : "";
+
+    const updatedOrder = await order.save();
+
+    res.json(updatedOrder);
+  } catch (error) {
+    res.status(res.statusCode === 200 ? 500 : res.statusCode);
+    res.json({ message: error.message });
+  }
+};
+
+
+
+
+
+
 export const updateOrderDeliveryDate = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
 
