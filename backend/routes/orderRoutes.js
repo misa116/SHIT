@@ -156,6 +156,29 @@ export default router;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+
+
 import express from "express";
 import {
   newOrder,
@@ -203,6 +226,85 @@ router
 router
   .route("/:id/hold")
   .put(protect, updateOrderHoldStatus);
+
+export default router;
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import express from "express";
+import {
+  newOrder,
+  allOrders,
+  myOrders,
+  orderDetails,
+  updateOrder,
+  updateOrderProcurement,
+  deleteOrder,
+  updateOrderDeliveryDate,
+  updateOrderHoldStatus,
+  updateBundleBuiltStatus,
+} from "../controllers/orderController.js";
+import { protect, isAdmin } from "../middlewares/authMiddleware.js";
+
+const router = express.Router();
+
+
+
+// Create a new order → any logged-in user
+router.post("/", protect, newOrder);
+
+// Get all orders → admin OR procurement
+router.get("/all", protect, allOrders);
+
+// Get my orders → logged-in user only
+router.get("/my", protect, myOrders);
+
+// Get order details by ID → logged-in user only
+router.get("/:id", protect, orderDetails);
+
+// Mark order as delivered → admin only
+router.put("/:id/deliver", protect, isAdmin, updateOrder);
+
+// Mark order as received and restock → admin OR procurement
+router.put("/:id/receive", protect, updateOrderProcurement);
+
+// Delete an order → admin OR procurement
+router.delete("/:id", protect, deleteOrder);
+
+router
+  .route("/:id/delivery-date")
+  .put(protect, updateOrderDeliveryDate);
+
+
+router
+  .route("/:id/hold")
+  .put(protect, updateOrderHoldStatus);
+
+
+router
+  .route("/:id/bundles/:bundleKey/built")
+  .put(protect, updateBundleBuiltStatus);
+
 
 export default router;
 
