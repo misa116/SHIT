@@ -189,7 +189,7 @@ export default Order;
 
 
 
-
+/*
 
 import mongoose from "mongoose";
 
@@ -349,3 +349,201 @@ const orderSchema = mongoose.Schema(
 
 const Order = mongoose.model("Order", orderSchema);
 export default Order;
+
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import mongoose from "mongoose";
+
+// Schema for each item in an order
+const orderItemSchema = mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    qty: { type: Number, required: true },
+    price: { type: Number, required: true },
+
+    category: { type: String },
+
+    bundleKey: { type: String, default: "" },
+    bundleLabel: { type: String, default: "" },
+    bundleItemOrder: { type: Number, default: 0 },
+
+    images: [{ type: String }],
+    image: { type: String, default: "" },
+
+    // ✅ Built status for products inside a bundle
+    isBuilt: {
+      type: Boolean,
+      default: false,
+    },
+    builtAt: {
+      type: Date,
+    },
+    builtBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    factoryStatus: {
+      type: String,
+      default: "pending",
+    },
+
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "Product",
+    },
+  },
+  { _id: false }
+);
+
+// ✅ Schema for saved bundles on the order
+const bundleSchema = mongoose.Schema(
+  {
+    bundleKey: {
+      type: String,
+      required: true,
+    },
+    bundleLabel: {
+      type: String,
+      default: "",
+    },
+
+    // ✅ Built status for the whole bundle
+    isBuilt: {
+      type: Boolean,
+      default: false,
+    },
+    builtAt: {
+      type: Date,
+    },
+    builtBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    factoryStatus: {
+      type: String,
+      default: "pending",
+    },
+  },
+  { _id: false }
+);
+
+// Main order schema
+const orderSchema = mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "User",
+    },
+
+    orderItems: [orderItemSchema],
+
+    // ✅ Saved bundle list for this order
+    bundles: {
+      type: [bundleSchema],
+      default: [],
+    },
+
+ approvedData: {
+  reqBy: { type: String },
+  approvedBy: { type: String },
+
+  // Job name / jobsite name
+  comment: { type: String },
+
+  lotNumber: { type: String, default: "" },
+  deliveryDate: { type: Date, default: null },
+
+  // Jobsite map address
+  jobsiteAddress: {
+    type: String,
+    default: "",
+  },
+
+  // Jobsite map pin latitude
+  jobsiteLat: {
+    type: Number,
+    default: null,
+  },
+
+  // Jobsite map pin longitude
+  jobsiteLng: {
+    type: Number,
+    default: null,
+  },
+},
+
+    approvedStatusProcur: {
+      paymentMethod: { type: String, default: "Cash" },
+    },
+
+    requisitionSteps: {
+      type: {
+        type: String,
+        enum: ["FACTORY REQUISITION", "PURCHASE REQUISITION"],
+        required: true,
+      },
+    },
+
+    price: { type: Number, default: 0 },
+
+    supplier: { type: String },
+
+    // ✅ Order-level built status
+    isBuilt: {
+      type: Boolean,
+      default: false,
+    },
+    builtAt: {
+      type: Date,
+    },
+    builtBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    factoryStatus: {
+      type: String,
+      default: "pending",
+    },
+
+    isDelivered: { type: Boolean, required: true, default: false },
+    deliveredAt: { type: Date },
+
+    isReceived: { type: Boolean, required: true, default: false },
+    receivedAt: { type: Date },
+
+    isOnHold: {
+      type: Boolean,
+      default: false,
+    },
+
+    holdDate: {
+      type: Date,
+    },
+
+    holdBy: {
+      type: String,
+    },
+  },
+  { timestamps: true }
+);
+
+const Order = mongoose.model("Order", orderSchema);
+export default Order;
+
+
+
