@@ -1084,13 +1084,26 @@ export const updateOrderDeliveryDate = asyncHandler(async (req, res) => {
 export const updateOrderJobsite = asyncHandler(async (req, res) => {
   const { jobsiteAddress, jobsiteLat, jobsiteLng } = req.body;
 
-  const order = await Order.findById(req.params.id);
+const order = await Order.findById(req.params.id);
 
-  if (!order) {
-    return res.status(404).json({ message: "Order not found" });
-  }
+if (!order) {
+  return res.status(404).json({ message: "Order not found" });
+}
 
-  const latNumber =
+const userDept = String(
+  req.user?.dept || req.user?.clearance || ""
+).toLowerCase();
+
+const canManageMapPins =
+  req.user?.isAdmin || userDept === "company";
+
+if (!canManageMapPins) {
+  return res.status(403).json({
+    message: "Only Company department or Admin users can update jobsite pins",
+  });
+}
+
+const latNumber =
     jobsiteLat === "" || jobsiteLat === null || jobsiteLat === undefined
       ? null
       : Number(jobsiteLat);
