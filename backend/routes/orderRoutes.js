@@ -370,6 +370,17 @@ router
   .route("/:id/jobsite")
   .put(protect, updateOrderJobsite);
 
+router
+  .route("/:id/delivery-start")
+  .put(protect, startOrderDeliveryNavigation);
+
+router
+  .route("/:id/delivery-clear")
+  .put(protect, clearOrderDeliveryNavigation);
+
+
+
+
 
 router
   .route("/:id/bundles/:bundleKey/built")
