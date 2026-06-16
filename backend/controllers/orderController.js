@@ -999,9 +999,15 @@ export const updateOrder = asyncHandler(async (req, res) => {
 
   await adjustStockByRequisitionType(order);
 
-  order.isDelivered = true;
-  order.deliveredAt = Date.now();
-  const updatedOrder = await order.save();
+ order.isDelivered = true;
+order.deliveredAt = Date.now();
+
+order.isBeingDelivered = false;
+order.deliveryStartedAt = undefined;
+order.deliveryStartedBy = undefined;
+order.deliveryStartedByName = "";
+
+const updatedOrder = await order.save();
 
   res.status(200).json(updatedOrder);
 });
@@ -1140,6 +1146,52 @@ const latNumber =
 
   res.status(200).json(updatedOrder);
 });
+
+
+
+
+
+// ----------------------------
+// Start live delivery navigation
+// ----------------------------
+export const startOrderDeliveryNavigation = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    return res.status(404).json({ message: "Order not found" });
+  }
+
+  order.isBeingDelivered = true;
+  order.deliveryStartedAt = new Date();
+  order.deliveryStartedBy = req.user._id;
+  order.deliveryStartedByName =
+    req.user?.name || req.user?.email || "Unknown User";
+
+  const updatedOrder = await order.save();
+
+  res.status(200).json(updatedOrder);
+});
+
+// ----------------------------
+// Clear live delivery navigation
+// ----------------------------
+export const clearOrderDeliveryNavigation = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    return res.status(404).json({ message: "Order not found" });
+  }
+
+  order.isBeingDelivered = false;
+  order.deliveryStartedAt = undefined;
+  order.deliveryStartedBy = undefined;
+  order.deliveryStartedByName = "";
+
+  const updatedOrder = await order.save();
+
+  res.status(200).json(updatedOrder);
+});
+
 
 
 
