@@ -520,8 +520,31 @@ const orderSchema = mongoose.Schema(
       default: "pending",
     },
 
-    isDelivered: { type: Boolean, required: true, default: false },
-    deliveredAt: { type: Date },
+   isDelivered: { type: Boolean, required: true, default: false },
+deliveredAt: { type: Date },
+
+// ✅ Live delivery navigation status
+isBeingDelivered: {
+  type: Boolean,
+  default: false,
+},
+
+deliveryStartedAt: {
+  type: Date,
+},
+
+deliveryStartedBy: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+},
+
+deliveryStartedByName: {
+  type: String,
+  default: "",
+},
+
+isReceived: { type: Boolean, required: true, default: false },
+receivedAt: { type: Date },
 
     isReceived: { type: Boolean, required: true, default: false },
     receivedAt: { type: Date },
