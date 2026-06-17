@@ -1100,6 +1100,12 @@ order.deliveryStartedAt = undefined;
 order.deliveryStartedBy = undefined;
 order.deliveryStartedByName = "";
 
+order.isDriverSharingLocation = false;
+order.driverLocationLat = null;
+order.driverLocationLng = null;
+order.driverLocationAccuracy = null;
+order.driverLocationUpdatedAt = undefined;
+
 const updatedOrder = await order.save();
 
   res.status(200).json(updatedOrder);
@@ -1337,6 +1343,12 @@ export const startOrderDeliveryNavigation = asyncHandler(async (req, res) => {
 // Clear live delivery navigation
 // Only the user who started the route OR full Admin can clear it.
 // ----------------------------
+
+
+
+
+
+
 export const clearOrderDeliveryNavigation = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
 
@@ -1355,10 +1367,16 @@ export const clearOrderDeliveryNavigation = asyncHandler(async (req, res) => {
     });
   }
 
-  order.isBeingDelivered = false;
-  order.deliveryStartedAt = undefined;
-  order.deliveryStartedBy = undefined;
-  order.deliveryStartedByName = "";
+order.isBeingDelivered = false;
+order.deliveryStartedAt = undefined;
+order.deliveryStartedBy = undefined;
+order.deliveryStartedByName = "";
+
+order.isDriverSharingLocation = false;
+order.driverLocationLat = null;
+order.driverLocationLng = null;
+order.driverLocationAccuracy = null;
+order.driverLocationUpdatedAt = undefined;
 
   const updatedOrder = await order.save();
 
@@ -1367,7 +1385,97 @@ export const clearOrderDeliveryNavigation = asyncHandler(async (req, res) => {
 
 
 
+// ----------------------------
+// Update driver live location
+// Only the user who started the route can share/update their location.
+// ----------------------------
+export const updateOrderDriverLocation = asyncHandler(async (req, res) => {
+  const { driverLocationLat, driverLocationLng, driverLocationAccuracy } =
+    req.body;
 
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    return res.status(404).json({ message: "Order not found" });
+  }
+
+  if (!order.isBeingDelivered) {
+    return res.status(400).json({
+      message: "This order is not currently being delivered",
+    });
+  }
+
+  const deliveryUserId = String(order.deliveryStartedBy || "");
+  const requestUserId = String(req.user?._id || "");
+
+  if (deliveryUserId !== requestUserId) {
+    return res.status(403).json({
+      message: "Only the driver on this route can share this location",
+    });
+  }
+
+  const latNumber = Number(driverLocationLat);
+  const lngNumber = Number(driverLocationLng);
+  const accuracyNumber =
+    driverLocationAccuracy === "" ||
+    driverLocationAccuracy === null ||
+    driverLocationAccuracy === undefined
+      ? null
+      : Number(driverLocationAccuracy);
+
+  if (!Number.isFinite(latNumber) || latNumber < -90 || latNumber > 90) {
+    return res.status(400).json({ message: "Invalid driver latitude" });
+  }
+
+  if (!Number.isFinite(lngNumber) || lngNumber < -180 || lngNumber > 180) {
+    return res.status(400).json({ message: "Invalid driver longitude" });
+  }
+
+  order.isDriverSharingLocation = true;
+  order.driverLocationLat = latNumber;
+  order.driverLocationLng = lngNumber;
+  order.driverLocationAccuracy = Number.isFinite(accuracyNumber)
+    ? accuracyNumber
+    : null;
+  order.driverLocationUpdatedAt = new Date();
+
+  const updatedOrder = await order.save();
+
+  res.status(200).json(updatedOrder);
+});
+
+// ----------------------------
+// Stop driver live location sharing
+// Only the driver on the route OR full Admin can stop it.
+// ----------------------------
+export const stopOrderDriverLocation = asyncHandler(async (req, res) => {
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    return res.status(404).json({ message: "Order not found" });
+  }
+
+  const deliveryUserId = String(order.deliveryStartedBy || "");
+  const requestUserId = String(req.user?._id || "");
+  const isFullAdminUser = !!req.user?.isAdmin;
+
+  if (!isFullAdminUser && deliveryUserId !== requestUserId) {
+    return res.status(403).json({
+      message:
+        "Only the driver on this route or a full Admin can stop driver location sharing",
+    });
+  }
+
+  order.isDriverSharingLocation = false;
+  order.driverLocationLat = null;
+  order.driverLocationLng = null;
+  order.driverLocationAccuracy = null;
+  order.driverLocationUpdatedAt = undefined;
+
+  const updatedOrder = await order.save();
+
+  res.status(200).json(updatedOrder);
+});
 
 
 
