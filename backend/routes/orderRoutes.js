@@ -329,6 +329,8 @@ import {
     updateOrderJobsite,
 startOrderDeliveryNavigation,
 clearOrderDeliveryNavigation,
+createDraftJobsiteOrder,
+  
 } from "../controllers/orderController.js";
 import { protect, isAdmin } from "../middlewares/authMiddleware.js";
 
@@ -338,6 +340,12 @@ const router = express.Router();
 
 // Create a new order → any logged-in user
 router.post("/", protect, newOrder);
+
+
+// Create draft jobsite order from Dashboard map pin
+router.post("/draft-jobsite", protect, createDraftJobsiteOrder);
+
+
 
 // Get all orders → admin OR procurement
 router.get("/all", protect, allOrders);
