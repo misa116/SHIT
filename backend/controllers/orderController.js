@@ -877,11 +877,31 @@ const adjustStockByRequisitionType = async (order) => {
   }
 };
 
+
+
+
+
+
+
+
+
 // ----------------------------
 // Create a new order
+// If draftJobsiteOrderId exists, finish that draft order instead of creating duplicate.
 // ----------------------------
 export const newOrder = asyncHandler(async (req, res) => {
-  const { orderItems, approvedData, requisitionSteps, supplier, bundles = [] } = req.body;
+  const {
+    orderItems,
+    approvedData,
+    requisitionSteps,
+    supplier,
+    bundles = [],
+    draftJobsiteOrderId = "",
+  } = req.body;
+
+  if (!Array.isArray(orderItems) || orderItems.length === 0) {
+    return res.status(400).json({ message: "No order items provided" });
+  }
 
   const itemsWithCategory = await Promise.all(
     orderItems.map(async (x) => {
@@ -892,12 +912,13 @@ export const newOrder = asyncHandler(async (req, res) => {
         product: productId,
         name: x.name || product?.name,
         qty: x.qty,
-        category: product?.category || "Uncategorized",
-        stock: product?.stock || 0,
+        category: x.category || product?.category || "Uncategorized",
+        stock: x.stock ?? product?.stock ?? 0,
         supplier: x.supplier || product?.supplier || "",
         price: x.price || product?.price || 0,
         bundleKey: x.bundleKey || "",
         bundleLabel: x.bundleLabel || "",
+        bundleItemOrder: x.bundleItemOrder || 0,
         images:
           Array.isArray(x.images) && x.images.length > 0
             ? x.images
@@ -908,6 +929,7 @@ export const newOrder = asyncHandler(async (req, res) => {
       };
     })
   );
+
   const savedBundles =
     Array.isArray(bundles) && bundles.length > 0
       ? bundles.map((bundle, index) => ({
@@ -931,6 +953,63 @@ export const newOrder = asyncHandler(async (req, res) => {
           factoryStatus: "pending",
         }));
 
+  // ✅ Finish existing draft jobsite order
+  if (draftJobsiteOrderId) {
+    const draftOrder = await Order.findById(draftJobsiteOrderId);
+
+    if (!draftOrder) {
+      return res.status(404).json({ message: "Draft jobsite order not found" });
+    }
+
+    if (!draftOrder.isDraftJobsite) {
+      return res.status(400).json({
+        message: "This order is not a draft jobsite order",
+      });
+    }
+
+    const existingApprovedData = draftOrder.approvedData?.toObject
+      ? draftOrder.approvedData.toObject()
+      : draftOrder.approvedData || {};
+
+    draftOrder.orderItems = itemsWithCategory;
+    draftOrder.bundles = savedBundles;
+    draftOrder.user = req.user._id;
+
+    draftOrder.approvedData = {
+      ...existingApprovedData,
+      ...(approvedData || {}),
+
+      // Keep original map pin if final payload is missing it
+      jobsiteAddress:
+        approvedData?.jobsiteAddress || existingApprovedData.jobsiteAddress || "",
+      jobsiteLat:
+        approvedData?.jobsiteLat ?? existingApprovedData.jobsiteLat ?? null,
+      jobsiteLng:
+        approvedData?.jobsiteLng ?? existingApprovedData.jobsiteLng ?? null,
+    };
+
+    draftOrder.supplier = supplier || "";
+    draftOrder.requisitionSteps = requisitionSteps;
+    draftOrder.price = itemsWithCategory.reduce(
+      (sum, item) => sum + Number(item.qty || 0) * Number(item.price || 0),
+      0
+    );
+
+    draftOrder.isDraftJobsite = false;
+    draftOrder.draftStatus = "completed";
+    draftOrder.draftCompletedAt = new Date();
+
+    draftOrder.isBuilt = false;
+    draftOrder.factoryStatus = "pending";
+    draftOrder.isDelivered = false;
+    draftOrder.deliveredAt = undefined;
+
+    const updatedDraftOrder = await draftOrder.save();
+
+    return res.status(200).json(updatedDraftOrder);
+  }
+
+  // ✅ Normal brand-new order
   const createOrder = await Order.create({
     orderItems: itemsWithCategory,
     bundles: savedBundles,
@@ -938,10 +1017,24 @@ export const newOrder = asyncHandler(async (req, res) => {
     approvedData,
     supplier,
     requisitionSteps,
+    price: itemsWithCategory.reduce(
+      (sum, item) => sum + Number(item.qty || 0) * Number(item.price || 0),
+      0
+    ),
   });
 
   res.status(201).json(createOrder);
 });
+
+
+
+
+
+
+
+
+
+
 
 // ----------------------------
 // Get all orders (admin/procurement)
