@@ -327,8 +327,11 @@ import {
   updateOrderHoldStatus,
   updateBundleBuiltStatus,
     updateOrderJobsite,
+  
 startOrderDeliveryNavigation,
 clearOrderDeliveryNavigation,
+updateOrderDriverLocation,
+stopOrderDriverLocation,
 createDraftJobsiteOrder,
   
 } from "../controllers/orderController.js";
@@ -387,7 +390,13 @@ router
   .route("/:id/delivery-clear")
   .put(protect, clearOrderDeliveryNavigation);
 
+router
+  .route("/:id/driver-location")
+  .put(protect, updateOrderDriverLocation);
 
+router
+  .route("/:id/driver-location-stop")
+  .put(protect, stopOrderDriverLocation);
 
 
 
