@@ -1149,6 +1149,69 @@ const latNumber =
 
 
 
+// ----------------------------
+// Create draft jobsite order from Dashboard map pin
+// ----------------------------
+export const createDraftJobsiteOrder = asyncHandler(async (req, res) => {
+  const { title, jobsiteAddress, jobsiteLat, jobsiteLng } = req.body;
+
+  const userDept = String(
+    req.user?.dept || req.user?.clearance || ""
+  ).toLowerCase();
+
+  const canManageMapPins = req.user?.isAdmin || userDept === "company";
+
+  if (!canManageMapPins) {
+    return res.status(403).json({
+      message:
+        "Only Company department or Admin users can create draft jobsite orders",
+    });
+  }
+
+  const latNumber = Number(jobsiteLat);
+  const lngNumber = Number(jobsiteLng);
+
+  if (!Number.isFinite(latNumber) || latNumber < -90 || latNumber > 90) {
+    return res.status(400).json({ message: "Invalid latitude" });
+  }
+
+  if (!Number.isFinite(lngNumber) || lngNumber < -180 || lngNumber > 180) {
+    return res.status(400).json({ message: "Invalid longitude" });
+  }
+
+  const draftOrder = await Order.create({
+    user: req.user._id,
+
+    // Empty for now. Another user will finish this later from Warehouse.
+    orderItems: [],
+    bundles: [],
+
+    isDraftJobsite: true,
+    draftStatus: "jobsite-pin",
+    draftCreatedByName: req.user?.name || req.user?.email || "Unknown User",
+
+    approvedData: {
+      reqBy: req.user?.name || req.user?.email || "",
+      approvedBy: "",
+      comment: title || "Future Jobsite",
+      lotNumber: "",
+      deliveryDate: null,
+      jobsiteAddress: jobsiteAddress || "",
+      jobsiteLat: latNumber,
+      jobsiteLng: lngNumber,
+    },
+
+    requisitionSteps: {
+      type: "FACTORY REQUISITION",
+    },
+
+    price: 0,
+  });
+
+  res.status(201).json(draftOrder);
+});
+
+
 
 
 // ----------------------------
