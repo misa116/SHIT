@@ -520,6 +520,29 @@ const orderSchema = mongoose.Schema(
       default: "pending",
     },
 
+
+// ✅ Draft jobsite order created from Dashboard map before products are selected
+isDraftJobsite: {
+  type: Boolean,
+  default: false,
+},
+
+draftStatus: {
+  type: String,
+  enum: ["none", "jobsite-pin", "completed"],
+  default: "none",
+},
+
+draftCreatedByName: {
+  type: String,
+  default: "",
+},
+
+draftCompletedAt: {
+  type: Date,
+},
+
+    
    isDelivered: { type: Boolean, required: true, default: false },
 deliveredAt: { type: Date },
 
