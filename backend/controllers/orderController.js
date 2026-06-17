@@ -1328,14 +1328,31 @@ export const startOrderDeliveryNavigation = asyncHandler(async (req, res) => {
   res.status(200).json(updatedOrder);
 });
 
+
+
+
+
+
 // ----------------------------
 // Clear live delivery navigation
+// Only the user who started the route OR full Admin can clear it.
 // ----------------------------
 export const clearOrderDeliveryNavigation = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.id);
 
   if (!order) {
     return res.status(404).json({ message: "Order not found" });
+  }
+
+  const deliveryUserId = String(order.deliveryStartedBy || "");
+  const requestUserId = String(req.user?._id || "");
+  const isFullAdminUser = !!req.user?.isAdmin;
+
+  if (!isFullAdminUser && deliveryUserId !== requestUserId) {
+    return res.status(403).json({
+      message:
+        "Only the user on this delivery route or a full Admin can clear delivery status",
+    });
   }
 
   order.isBeingDelivered = false;
