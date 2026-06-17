@@ -546,7 +546,13 @@ draftCompletedAt: {
    isDelivered: { type: Boolean, required: true, default: false },
 deliveredAt: { type: Date },
 
-// ✅ Live delivery navigation status
+
+
+
+
+
+
+    // ✅ Live delivery navigation status
 isBeingDelivered: {
   type: Boolean,
   default: false,
@@ -566,17 +572,44 @@ deliveryStartedByName: {
   default: "",
 },
 
+// ✅ Driver live location sharing for this delivery route
+isDriverSharingLocation: {
+  type: Boolean,
+  default: false,
+},
+
+driverLocationLat: {
+  type: Number,
+  default: null,
+},
+
+driverLocationLng: {
+  type: Number,
+  default: null,
+},
+
+driverLocationAccuracy: {
+  type: Number,
+  default: null,
+},
+
+driverLocationUpdatedAt: {
+  type: Date,
+},
+
 isReceived: { type: Boolean, required: true, default: false },
 receivedAt: { type: Date },
 
-    isReceived: { type: Boolean, required: true, default: false },
-    receivedAt: { type: Date },
+isOnHold: {
+  type: Boolean,
+  default: false,
+},
 
-    isOnHold: {
-      type: Boolean,
-      default: false,
-    },
 
+
+
+
+    
     holdDate: {
       type: Date,
     },
