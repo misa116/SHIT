@@ -458,7 +458,7 @@ const orderSchema = mongoose.Schema(
       default: [],
     },
 
- approvedData: {
+approvedData: {
   reqBy: { type: String },
   approvedBy: { type: String },
 
@@ -484,6 +484,17 @@ const orderSchema = mongoose.Schema(
   jobsiteLng: {
     type: Number,
     default: null,
+  },
+
+  // Jobsite photo saved from draft pin / map
+  jobsiteImage: {
+    type: String,
+    default: "",
+  },
+
+  jobsiteImageName: {
+    type: String,
+    default: "",
   },
 },
 
