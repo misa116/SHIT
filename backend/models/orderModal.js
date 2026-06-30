@@ -496,6 +496,20 @@ approvedData: {
     type: String,
     default: "",
   },
+
+jobsiteImages: [
+  {
+    src: {
+      type: String,
+      default: "",
+    },
+    name: {
+      type: String,
+      default: "",
+    },
+  },
+],
+  
 },
 
     approvedStatusProcur: {
