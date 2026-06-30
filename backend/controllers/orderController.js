@@ -1731,10 +1731,17 @@ export const newOrder = asyncHandler(async (req, res) => {
         approvedData?.jobsiteLng ?? existingApprovedData.jobsiteLng ?? null,
       jobsiteImage:
         approvedData?.jobsiteImage ?? existingApprovedData.jobsiteImage ?? "",
-      jobsiteImageName:
-        approvedData?.jobsiteImageName ??
-        existingApprovedData.jobsiteImageName ??
-        "",
+      
+jobsiteImageName:
+  approvedData?.jobsiteImageName ??
+  existingApprovedData.jobsiteImageName ??
+  "",
+
+jobsiteImages:
+  Array.isArray(approvedData?.jobsiteImages)
+    ? approvedData.jobsiteImages
+    : existingApprovedData.jobsiteImages || [],
+      
     };
 
     draftOrder.supplier = supplier || "";
@@ -1934,7 +1941,6 @@ export const updateOrderDeliveryDate = asyncHandler(async (req, res) => {
 });
 
 
-
 export const updateOrderJobsite = asyncHandler(async (req, res) => {
   const {
     jobsiteAddress,
@@ -1942,6 +1948,7 @@ export const updateOrderJobsite = asyncHandler(async (req, res) => {
     jobsiteLng,
     jobsiteImage,
     jobsiteImageName,
+    jobsiteImages,
   } = req.body;
 
   const order = await Order.findById(req.params.id);
@@ -2005,13 +2012,16 @@ export const updateOrderJobsite = asyncHandler(async (req, res) => {
       jobsiteImageName !== undefined
         ? jobsiteImageName
         : existingApprovedData.jobsiteImageName || "",
+
+    jobsiteImages: Array.isArray(jobsiteImages)
+      ? jobsiteImages
+      : existingApprovedData.jobsiteImages || [],
   };
 
   const updatedOrder = await order.save();
 
   res.status(200).json(updatedOrder);
 });
-
 
 
 // ----------------------------
@@ -2064,8 +2074,12 @@ export const createDraftJobsiteOrder = asyncHandler(async (req, res) => {
       jobsiteAddress: jobsiteAddress || "",
       jobsiteLat: latNumber,
       jobsiteLng: lngNumber,
+      
       jobsiteImage: "",
-      jobsiteImageName: "",
+jobsiteImageName: "",
+jobsiteImages: [],
+
+      
     },
 
     requisitionSteps: {
