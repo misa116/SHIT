@@ -569,15 +569,52 @@ draftCompletedAt: {
 
     
    isDelivered: { type: Boolean, required: true, default: false },
-deliveredAt: { type: Date },
 
+   deliveredAt: { type: Date },
 
+// ✅ Morning dispatch assignment
+assignedDriver: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  default: null,
+},
 
+assignedDriverName: {
+  type: String,
+  default: "",
+},
 
+assignedDriverEmail: {
+  type: String,
+  default: "",
+},
 
+assignedDeliveryDate: {
+  type: String,
+  default: "",
+},
 
+routeStopOrder: {
+  type: Number,
+  default: 0,
+},
 
-    // ✅ Live delivery navigation status
+assignedBy: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "User",
+  default: null,
+},
+
+assignedByName: {
+  type: String,
+  default: "",
+},
+
+assignedAt: {
+  type: Date,
+},
+
+// ✅ Live delivery navigation status
 isBeingDelivered: {
   type: Boolean,
   default: false,
