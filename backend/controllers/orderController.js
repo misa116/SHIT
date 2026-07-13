@@ -1578,6 +1578,25 @@ export const deleteOrder = asyncHandler(async (req, res) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // controllers/orderController.js
 import Order from "../models/orderModal.js";
 import Product from "../models/productModal.js";
@@ -2090,6 +2109,80 @@ jobsiteImages: [],
   });
 
   res.status(201).json(draftOrder);
+});
+
+
+
+
+// ----------------------------
+// Assign order to driver for morning dispatch
+// Company department OR Admin only
+// ----------------------------
+export const assignOrderToDriver = asyncHandler(async (req, res) => {
+  const {
+    assignedDriver,
+    assignedDriverName,
+    assignedDriverEmail,
+    assignedDeliveryDate,
+    routeStopOrder,
+  } = req.body;
+
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    return res.status(404).json({ message: "Order not found" });
+  }
+
+  const userDept = String(
+    req.user?.dept || req.user?.clearance || ""
+  ).toLowerCase();
+
+  const canAssignDrivers = req.user?.isAdmin || userDept === "company";
+
+  if (!canAssignDrivers) {
+    return res.status(403).json({
+      message: "Only Company department or Admin users can assign drivers",
+    });
+  }
+
+  // If assignedDriver is empty, clear the assignment
+  if (!assignedDriver) {
+    order.assignedDriver = null;
+    order.assignedDriverName = "";
+    order.assignedDriverEmail = "";
+    order.assignedDeliveryDate = "";
+    order.routeStopOrder = 0;
+    order.assignedBy = null;
+    order.assignedByName = "";
+    order.assignedAt = undefined;
+
+    const updatedOrder = await order.save();
+
+    return res.status(200).json(updatedOrder);
+  }
+
+  if (!assignedDeliveryDate) {
+    return res.status(400).json({
+      message: "Assigned delivery date is required",
+    });
+  }
+
+  const stopNumber = Number(routeStopOrder || 0);
+
+  order.assignedDriver = assignedDriver;
+  order.assignedDriverName = assignedDriverName || "Assigned Driver";
+  order.assignedDriverEmail = assignedDriverEmail || "";
+  order.assignedDeliveryDate = assignedDeliveryDate;
+  order.routeStopOrder =
+    Number.isFinite(stopNumber) && stopNumber > 0 ? stopNumber : 0;
+
+  order.assignedBy = req.user._id;
+  order.assignedByName = req.user?.name || req.user?.email || "Unknown User";
+  order.assignedAt = new Date();
+
+  const updatedOrder = await order.save();
+
+  res.status(200).json(updatedOrder);
 });
 
 
