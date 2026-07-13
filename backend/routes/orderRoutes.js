@@ -333,6 +333,7 @@ clearOrderDeliveryNavigation,
 updateOrderDriverLocation,
 stopOrderDriverLocation,
 createDraftJobsiteOrder,
+  assignOrderToDriver,
   
 } from "../controllers/orderController.js";
 import { protect, isAdmin } from "../middlewares/authMiddleware.js";
@@ -381,6 +382,10 @@ router
 router
   .route("/:id/jobsite")
   .put(protect, updateOrderJobsite);
+
+router
+  .route("/:id/assign-driver")
+  .put(protect, assignOrderToDriver);
 
 router
   .route("/:id/delivery-start")
