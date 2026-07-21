@@ -1,4 +1,5 @@
-
+//wrk wrk wrk wrk wrk
+/*
 import User from "../models/userModal.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import generateToken from "../utils/generateToken.js";
@@ -101,6 +102,155 @@ export const editUserClr = asyncHandler(async (req, res) => {
     throw new Error("User not found");
   }
 });
+*/
+
+
+
+
+
+import User from "../models/userModal.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import generateToken from "../utils/generateToken.js";
+
+// @desc    Register new user
+// @route   POST /api/users/register
+// @access  Public
+export const registerUser = asyncHandler(async (req, res) => {
+  const { name, email, password, dept } = req.body;
+
+  const existUser = await User.findOne({ email });
+  if (existUser) {
+    res.status(403);
+    throw new Error("User already exists");
+  }
+
+  const user = await User.create({
+    name,
+    email,
+    password,
+    dept,
+  });
+
+  if (user) {
+    const token = generateToken(res, user._id);
+
+    res.status(201).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      dept: user.dept,
+      procurement: user.procurement,
+      isAdmin: user.isAdmin,
+      profilePic: user.profilePic || "",
+      token,
+    });
+  } else {
+    res.status(400);
+    throw new Error("Invalid user data, try again");
+  }
+});
+
+// @desc    Login user
+// @route   POST /api/users/login
+// @access  Public
+export const signIn = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if (user && (await user.comparePassword(password))) {
+    const token = generateToken(res, user._id);
+
+    res.json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      dept: user.dept,
+      isAdmin: user.isAdmin,
+      procurement: user.procurement,
+      profilePic: user.profilePic || "",
+      token,
+    });
+  } else {
+    res.status(401);
+    throw new Error("Invalid email or password");
+  }
+});
+
+// @desc    List users
+// @route   GET /api/users
+// @access  Private/Admin
+export const listUsers = asyncHandler(async (req, res) => {
+  const users = await User.find({});
+  res.json({ msg: "All users", count: users.length, users });
+});
+
+// @desc    Edit user clearance
+// @route   PUT /api/users/:id
+// @access  Private/Admin
+export const editUserClr = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
+
+  if (user) {
+    user.name = req.body.name || user.name;
+    user.dept = req.body.dept || user.dept;
+
+    if (req.body.hasOwnProperty("isAdmin")) {
+      user.isAdmin = req.body.isAdmin;
+    }
+
+    const updatedUser = await user.save();
+
+    res.json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      dept: updatedUser.dept,
+      isAdmin: updatedUser.isAdmin,
+      procurement: updatedUser.procurement,
+      profilePic: updatedUser.profilePic || "",
+    });
+  } else {
+    res.status(404);
+    throw new Error("User not found");
+  }
+});
+
+// @desc    Update logged-in user's profile picture
+// @route   PUT /api/users/profile-pic
+// @access  Private
+export const updateMyProfilePic = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  const { profilePic } = req.body;
+
+  if (typeof profilePic !== "string") {
+    res.status(400);
+    throw new Error("Profile picture is required.");
+  }
+
+  user.profilePic = profilePic;
+
+  const updatedUser = await user.save();
+
+  res.json({
+    _id: updatedUser._id,
+    name: updatedUser.name,
+    email: updatedUser.email,
+    dept: updatedUser.dept,
+    isAdmin: updatedUser.isAdmin,
+    procurement: updatedUser.procurement,
+    profilePic: updatedUser.profilePic || "",
+  });
+});
+
+
+
 
 
 
