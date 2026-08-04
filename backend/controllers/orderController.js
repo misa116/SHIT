@@ -1815,10 +1815,16 @@ jobsiteImages:
 // Get all orders (admin/procurement)
 // ----------------------------
 export const allOrders = asyncHandler(async (req, res) => {
-  const orders = await Order.find({})
-    .sort("-createdAt")
-    .populate("user", "name email dept");
 
+  
+ const orders = await Order.find({})
+  .sort("-createdAt")
+  .populate("user", "name email dept")
+  .populate("deliveryStartedBy", "name email profilePic");
+
+
+
+  
   res.status(200).json({ orders });
 });
 
