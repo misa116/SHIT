@@ -408,12 +408,23 @@ import orderRoutes from "./routes/orderRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import uomRoutes from "./routes/uomRoutes.js";
 
+import deliveryTripRoutes from "./routes/deliveryTripRoutes.js";
+
 // Error handling
 import { notFound, errorHandler } from "./utils/errorHandler.js";
 
 dotenv.config();
 
 const app = express();
+
+
+
+// ✅ CORS configuration for Netlify + local dev
+const allowedOrigins = [
+  "https://ubiquitous-bublanina-92e994.netlify.app",
+  "http://localhost:3000",
+];
+
 
 
 
@@ -480,11 +491,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// ✅ CORS configuration for Netlify + local dev
-const allowedOrigins = [
-  "https://ubiquitous-bublanina-92e994.netlify.app",
-  "http://localhost:3000",
-];
+
 
 
 
@@ -494,6 +501,9 @@ app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/uom", uomRoutes);
+
+app.use("/api/delivery", deliveryTripRoutes);
+
 
 // ✅ Root route
 app.get("/", (req, res) => {
