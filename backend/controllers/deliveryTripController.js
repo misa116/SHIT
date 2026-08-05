@@ -260,3 +260,250 @@ export const getDeliveryTrucks = asyncHandler(async (req, res) => {
   });
 });
 
+
+
+
+// ----------------------------
+// List delivery trips
+// ----------------------------
+export const getDeliveryTrips = asyncHandler(async (req, res) => {
+  const userDept = String(
+    req.user?.dept || req.user?.clearance || ""
+  ).toLowerCase();
+
+  const canManageTrips =
+    req.user?.isAdmin === true || userDept === "company";
+
+  const query = canManageTrips
+    ? {}
+    : {
+        $or: [
+          { primaryDriver: req.user._id },
+          { "crewMembers.user": req.user._id },
+        ],
+      };
+
+  const trips = await DeliveryTrip.find(query)
+    .sort({ deliveryDate: 1, createdAt: 1 })
+    .populate("truck", "name plateNumber description isActive")
+    .populate("primaryDriver", "name email dept profilePic")
+    .populate("crewMembers.user", "name email dept profilePic")
+    .populate({
+      path: "stops.order",
+      select:
+        "approvedData assignedDriverName assignedDeliveryDate routeStopOrder isBeingDelivered isDelivered deliveryStartedAt deliveryStartedBy deliveryStartedByName",
+    });
+
+  res.status(200).json({ trips });
+});
+
+// ----------------------------
+// Start one trip and all orders in it
+// ----------------------------
+export const startDeliveryTrip = asyncHandler(async (req, res) => {
+  const trip = await DeliveryTrip.findById(req.params.id);
+
+  if (!trip) {
+    return res.status(404).json({
+      message: "Delivery trip not found",
+    });
+  }
+
+  const requestUserId = String(req.user?._id || "");
+  const primaryDriverId = String(trip.primaryDriver || "");
+
+  const isBackupDriver = trip.crewMembers.some(
+    (member) =>
+      String(member.user || "") === requestUserId &&
+      member.role === "backup-driver"
+  );
+
+  const userDept = String(
+    req.user?.dept || req.user?.clearance || ""
+  ).toLowerCase();
+
+  const canManageTrips =
+    req.user?.isAdmin === true || userDept === "company";
+
+  if (
+    !canManageTrips &&
+    requestUserId !== primaryDriverId &&
+    !isBackupDriver
+  ) {
+    return res.status(403).json({
+      message:
+        "Only the primary driver, backup driver, Company, or Admin can start this trip",
+    });
+  }
+
+  if (trip.status === "active" || trip.status === "returning") {
+    return res.status(400).json({
+      message: "This trip has already started",
+    });
+  }
+
+  if (trip.status === "completed" || trip.status === "cancelled") {
+    return res.status(400).json({
+      message: "This trip cannot be started",
+    });
+  }
+
+  const conflictingTruckTrip = await DeliveryTrip.findOne({
+    truck: trip.truck,
+    status: { $in: ["active", "returning"] },
+    _id: { $ne: trip._id },
+  });
+
+  if (conflictingTruckTrip) {
+    return res.status(400).json({
+      message: "This truck is already being used on another active trip",
+    });
+  }
+
+  const conflictingDriverTrip = await DeliveryTrip.findOne({
+    primaryDriver: trip.primaryDriver,
+    status: { $in: ["active", "returning"] },
+    _id: { $ne: trip._id },
+  });
+
+  if (conflictingDriverTrip) {
+    return res.status(400).json({
+      message: "This driver is already on another active trip",
+    });
+  }
+
+  const now = new Date();
+
+  trip.status = "active";
+  trip.startedAt = now;
+  trip.startedBy = req.user._id;
+  trip.startedByName =
+    req.user?.name || req.user?.email || "Unknown User";
+
+  await trip.save();
+
+  const orderIds = trip.stops.map((stop) => stop.order);
+
+  await Order.updateMany(
+    {
+      _id: { $in: orderIds },
+    },
+    {
+      $set: {
+        isBeingDelivered: true,
+        deliveryStartedAt: now,
+        deliveryStartedBy: trip.primaryDriver,
+        deliveryStartedByName: trip.primaryDriverName,
+        assignedDriver: trip.primaryDriver,
+        assignedDriverName: trip.primaryDriverName,
+        assignedDriverEmail: trip.primaryDriverEmail,
+        assignedDeliveryDate: trip.deliveryDate,
+        deliveryTrip: trip._id,
+      },
+    }
+  );
+
+  const updatedTrip = await DeliveryTrip.findById(trip._id)
+    .populate("truck", "name plateNumber description isActive")
+    .populate("primaryDriver", "name email dept profilePic")
+    .populate("crewMembers.user", "name email dept profilePic")
+    .populate({
+      path: "stops.order",
+      select:
+        "approvedData assignedDriverName routeStopOrder isBeingDelivered isDelivered deliveryStartedAt deliveryStartedBy deliveryStartedByName",
+    });
+
+  res.status(200).json(updatedTrip);
+});
+
+// ----------------------------
+// Mark trip as returning
+// ----------------------------
+export const markTripReturning = asyncHandler(async (req, res) => {
+  const trip = await DeliveryTrip.findById(req.params.id);
+
+  if (!trip) {
+    return res.status(404).json({
+      message: "Delivery trip not found",
+    });
+  }
+
+  const requestUserId = String(req.user?._id || "");
+  const primaryDriverId = String(trip.primaryDriver || "");
+
+  const userDept = String(
+    req.user?.dept || req.user?.clearance || ""
+  ).toLowerCase();
+
+  const canManageTrips =
+    req.user?.isAdmin === true || userDept === "company";
+
+  if (!canManageTrips && requestUserId !== primaryDriverId) {
+    return res.status(403).json({
+      message:
+        "Only the primary driver, Company, or Admin can mark this trip as returning",
+    });
+  }
+
+  trip.status = "returning";
+  await trip.save();
+
+  res.status(200).json(trip);
+});
+
+// ----------------------------
+// Complete trip and release truck
+// ----------------------------
+export const completeDeliveryTrip = asyncHandler(async (req, res) => {
+  const trip = await DeliveryTrip.findById(req.params.id);
+
+  if (!trip) {
+    return res.status(404).json({
+      message: "Delivery trip not found",
+    });
+  }
+
+  const requestUserId = String(req.user?._id || "");
+  const primaryDriverId = String(trip.primaryDriver || "");
+
+  const userDept = String(
+    req.user?.dept || req.user?.clearance || ""
+  ).toLowerCase();
+
+  const canManageTrips =
+    req.user?.isAdmin === true || userDept === "company";
+
+  if (!canManageTrips && requestUserId !== primaryDriverId) {
+    return res.status(403).json({
+      message:
+        "Only the primary driver, Company, or Admin can complete this trip",
+    });
+  }
+
+  const now = new Date();
+
+  trip.status = "completed";
+  trip.returnedToWarehouseAt = now;
+  trip.completedAt = now;
+
+  await trip.save();
+
+  const orderIds = trip.stops.map((stop) => stop.order);
+
+  await Order.updateMany(
+    {
+      _id: { $in: orderIds },
+      isDelivered: true,
+    },
+    {
+      $set: {
+        isBeingDelivered: false,
+      },
+    }
+  );
+
+  res.status(200).json(trip);
+});
+
+
+
