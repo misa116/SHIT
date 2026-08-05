@@ -572,6 +572,24 @@ draftCompletedAt: {
 
    deliveredAt: { type: Date },
 
+
+
+
+// ✅ Delivery trip that can contain multiple orders/stops
+deliveryTrip: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "DeliveryTrip",
+  default: null,
+},
+
+deliveryTripStopOrder: {
+  type: Number,
+  default: 0,
+},
+
+
+
+    
 // ✅ Morning dispatch assignment
 assignedDriver: {
   type: mongoose.Schema.Types.ObjectId,
