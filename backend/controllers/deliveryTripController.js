@@ -194,3 +194,69 @@ export const createDeliveryTrip = asyncHandler(async (req, res) => {
 
   res.status(201).json(populatedTrip);
 });
+
+
+
+
+
+
+
+// ----------------------------
+// Create a delivery truck
+// Company department or Admin only
+// ----------------------------
+export const createDeliveryTruck = asyncHandler(async (req, res) => {
+  const { name, plateNumber = "", description = "" } = req.body;
+
+  const userDept = String(
+    req.user?.dept || req.user?.clearance || ""
+  ).toLowerCase();
+
+  const canManageTrips =
+    req.user?.isAdmin === true || userDept === "company";
+
+  if (!canManageTrips) {
+    return res.status(403).json({
+      message: "Only Company department or Admin users can create trucks",
+    });
+  }
+
+  if (!name?.trim()) {
+    return res.status(400).json({
+      message: "Truck name is required",
+    });
+  }
+
+  const existingTruck = await DeliveryTruck.findOne({
+    name: name.trim(),
+  });
+
+  if (existingTruck) {
+    return res.status(400).json({
+      message: "A truck with this name already exists",
+    });
+  }
+
+  const truck = await DeliveryTruck.create({
+    name: name.trim(),
+    plateNumber: plateNumber.trim(),
+    description: description.trim(),
+    isActive: true,
+  });
+
+  res.status(201).json(truck);
+});
+
+// ----------------------------
+// List all delivery trucks
+// ----------------------------
+export const getDeliveryTrucks = asyncHandler(async (req, res) => {
+  const trucks = await DeliveryTruck.find({}).sort({
+    name: 1,
+  });
+
+  res.status(200).json({
+    trucks,
+  });
+});
+
