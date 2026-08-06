@@ -6,6 +6,7 @@ import {
   getDeliveryTrucks,
   getDeliveryTrips,
   startDeliveryTrip,
+  updateDeliveryTripStopStatus,
   markTripReturning,
   completeDeliveryTrip,
 } from "../controllers/deliveryTripController.js";
@@ -27,6 +28,13 @@ router.get("/trucks", protect, getDeliveryTrucks);
 router.get("/trips", protect, getDeliveryTrips);
 
 router.post("/trips/:id/start", protect, startDeliveryTrip);
+
+router.put(
+  "/trips/:id/stops/:stopId/status",
+  protect,
+  updateDeliveryTripStopStatus
+);
+
 
 router.post("/trips/:id/returning", protect, markTripReturning);
 
