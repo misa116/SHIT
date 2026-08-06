@@ -416,6 +416,145 @@ export const startDeliveryTrip = asyncHandler(async (req, res) => {
   res.status(200).json(updatedTrip);
 });
 
+
+
+
+// ----------------------------
+// Update one delivery-trip stop
+// pending -> arrived -> completed
+// ----------------------------
+export const updateDeliveryTripStopStatus = asyncHandler(
+  async (req, res) => {
+    const trip = await DeliveryTrip.findById(req.params.id);
+
+    if (!trip) {
+      return res.status(404).json({
+        message: "Delivery trip not found",
+      });
+    }
+
+    const requestUserId = String(req.user?._id || "");
+    const primaryDriverId = String(trip.primaryDriver || "");
+
+    const isBackupDriver = trip.crewMembers.some(
+      (member) =>
+        String(member.user || "") === requestUserId &&
+        member.role === "backup-driver"
+    );
+
+    const userDept = String(
+      req.user?.dept || req.user?.clearance || ""
+    ).toLowerCase();
+
+    const canManageTrips =
+      req.user?.isAdmin === true || userDept === "company";
+
+    if (
+      !canManageTrips &&
+      requestUserId !== primaryDriverId &&
+      !isBackupDriver
+    ) {
+      return res.status(403).json({
+        message:
+          "Only the primary driver, backup driver, Company, or Admin can update this stop",
+      });
+    }
+
+    if (trip.status !== "active") {
+      return res.status(400).json({
+        message: "The trip must be active before updating stops",
+      });
+    }
+
+    const requestedStatus = String(
+      req.body?.status || ""
+    ).toLowerCase();
+
+    const allowedStatuses = [
+      "pending",
+      "arrived",
+      "completed",
+    ];
+
+    if (!allowedStatuses.includes(requestedStatus)) {
+      return res.status(400).json({
+        message:
+          "Stop status must be pending, arrived, or completed",
+      });
+    }
+
+    const stop = trip.stops.id(req.params.stopId);
+
+    if (!stop) {
+      return res.status(404).json({
+        message: "Delivery stop not found",
+      });
+    }
+
+    stop.status = requestedStatus;
+
+    if (requestedStatus === "arrived") {
+      stop.arrivedAt = new Date();
+    }
+
+    if (requestedStatus === "completed") {
+      stop.completedAt = new Date();
+
+      const nextStop = [...trip.stops]
+        .sort(
+          (a, b) =>
+            Number(a.stopOrder || 0) -
+            Number(b.stopOrder || 0)
+        )
+        .find(
+          (tripStop) =>
+            String(tripStop._id) !== String(stop._id) &&
+            String(tripStop.status || "pending").toLowerCase() !==
+              "completed"
+        );
+
+      if (nextStop) {
+        nextStop.status = "active";
+      }
+
+      await Order.findByIdAndUpdate(stop.order, {
+        $set: {
+          isDelivered: true,
+          deliveredAt: new Date(),
+          isBeingDelivered: false,
+        },
+      });
+    }
+
+    await trip.save();
+
+    const updatedTrip = await DeliveryTrip.findById(trip._id)
+      .populate(
+        "truck",
+        "name plateNumber description isActive"
+      )
+      .populate(
+        "primaryDriver",
+        "name email dept profilePic"
+      )
+      .populate(
+        "crewMembers.user",
+        "name email dept profilePic"
+      )
+      .populate({
+        path: "stops.order",
+        select:
+          "approvedData assignedDriverName assignedDeliveryDate routeStopOrder isBeingDelivered isDelivered deliveredAt",
+      });
+
+    res.status(200).json(updatedTrip);
+  }
+);
+
+
+
+
+
 // ----------------------------
 // Mark trip as returning
 // ----------------------------
