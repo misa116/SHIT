@@ -1972,13 +1972,15 @@ export const updateOrderDeliveryDate = asyncHandler(async (req, res) => {
 
 
 
-
 export const updateOrderJobsite = asyncHandler(async (req, res) => {
   const {
     jobsiteAddress,
     jobsiteLat,
     jobsiteLng,
     existingJobsiteImages,
+    existingDeliveryConfirmedImages,
+    existingJobsitePhotoAlbums,
+    uploadMetadata,
   } = req.body;
 
   const order = await Order.findById(req.params.id);
@@ -1991,73 +1993,175 @@ export const updateOrderJobsite = asyncHandler(async (req, res) => {
     req.user?.dept || req.user?.clearance || ""
   ).toLowerCase();
 
-  const canManageMapPins = req.user?.isAdmin || userDept === "company";
+  const canManageMapPins =
+    req.user?.isAdmin || userDept === "company";
 
   if (!canManageMapPins) {
     return res.status(403).json({
-      message: "Only Company department or Admin users can update jobsite pins",
+      message:
+        "Only Company department or Admin users can update jobsite pins",
     });
   }
 
   const latNumber =
-    jobsiteLat === "" || jobsiteLat === null || jobsiteLat === undefined
+    jobsiteLat === "" ||
+    jobsiteLat === null ||
+    jobsiteLat === undefined
       ? null
       : Number(jobsiteLat);
 
   const lngNumber =
-    jobsiteLng === "" || jobsiteLng === null || jobsiteLng === undefined
+    jobsiteLng === "" ||
+    jobsiteLng === null ||
+    jobsiteLng === undefined
       ? null
       : Number(jobsiteLng);
 
   if (
     latNumber !== null &&
-    (!Number.isFinite(latNumber) || latNumber < -90 || latNumber > 90)
+    (!Number.isFinite(latNumber) ||
+      latNumber < -90 ||
+      latNumber > 90)
   ) {
-    return res.status(400).json({ message: "Invalid latitude" });
+    return res.status(400).json({
+      message: "Invalid latitude",
+    });
   }
 
   if (
     lngNumber !== null &&
-    (!Number.isFinite(lngNumber) || lngNumber < -180 || lngNumber > 180)
+    (!Number.isFinite(lngNumber) ||
+      lngNumber < -180 ||
+      lngNumber > 180)
   ) {
-    return res.status(400).json({ message: "Invalid longitude" });
+    return res.status(400).json({
+      message: "Invalid longitude",
+    });
   }
 
   const existingApprovedData = order.approvedData?.toObject
     ? order.approvedData.toObject()
     : order.approvedData || {};
 
-  // Keep the Cloudinary image URLs that the frontend says should remain.
-  let keptImages = [];
+  const parseArray = (value, fallback = []) => {
+    if (!value) return fallback;
 
-  if (existingJobsiteImages) {
     try {
-      const parsed = JSON.parse(existingJobsiteImages);
-
-      if (Array.isArray(parsed)) {
-        keptImages = parsed;
-      }
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed : fallback;
     } catch (error) {
-      keptImages = [];
+      return fallback;
     }
-  } else {
-    keptImages = Array.isArray(existingApprovedData.jobsiteImages)
+  };
+
+  let keptJobsiteImages = parseArray(
+    existingJobsiteImages,
+    Array.isArray(existingApprovedData.jobsiteImages)
       ? existingApprovedData.jobsiteImages
-      : [];
-  }
+      : []
+  );
 
-  // New pictures uploaded through Multer -> Cloudinary
-  const newUploadedImages =
-    req.files && req.files.length > 0
-      ? req.files
-          .map((file) => file.path || file.secure_url)
-          .filter(Boolean)
-      : [];
+  let keptDeliveryImages = parseArray(
+    existingDeliveryConfirmedImages,
+    Array.isArray(existingApprovedData.deliveryConfirmedImages)
+      ? existingApprovedData.deliveryConfirmedImages
+      : []
+  );
 
-  const finalJobsiteImages = [
-    ...keptImages,
-    ...newUploadedImages,
-  ];
+  let keptAlbums = parseArray(
+    existingJobsitePhotoAlbums,
+    Array.isArray(existingApprovedData.jobsitePhotoAlbums)
+      ? existingApprovedData.jobsitePhotoAlbums
+      : []
+  );
+
+  const metadata = parseArray(uploadMetadata, []);
+
+  const uploadedImages = (req.files || [])
+    .map((file, index) => {
+      const meta = metadata[index] || {};
+
+      const src = file.path || file.secure_url || "";
+
+      if (!src) return null;
+
+      return {
+        src,
+        name:
+          meta.name ||
+          file.originalname ||
+          "jobsite-photo.jpg",
+
+        uploadedBy: req.user._id,
+        uploadedByName:
+          req.user?.name ||
+          req.user?.email ||
+          "User",
+
+        uploadedAt: new Date(),
+
+        albumKey: meta.albumKey || "jobsite",
+        albumTitle: meta.albumTitle || "",
+      };
+    })
+    .filter(Boolean);
+
+  uploadedImages.forEach((image) => {
+    if (image.albumKey === "jobsite") {
+      keptJobsiteImages.push({
+        src: image.src,
+        name: image.name,
+        uploadedBy: image.uploadedBy,
+        uploadedByName: image.uploadedByName,
+        uploadedAt: image.uploadedAt,
+      });
+
+      return;
+    }
+
+    if (image.albumKey === "deliveryConfirmed") {
+      keptDeliveryImages.push({
+        src: image.src,
+        name: image.name,
+        uploadedBy: image.uploadedBy,
+        uploadedByName: image.uploadedByName,
+        uploadedAt: image.uploadedAt,
+      });
+
+      return;
+    }
+
+    let album = keptAlbums.find(
+      (item) => item.key === image.albumKey
+    );
+
+    if (!album) {
+      album = {
+        key: image.albumKey,
+        title:
+          image.albumTitle ||
+          "Jobsite Album",
+        images: [],
+      };
+
+      keptAlbums.push(album);
+    }
+
+    if (!Array.isArray(album.images)) {
+      album.images = [];
+    }
+
+    album.images.push({
+      src: image.src,
+      name: image.name,
+      uploadedBy: image.uploadedBy,
+      uploadedByName: image.uploadedByName,
+      uploadedAt: image.uploadedAt,
+    });
+  });
+
+  const firstJobsiteImage =
+    keptJobsiteImages[0] || null;
 
   order.approvedData = {
     ...existingApprovedData,
@@ -2066,12 +2170,19 @@ export const updateOrderJobsite = asyncHandler(async (req, res) => {
     jobsiteLat: latNumber,
     jobsiteLng: lngNumber,
 
-    // Keep these old fields for compatibility with your existing Dashboard.
-    jobsiteImage: finalJobsiteImages[0] || "",
-    jobsiteImageName: "",
+    jobsiteImage:
+      firstJobsiteImage?.src || "",
 
-    // These are now Cloudinary URLs instead of base64 strings.
-    jobsiteImages: finalJobsiteImages,
+    jobsiteImageName:
+      firstJobsiteImage?.name || "",
+
+    jobsiteImages: keptJobsiteImages,
+
+    deliveryConfirmedImages:
+      keptDeliveryImages,
+
+    jobsitePhotoAlbums:
+      keptAlbums,
   };
 
   const updatedOrder = await order.save();
