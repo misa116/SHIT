@@ -219,6 +219,9 @@ export const editUserClr = asyncHandler(async (req, res) => {
 // @desc    Update logged-in user's profile picture
 // @route   PUT /api/users/profile-pic
 // @access  Private
+
+
+
 export const updateMyProfilePic = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
@@ -227,11 +230,19 @@ export const updateMyProfilePic = asyncHandler(async (req, res) => {
     throw new Error("User not found");
   }
 
-  const { profilePic } = req.body;
-
-  if (typeof profilePic !== "string") {
+  if (!req.file) {
     res.status(400);
     throw new Error("Profile picture is required.");
+  }
+
+  const profilePic =
+    req.file.path ||
+    req.file.secure_url ||
+    "";
+
+  if (!profilePic) {
+    res.status(400);
+    throw new Error("Could not save profile picture.");
   }
 
   user.profilePic = profilePic;
@@ -248,7 +259,6 @@ export const updateMyProfilePic = asyncHandler(async (req, res) => {
     profilePic: updatedUser.profilePic || "",
   });
 });
-
 
 
 
