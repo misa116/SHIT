@@ -1966,14 +1966,19 @@ export const updateOrderDeliveryDate = asyncHandler(async (req, res) => {
 });
 
 
+
+
+
+
+
+
+
 export const updateOrderJobsite = asyncHandler(async (req, res) => {
   const {
     jobsiteAddress,
     jobsiteLat,
     jobsiteLng,
-    jobsiteImage,
-    jobsiteImageName,
-    jobsiteImages,
+    existingJobsiteImages,
   } = req.body;
 
   const order = await Order.findById(req.params.id);
@@ -2022,31 +2027,63 @@ export const updateOrderJobsite = asyncHandler(async (req, res) => {
     ? order.approvedData.toObject()
     : order.approvedData || {};
 
+  // Keep the Cloudinary image URLs that the frontend says should remain.
+  let keptImages = [];
+
+  if (existingJobsiteImages) {
+    try {
+      const parsed = JSON.parse(existingJobsiteImages);
+
+      if (Array.isArray(parsed)) {
+        keptImages = parsed;
+      }
+    } catch (error) {
+      keptImages = [];
+    }
+  } else {
+    keptImages = Array.isArray(existingApprovedData.jobsiteImages)
+      ? existingApprovedData.jobsiteImages
+      : [];
+  }
+
+  // New pictures uploaded through Multer -> Cloudinary
+  const newUploadedImages =
+    req.files && req.files.length > 0
+      ? req.files
+          .map((file) => file.path || file.secure_url)
+          .filter(Boolean)
+      : [];
+
+  const finalJobsiteImages = [
+    ...keptImages,
+    ...newUploadedImages,
+  ];
+
   order.approvedData = {
     ...existingApprovedData,
+
     jobsiteAddress: jobsiteAddress || "",
     jobsiteLat: latNumber,
     jobsiteLng: lngNumber,
 
-    jobsiteImage:
-      jobsiteImage !== undefined
-        ? jobsiteImage
-        : existingApprovedData.jobsiteImage || "",
+    // Keep these old fields for compatibility with your existing Dashboard.
+    jobsiteImage: finalJobsiteImages[0] || "",
+    jobsiteImageName: "",
 
-    jobsiteImageName:
-      jobsiteImageName !== undefined
-        ? jobsiteImageName
-        : existingApprovedData.jobsiteImageName || "",
-
-    jobsiteImages: Array.isArray(jobsiteImages)
-      ? jobsiteImages
-      : existingApprovedData.jobsiteImages || [],
+    // These are now Cloudinary URLs instead of base64 strings.
+    jobsiteImages: finalJobsiteImages,
   };
 
   const updatedOrder = await order.save();
 
   res.status(200).json(updatedOrder);
 });
+
+
+
+
+
+
 
 
 // ----------------------------
