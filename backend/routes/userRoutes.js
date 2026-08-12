@@ -47,6 +47,9 @@ export default router;
 
 import express from "express";
 import { protect } from "../middlewares/authMiddleware.js";
+
+import profileUpload from "../middlewares/profileUploadMiddleware.js";
+
 import {
   signIn,
   registerUser,
@@ -78,7 +81,18 @@ router.get("/profile", protect, (req, res) => {
 
 // ✅ Update logged-in user's profile picture
 // IMPORTANT: keep this ABOVE router.put("/:id")
-router.put("/profile-pic", protect, updateMyProfilePic);
+
+
+
+router.put(
+  "/profile-pic",
+  protect,
+  profileUpload.single("profilePic"),
+  updateMyProfilePic
+);
+
+
+
 
 // Edit user clearance
 router.put("/:id", protect, editUserClr);
