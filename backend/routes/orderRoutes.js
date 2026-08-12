@@ -337,6 +337,8 @@ createDraftJobsiteOrder,
   
 } from "../controllers/orderController.js";
 import { protect, isAdmin } from "../middlewares/authMiddleware.js";
+import jobsiteUpload from "../middlewares/jobsiteUploadMiddleware.js";
+
 
 const router = express.Router();
 
@@ -381,7 +383,12 @@ router
 
 router
   .route("/:id/jobsite")
-  .put(protect, updateOrderJobsite);
+  .put(
+    protect,
+    jobsiteUpload.array("images", 10),
+    updateOrderJobsite
+  );
+
 
 router
   .route("/:id/assign-driver")
