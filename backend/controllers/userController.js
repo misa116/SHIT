@@ -261,7 +261,23 @@ export const updateMyProfilePic = asyncHandler(async (req, res) => {
 });
 
 
+// @desc    Delete user
+// @route   DELETE /api/users/:id
+// @access  Private/Admin
+export const deleteUser = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.params.id);
 
+  if (!user) {
+    res.status(404);
+    throw new Error("User not found");
+  }
+
+  await User.deleteOne({ _id: user._id });
+
+  res.json({
+    message: "User deleted successfully",
+  });
+});
 
 
 
