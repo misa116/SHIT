@@ -56,6 +56,8 @@ import {
   listUsers,
   editUserClr,
   updateMyProfilePic,
+deleteUser,
+ 
 } from "../controllers/userController.js";
 
 const router = express.Router();
@@ -96,5 +98,9 @@ router.put(
 
 // Edit user clearance
 router.put("/:id", protect, editUserClr);
+
+router.delete("/:id", protect, deleteUser);
+
+
 
 export default router;
