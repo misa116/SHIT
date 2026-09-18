@@ -1,7 +1,13 @@
+
 import express from "express";
 import nodemailer from "nodemailer";
 
 const router = express.Router();
+
+
+// ======================================================
+// WRITE-OFF EMAIL
+// ======================================================
 
 router.post("/send", async (req, res) => {
   try {
@@ -30,9 +36,16 @@ router.post("/send", async (req, res) => {
       from: process.env.EMAIL_USER,
       to: process.env.WRITEOFF_TO_EMAIL,
       subject: "Inventory Damage / Worthless Write-Off Sheet",
+
       html: `
         <h2>Inventory Damage / Worthless Write-Off Sheet</h2>
-        <table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;">
+
+        <table
+          border="1"
+          cellpadding="8"
+          cellspacing="0"
+          style="border-collapse:collapse;"
+        >
           <tr><td><b>Item</b></td><td>${item || ""}</td></tr>
           <tr><td><b>UOM</b></td><td>${uom || ""}</td></tr>
           <tr><td><b>Lot / PO #</b></td><td>${lotPoNumber || ""}</td></tr>
@@ -47,12 +60,82 @@ router.post("/send", async (req, res) => {
       `,
     });
 
-    res.status(200).json({ message: "Write-off sheet sent successfully." });
+    res.status(200).json({
+      message: "Write-off sheet sent successfully.",
+    });
   } catch (error) {
     res.status(500).json({
-      message: error.message || "Could not send write-off sheet.",
+      message:
+        error.message ||
+        "Could not send write-off sheet.",
     });
   }
 });
+
+
+// ======================================================
+// LOW STOCK / OUT OF STOCK EMAIL LIST
+// ======================================================
+
+router.post("/inventory-list", async (req, res) => {
+  try {
+    const {
+      email,
+      title,
+      html,
+    } = req.body;
+
+    if (!email || !email.trim()) {
+      return res.status(400).json({
+        message: "Email address is required.",
+      });
+    }
+
+    if (!html) {
+      return res.status(400).json({
+        message: "Inventory list is empty.",
+      });
+    }
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+
+      // User chooses who receives the list
+      to: email.trim(),
+
+      subject:
+        title === "LOW STOCK"
+          ? "Low Stock Inventory List"
+          : "Out of Stock Inventory List",
+
+      // Same list HTML created by your Dashboard
+      html,
+    });
+
+    res.status(200).json({
+      message: "Inventory list sent successfully.",
+    });
+  } catch (error) {
+    console.error(
+      "INVENTORY LIST EMAIL ERROR:",
+      error
+    );
+
+    res.status(500).json({
+      message:
+        error.message ||
+        "Could not send inventory list.",
+    });
+  }
+});
+
 
 export default router;
