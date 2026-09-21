@@ -435,8 +435,7 @@ router.post(
       await transporter.sendMail({
         from: process.env.EMAIL_USER,
 
-        to: process.env.WRITEOFF_TO_EMAIL,
-
+to: req.body.email?.trim(),
         subject:
           sheets.length === 1
             ? "Inventory Damage / Worthless Write-Off Sheet"
