@@ -211,6 +211,27 @@ router.post(
                 </tr>
 
 
+
+<tr>
+  <td
+    style="
+      border:1px solid #d1d5db;
+      background:#f3f4f6;
+      font-weight:700;
+    "
+  >
+    Description
+  </td>
+
+  <td style="border:1px solid #d1d5db;">
+    ${escapeWriteOffHtml(
+      sheet.description
+    )}
+  </td>
+</tr>
+
+
+
                 <tr>
                   <td
                     style="
@@ -268,23 +289,7 @@ router.post(
                 </tr>
 
 
-                <tr>
-                  <td
-                    style="
-                      border:1px solid #d1d5db;
-                      background:#f3f4f6;
-                      font-weight:700;
-                    "
-                  >
-                    Description
-                  </td>
-
-                  <td style="border:1px solid #d1d5db;">
-                    ${escapeWriteOffHtml(
-                      sheet.description
-                    )}
-                  </td>
-                </tr>
+           
 
 
                 <tr>
