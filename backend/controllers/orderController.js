@@ -1608,6 +1608,17 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 const adjustStockByRequisitionType = async (order) => {
   let requisitionType = "UNKNOWN";
 
+  const requisitionMethod = String(
+    order?.requisitionSteps?.method || ""
+  )
+    .trim()
+    .toUpperCase();
+
+  if (requisitionMethod === "QUICK CHECKOUT") {
+    return;
+  }
+
+  
   // Handle string or object for requisitionSteps
   if (order?.requisitionSteps) {
     if (typeof order.requisitionSteps === "string") {
