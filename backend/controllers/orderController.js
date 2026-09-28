@@ -2594,6 +2594,46 @@ export const updateBundleBuiltStatus = asyncHandler(async (req, res) => {
 
 
 
+
+// ----------------------------
+// Clear Orders Pulled from future Low Stock emails
+// Does NOT delete the actual orders
+// ----------------------------
+export const clearOrdersPulled = asyncHandler(async (req, res) => {
+  const result = await Order.updateMany(
+    {
+      ordersPulledCleared: { $ne: true },
+
+      $or: [
+        {
+          "requisitionSteps.method": {
+            $regex: /^QUICK CHECKOUT$/i,
+          },
+        },
+        {
+          "approvedData.lotNumber": {
+            $regex: /^QC-/i,
+          },
+        },
+      ],
+    },
+    {
+      $set: {
+        ordersPulledCleared: true,
+        ordersPulledClearedAt: new Date(),
+      },
+    }
+  );
+
+  res.status(200).json({
+    message: "Orders Pulled cleared successfully",
+    clearedCount: result.modifiedCount || 0,
+  });
+});
+
+
+
+
 // ----------------------------
 // Delete an order (admin/procurement)
 // ----------------------------
