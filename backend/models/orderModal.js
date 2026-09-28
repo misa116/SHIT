@@ -516,16 +516,43 @@ jobsiteImages: [
       paymentMethod: { type: String, default: "Cash" },
     },
 
-    requisitionSteps: {
-      type: {
-        type: String,
-        enum: ["FACTORY REQUISITION", "PURCHASE REQUISITION"],
-        required: true,
-      },
-    },
 
-    price: { type: Number, default: 0 },
 
+
+    
+requisitionSteps: {
+  type: {
+    type: String,
+    enum: ["FACTORY REQUISITION", "PURCHASE REQUISITION"],
+    required: true,
+  },
+
+  method: {
+    type: String,
+    default: "",
+  },
+},
+
+// ✅ Hide Quick Checkout order from future Orders Pulled emails
+ordersPulledCleared: {
+  type: Boolean,
+  default: false,
+},
+
+ordersPulledClearedAt: {
+  type: Date,
+  default: null,
+},
+
+price: { type: Number, default: 0 },
+
+
+
+
+
+
+
+    
     supplier: { type: String },
 
     // ✅ Order-level built status
