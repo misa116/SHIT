@@ -334,6 +334,7 @@ updateOrderDriverLocation,
 stopOrderDriverLocation,
 createDraftJobsiteOrder,
   assignOrderToDriver,
+  clearOrdersPulled,
   
 } from "../controllers/orderController.js";
 import { protect, isAdmin } from "../middlewares/authMiddleware.js";
@@ -352,6 +353,10 @@ router.post("/", protect, newOrder);
 router.post("/draft-jobsite", protect, createDraftJobsiteOrder);
 
 
+
+
+// Clear Quick Checkout orders from future Orders Pulled emails
+router.put("/clear-orders-pulled", protect, clearOrdersPulled);
 
 // Get all orders → admin OR procurement
 router.get("/all", protect, allOrders);
