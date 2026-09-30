@@ -46,7 +46,9 @@ export default router;
 
 
 import express from "express";
-import { protect } from "../middlewares/authMiddleware.js";
+
+
+import { protect, isAdmin } from "../middlewares/authMiddleware.js";
 
 import profileUpload from "../middlewares/profileUploadMiddleware.js";
 
@@ -66,9 +68,12 @@ const router = express.Router();
 router.post("/register", registerUser);
 router.post("/login", signIn);
 
-router.get("/", protect, listUsers);
+router.get("/", protect, isAdmin, listUsers);
+
 
 // ✅ Get logged-in user profile
+
+
 router.get("/profile", protect, (req, res) => {
   res.json({
     _id: req.user._id,
@@ -97,10 +102,12 @@ router.put(
 
 
 // Edit user clearance
-router.put("/:id", protect, editUserClr);
 
-router.delete("/:id", protect, deleteUser);
 
+router.put("/:id", protect, isAdmin, editUserClr);
+
+
+router.delete("/:id", protect, isAdmin, deleteUser);
 
 
 export default router;
