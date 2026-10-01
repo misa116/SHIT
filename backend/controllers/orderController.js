@@ -1358,6 +1358,123 @@ export const updateQuickCheckoutOrder = asyncHandler(
 );
 
 
+// ----------------------------
+// Delete a saved Quick Checkout order
+// Restores all pulled inventory first
+// ----------------------------
+export const deleteQuickCheckoutOrder = asyncHandler(
+  async (req, res) => {
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({
+        message: "Order not found",
+      });
+    }
+
+    const method = String(
+      order?.requisitionSteps?.method || ""
+    )
+      .trim()
+      .toUpperCase();
+
+    const lotNumber = String(
+      order?.approvedData?.lotNumber || ""
+    )
+      .trim()
+      .toUpperCase();
+
+    const isQuickCheckout =
+      method === "QUICK CHECKOUT" ||
+      lotNumber.startsWith("QC-");
+
+    if (!isQuickCheckout) {
+      return res.status(400).json({
+        message:
+          "Only Quick Checkout orders can be deleted here.",
+      });
+    }
+
+    // Combine quantities in case the same product
+    // appears more than once in the order
+    const qtyByProduct = new Map();
+
+    for (const item of order.orderItems || []) {
+      const productId = String(
+        item?.product?._id ||
+          item?.product ||
+          ""
+      );
+
+      if (!productId) continue;
+
+      const qty = Number(item?.qty || 0);
+
+      if (!Number.isFinite(qty) || qty <= 0) {
+        continue;
+      }
+
+      qtyByProduct.set(
+        productId,
+        (qtyByProduct.get(productId) || 0) +
+          qty
+      );
+    }
+
+    const productIds = [
+      ...qtyByProduct.keys(),
+    ];
+
+    const products = await Product.find({
+      _id: { $in: productIds },
+    });
+
+    const productById = new Map(
+      products.map((product) => [
+        String(product._id),
+        product,
+      ])
+    );
+
+    // Do not delete the order if one of its
+    // products can no longer be found.
+    for (const productId of productIds) {
+      if (!productById.has(productId)) {
+        return res.status(404).json({
+          message:
+            "A product from this order no longer exists. Inventory was not changed and the order was not deleted.",
+        });
+      }
+    }
+
+    // Restore inventory
+    for (const [
+      productId,
+      qty,
+    ] of qtyByProduct.entries()) {
+      const product =
+        productById.get(productId);
+
+      product.stock =
+        Number(product.stock || 0) +
+        Number(qty || 0);
+
+      await product.save({
+        validateBeforeSave: true,
+      });
+    }
+
+    // Delete the saved Quick Checkout order
+    await order.deleteOne();
+
+    res.status(200).json({
+      message:
+        "Quick Checkout order deleted and inventory restored successfully.",
+    });
+  }
+);
+
+
 
 // ----------------------------
 // Delete an order (admin/procurement)
