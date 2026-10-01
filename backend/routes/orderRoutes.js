@@ -22,8 +22,10 @@ stopOrderDriverLocation,
 createDraftJobsiteOrder,
   
 assignOrderToDriver,
+  
 clearOrdersPulled,
 updateQuickCheckoutOrder,
+deleteQuickCheckoutOrder,
   
 } from "../controllers/orderController.js";
 import { protect, isAdmin } from "../middlewares/authMiddleware.js";
@@ -52,6 +54,13 @@ router.put(
   "/:id/quick-checkout",
   protect,
   updateQuickCheckoutOrder
+);
+
+
+router.delete(
+  "/:id/quick-checkout",
+  protect,
+  deleteQuickCheckoutOrder
 );
 
 
