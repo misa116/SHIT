@@ -1284,12 +1284,26 @@ export const updateQuickCheckoutOrder = asyncHandler(
         jambType:
           item.jambType || "",
 
-        hand:
-          item.hand || "NA",
+        
+      hand:
+  item.hand || "NA",
 
-        locks:
-          Number(item.locks || 0),
+handCounts: {
+  lh: Math.max(
+    0,
+    Math.floor(Number(item.handCounts?.lh) || 0)
+  ),
+  rh: Math.max(
+    0,
+    Math.floor(Number(item.handCounts?.rh) || 0)
+  ),
+},
 
+locks:
+  Number(item.locks || 0),
+
+
+        
         threshold:
           item.threshold || "",
 
