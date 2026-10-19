@@ -98,8 +98,24 @@ export const newOrder = asyncHandler(async (req, res) => {
         price: x.price || product?.price || 0,
         bundleKey: x.bundleKey || "",
         bundleLabel: x.bundleLabel || "",
-        bundleItemOrder: x.bundleItemOrder || 0,
-        images:
+
+        
+bundleItemOrder: x.bundleItemOrder || 0,
+
+handCounts: {
+  lh: Math.max(
+    0,
+    Math.floor(Number(x.handCounts?.lh) || 0)
+  ),
+  rh: Math.max(
+    0,
+    Math.floor(Number(x.handCounts?.rh) || 0)
+  ),
+},
+
+images:
+        
+          
           Array.isArray(x.images) && x.images.length > 0
             ? x.images
             : Array.isArray(product?.images)
