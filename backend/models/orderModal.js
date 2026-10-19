@@ -376,11 +376,27 @@ const orderItemSchema = mongoose.Schema(
 
     category: { type: String },
 
-    bundleKey: { type: String, default: "" },
-    bundleLabel: { type: String, default: "" },
-    bundleItemOrder: { type: Number, default: 0 },
+    
+bundleKey: { type: String, default: "" },
+bundleLabel: { type: String, default: "" },
+bundleItemOrder: { type: Number, default: 0 },
 
-    images: [{ type: String }],
+handCounts: {
+  lh: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+  rh: {
+    type: Number,
+    default: 0,
+    min: 0,
+  },
+},
+
+images: [{ type: String }],
+
+    
     image: { type: String, default: "" },
 
     // ✅ Built status for products inside a bundle
