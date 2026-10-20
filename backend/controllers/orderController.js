@@ -107,9 +107,15 @@ handCounts: {
     0,
     Math.floor(Number(x.handCounts?.lh) || 0)
   ),
+
   rh: Math.max(
     0,
     Math.floor(Number(x.handCounts?.rh) || 0)
+  ),
+
+  bypass: Math.max(
+    0,
+    Math.floor(Number(x.handCounts?.bypass) || 0)
   ),
 },
 
@@ -1293,12 +1299,21 @@ handCounts: {
     0,
     Math.floor(Number(item.handCounts?.lh) || 0)
   ),
+
   rh: Math.max(
     0,
     Math.floor(Number(item.handCounts?.rh) || 0)
   ),
+
+  bypass: Math.max(
+    0,
+    Math.floor(Number(item.handCounts?.bypass) || 0)
+  ),
 },
 
+
+
+        
 locks:
   Number(item.locks || 0),
 
