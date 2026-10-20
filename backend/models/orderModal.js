@@ -385,12 +385,16 @@ handCounts: {
   lh: {
     type: Number,
     default: 0,
-    min: 0,
   },
+
   rh: {
     type: Number,
     default: 0,
-    min: 0,
+  },
+
+  bypass: {
+    type: Number,
+    default: 0,
   },
 },
 
