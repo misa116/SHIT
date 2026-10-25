@@ -95,9 +95,18 @@ export const newOrder = asyncHandler(async (req, res) => {
         category: x.category || product?.category || "Uncategorized",
         stock: x.stock ?? product?.stock ?? 0,
         supplier: x.supplier || product?.supplier || "",
+
+        
         price: x.price || product?.price || 0,
-        bundleKey: x.bundleKey || "",
-        bundleLabel: x.bundleLabel || "",
+
+uom: x.uom || product?.uom || "PCS",
+
+hinges: x.hinges || "",
+jambSize: x.jambSize || "",
+jambType: x.jambType || "",
+
+bundleKey: x.bundleKey || "",
+bundleLabel: x.bundleLabel || "",
 
         
 bundleItemOrder: x.bundleItemOrder || 0,
