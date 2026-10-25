@@ -374,10 +374,33 @@ const orderItemSchema = mongoose.Schema(
     qty: { type: Number, required: true },
     price: { type: Number, required: true },
 
-    category: { type: String },
+category: { type: String },
+
+uom: {
+  type: String,
+  default: "PCS",
+},
+
+hinges: {
+  type: String,
+  default: "",
+},
+
+jambSize: {
+  type: String,
+  default: "",
+},
+
+jambType: {
+  type: String,
+  default: "",
+},
+
+bundleKey: { type: String, default: "" },
+
+
 
     
-bundleKey: { type: String, default: "" },
 bundleLabel: { type: String, default: "" },
 bundleItemOrder: { type: Number, default: 0 },
 
