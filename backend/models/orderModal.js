@@ -378,7 +378,7 @@ category: { type: String },
 
 uom: {
   type: String,
-  default: "PCS",
+  default: "",
 },
 
 hinges: {
