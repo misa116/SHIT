@@ -126,6 +126,21 @@ handCounts: {
     0,
     Math.floor(Number(x.handCounts?.bypass) || 0)
   ),
+
+  ballCatch: Math.max(
+    0,
+    Math.floor(Number(x.handCounts?.ballCatch) || 0)
+  ),
+
+  woodT: Math.max(
+    0,
+    Math.floor(Number(x.handCounts?.woodT) || 0)
+  ),
+
+  barnDoor: Math.max(
+    0,
+    Math.floor(Number(x.handCounts?.barnDoor) || 0)
+  ),
 },
 
 images:
@@ -1317,6 +1332,21 @@ handCounts: {
   bypass: Math.max(
     0,
     Math.floor(Number(item.handCounts?.bypass) || 0)
+  ),
+
+  ballCatch: Math.max(
+    0,
+    Math.floor(Number(item.handCounts?.ballCatch) || 0)
+  ),
+
+  woodT: Math.max(
+    0,
+    Math.floor(Number(item.handCounts?.woodT) || 0)
+  ),
+
+  barnDoor: Math.max(
+    0,
+    Math.floor(Number(item.handCounts?.barnDoor) || 0)
   ),
 },
 
