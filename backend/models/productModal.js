@@ -39,6 +39,13 @@ const productSchema = mongoose.Schema(
       trim: true,
     },
 
+rowLabel: {
+  type: String,
+  default: "",
+  trim: true,
+},
+
+   
     // ✅ Suppliers (who we bought it from)
     suppliers: {
       type: [
