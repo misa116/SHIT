@@ -83,6 +83,25 @@ images: {
   type: [String],
   default: [],
 },
+
+// Image search fingerprints
+imageSearch: {
+  type: [
+    {
+      _id: false,
+      imageHash: String,
+      model: String,
+      embedding: {
+        type: [Number],
+        default: [],
+      },
+    },
+  ],
+  default: [],
+  select: false,
+},
+
+   
     lowStockThreshold: {
       type: Number,
       default: 0,
