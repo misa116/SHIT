@@ -203,6 +203,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 export const createProduct = asyncHandler(async (req, res) => {
   const { name } = req.body;
 
+delete req.body.imageSearch;
+  
   if (!name) {
     return res.status(400).json({ message: "Name is required" });
   }
@@ -253,6 +255,8 @@ export const getProduct = asyncHandler(async (req, res) => {
 export const updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
+delete req.body.imageSearch;
+  
   const product = await Product.findById(id);
 
   if (!product) {
@@ -286,6 +290,24 @@ export const updateProduct = asyncHandler(async (req, res) => {
   req.body.images = images;
   req.body.image = images[0] || ""; // fallback first image
 
+// Detect changes to product pictures
+const previousImages = [
+  ...new Set(
+    [product.image, ...(product.images || [])].filter(Boolean)
+  ),
+];
+
+const nextImages = [...new Set(images.filter(Boolean))];
+
+const imagesChanged =
+  previousImages.length !== nextImages.length ||
+  previousImages.some((img) => !nextImages.includes(img));
+
+if (imagesChanged) {
+  req.body.imageSearch = [];
+}
+
+  
   const updatedProduct = await Product.findByIdAndUpdate(id, req.body, {
     new: true,
     runValidators: true,
