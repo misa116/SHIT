@@ -5,17 +5,27 @@ import {
   allUOM,
   createUOM,
   deleteUOM,
+
   getUOM,
   updateUOM,
+  getUomLayout,
+  saveUomLayout,
 } from "../controllers/uomController.js";
+
 
 console.log("🟢 uomRoutes loaded");
 
 const router = express.Router();
 
 router.post("/", protect, isAdmin, createUOM);
+
 router.get("/", protect, allUOM);
 
+// UOM header organization
+router
+  .route("/layout")
+  .get(protect, getUomLayout)
+  .put(protect, isAdmin, saveUomLayout);
 router
   .route("/:id")
   .get(protect, getUOM)
